@@ -27,7 +27,7 @@ export const Header = () => {
             <div className="w-8 h-8 rounded-full bg-cog-purple flex items-center justify-center">
               <div className="w-4 h-4 rounded-full bg-white"></div>
             </div>
-            <span className="font-display text-xl font-bold">CogRecovery Hub</span>
+            <span className="font-display text-xl font-bold">Rewire</span>
           </Link>
         </div>
 

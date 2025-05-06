@@ -11,7 +11,7 @@ export const Footer = () => {
               <div className="w-6 h-6 rounded-full bg-cog-purple flex items-center justify-center">
                 <div className="w-3 h-3 rounded-full bg-white"></div>
               </div>
-              <span className="font-display font-bold">CogRecovery Hub</span>
+              <span className="font-display font-bold">Rewire</span>
             </Link>
             <p className="text-sm text-muted-foreground mt-2">
               Supporting brain injury recovery through cognitive exercises and tracking
@@ -31,7 +31,7 @@ export const Footer = () => {
               </Link>
             </div>
             <p className="text-xs text-muted-foreground mt-4">
-              © {new Date().getFullYear()} CogRecovery Hub. All rights reserved.
+              © {new Date().getFullYear()} Rewire. All rights reserved.
             </p>
           </div>
         </div>

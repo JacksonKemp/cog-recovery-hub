@@ -45,7 +45,7 @@ const Index = () => {
       <section className="py-16 bg-cog-soft-gray">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">How CogRecovery Hub Helps</h2>
+            <h2 className="text-3xl font-bold mb-4">How Rewire Helps</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Our comprehensive tools are designed to support your cognitive rehabilitation journey.
             </p>
@@ -101,7 +101,7 @@ const Index = () => {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-4">Ready to Start Your Recovery Journey?</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Join CogRecovery Hub today and take the first step towards cognitive rehabilitation.
+              Join Rewire today and take the first step towards cognitive rehabilitation.
             </p>
             <Button asChild size="lg" className="font-medium">
               <Link to="/dashboard">Get Started Now</Link>
