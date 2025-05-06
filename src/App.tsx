@@ -12,34 +12,32 @@ import MemoryMatch from "./pages/games/MemoryMatch";
 import TaskManager from "./pages/TaskManager";
 import SymptomTracker from "./pages/SymptomTracker";
 import NotFound from "./pages/NotFound";
-import React from "react";
-
-// Create a client
-const queryClient = new QueryClient();
+import * as React from "react";
 
 function App() {
+  // Create a client inside the component to ensure it's properly initialized
+  const [queryClient] = React.useState(() => new QueryClient());
+
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/games" element={<CognitiveGames />} />
-                <Route path="/games/memory-match" element={<MemoryMatch />} />
-                <Route path="/tasks" element={<TaskManager />} />
-                <Route path="/symptoms" element={<SymptomTracker />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Index />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/games" element={<CognitiveGames />} />
+              <Route path="/games/memory-match" element={<MemoryMatch />} />
+              <Route path="/tasks" element={<TaskManager />} />
+              <Route path="/symptoms" element={<SymptomTracker />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 
