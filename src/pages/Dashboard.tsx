@@ -1,184 +1,134 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Brain, CheckSquare, Clock, ArrowRight } from "lucide-react";
+import { Activity, Brain, CheckSquare, Clock, ArrowRight, Calendar, MessageSquare, Plus } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   // Mock data
-  const recentActivities = [
-    { id: 1, type: "game", name: "Memory Match", score: 85, date: "2 hours ago" },
-    { id: 2, type: "task", name: "Doctor Appointment", completed: true, date: "Yesterday" },
-    { id: 3, type: "symptom", name: "Headache", level: "Mild", date: "2 days ago" }
-  ];
-
+  const streakDays = 7;
+  const completedGames = 12;
+  
   const upcomingTasks = [
     { id: 1, name: "Take Medication", time: "Today, 8:00 PM" },
     { id: 2, name: "Physical Therapy", time: "Tomorrow, 10:00 AM" },
-    { id: 3, name: "Cognitive Exercise", time: "Tomorrow, 3:00 PM" }
+    { id: 3, name: "Memory Match Game", time: "Today, 3:00 PM", type: "exercise" }
   ];
-
-  const streakDays = 7;
-  const completedGames = 12;
-  const totalTasks = 15;
-  const completedTasks = 10;
+  
+  const hasLoggedSymptomsToday = false;
   
   return (
     <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-      
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Streak</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <Clock className="h-4 w-4 text-cog-purple mr-2" />
-              <span className="text-2xl font-bold">{streakDays} days</span>
+      {/* Streak and Games - Small Stats at Top */}
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold">Hello, Sam</h1>
+        <div className="flex gap-6">
+          <div className="flex items-center">
+            <Clock className="h-5 w-5 text-cog-purple mr-2" />
+            <div>
+              <span className="text-sm text-muted-foreground">Streak</span>
+              <p className="font-semibold">{streakDays} days</p>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Games Completed</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <Brain className="h-4 w-4 text-cog-purple mr-2" />
-              <span className="text-2xl font-bold">{completedGames}</span>
+          </div>
+          <div className="flex items-center">
+            <Brain className="h-5 w-5 text-cog-purple mr-2" />
+            <div>
+              <span className="text-sm text-muted-foreground">Games</span>
+              <p className="font-semibold">{completedGames} completed</p>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Task Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center mb-2">
-              <CheckSquare className="h-4 w-4 text-cog-purple mr-2" />
-              <span className="text-2xl font-bold">{completedTasks}/{totalTasks}</span>
-            </div>
-            <Progress value={(completedTasks / totalTasks) * 100} className="h-2" />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Symptom Trend</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <Activity className="h-4 w-4 text-cog-purple mr-2" />
-              <span className="text-2xl font-bold">Improving</span>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
       
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Activity */}
-        <Card className="lg:col-span-2">
+      {/* Main Content - Simplified Boxes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Symptom Trend */}
+        <Card className="hover:border-cog-purple transition-all duration-300">
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest games, tasks, and symptom logs</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-cog-purple" />
+              Symptom Trend
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentActivities.map((activity) => (
-                <div key={activity.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div className="flex items-center">
-                    {activity.type === "game" && <Brain className="h-5 w-5 text-cog-purple mr-3" />}
-                    {activity.type === "task" && <CheckSquare className="h-5 w-5 text-cog-purple mr-3" />}
-                    {activity.type === "symptom" && <Activity className="h-5 w-5 text-cog-purple mr-3" />}
-                    <div>
-                      <p className="font-medium">{activity.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {activity.type === "game" && `Score: ${activity.score}%`}
-                        {activity.type === "task" && (activity.completed ? "Completed" : "Pending")}
-                        {activity.type === "symptom" && `Level: ${activity.level}`}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{activity.date}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Upcoming Tasks */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Tasks</CardTitle>
-            <CardDescription>Tasks scheduled for today and tomorrow</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {upcomingTasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div>
-                    <p className="font-medium">{task.name}</p>
-                    <p className="text-sm text-muted-foreground">{task.time}</p>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    <CheckSquare className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      {/* Quick Access */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-        <Link to="/games">
-          <Card className="cursor-pointer hover:border-cog-purple transition-colors">
-            <CardContent className="flex items-center justify-between p-6">
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-cog-light-purple flex items-center justify-center mr-4">
-                  <Brain className="h-5 w-5 text-cog-purple" />
-                </div>
-                <h3 className="font-semibold">Cognitive Games</h3>
+            <div className="flex flex-col items-center justify-center py-6">
+              <div className="text-2xl font-bold text-cog-purple mb-2">Improving</div>
+              <div className="text-muted-foreground text-sm">
+                Your symptoms have decreased by 15% this week
               </div>
-              <ArrowRight className="h-5 w-5" />
-            </CardContent>
-          </Card>
-        </Link>
+            </div>
+          </CardContent>
+        </Card>
         
+        {/* Track Today's Symptoms */}
+        {!hasLoggedSymptomsToday && (
+          <Link to="/symptoms">
+            <Card className="bg-cog-soft-blue hover:border-cog-purple transition-all duration-300 h-full">
+              <CardContent className="flex flex-col items-center justify-center py-10">
+                <div className="w-12 h-12 rounded-full bg-cog-light-purple flex items-center justify-center mb-4">
+                  <Plus className="h-6 w-6 text-cog-purple" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Track Today's Symptoms</h3>
+                <p className="text-center text-muted-foreground text-sm">
+                  Keep track of how you're feeling today
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+        )}
+        
+        {/* Today's Schedule */}
         <Link to="/tasks">
-          <Card className="cursor-pointer hover:border-cog-purple transition-colors">
-            <CardContent className="flex items-center justify-between p-6">
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-cog-light-purple flex items-center justify-center mr-4">
-                  <CheckSquare className="h-5 w-5 text-cog-purple" />
-                </div>
-                <h3 className="font-semibold">Task Manager</h3>
+          <Card className="hover:border-cog-purple transition-all duration-300 h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-cog-purple" />
+                Today's Schedule
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {upcomingTasks.map((task) => (
+                  <div key={task.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center">
+                      {task.type === "exercise" ? (
+                        <Brain className="h-4 w-4 text-cog-purple mr-3" />
+                      ) : (
+                        <CheckSquare className="h-4 w-4 text-cog-purple mr-3" />
+                      )}
+                      <p className="font-medium">{task.name}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{task.time}</span>
+                  </div>
+                ))}
               </div>
-              <ArrowRight className="h-5 w-5" />
             </CardContent>
           </Card>
         </Link>
         
-        <Link to="/symptoms">
-          <Card className="cursor-pointer hover:border-cog-purple transition-colors">
-            <CardContent className="flex items-center justify-between p-6">
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-cog-light-purple flex items-center justify-center mr-4">
-                  <Activity className="h-5 w-5 text-cog-purple" />
-                </div>
-                <h3 className="font-semibold">Symptom Tracker</h3>
-              </div>
-              <ArrowRight className="h-5 w-5" />
-            </CardContent>
-          </Card>
-        </Link>
+        {/* Message from Practitioner */}
+        <Card className="hover:border-cog-purple transition-all duration-300">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-cog-purple" />
+              Message from Dr. Johnson
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="p-3 bg-muted/30 rounded-lg">
+              <p className="text-sm mb-2">
+                "Great progress with your memory exercises this week! Let's review your symptom trends in our next appointment."
+              </p>
+              <p className="text-xs text-muted-foreground">Received yesterday</p>
+            </div>
+            <div className="mt-4 flex justify-end">
+              <Button size="sm" variant="outline">
+                Reply
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
