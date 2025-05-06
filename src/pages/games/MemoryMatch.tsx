@@ -145,6 +145,16 @@ const MemoryMatch = () => {
     toast.success(`Game completed! Final Score: ${finalScore}`);
     
     try {
+      // Temporarily comment out Supabase save until we have the table created
+      console.log('Game results:', { 
+        game_name: 'Memory Match', 
+        score: finalScore,
+        difficulty,
+        time_taken: timeElapsed,
+        moves_made: moves
+      });
+      
+      /* We'll uncomment this once we've created the game_results table
       const { error } = await supabase
         .from('game_results')
         .insert([
@@ -158,6 +168,7 @@ const MemoryMatch = () => {
         ]);
       
       if (error) throw error;
+      */
     } catch (error) {
       console.error('Error saving game results:', error);
     }

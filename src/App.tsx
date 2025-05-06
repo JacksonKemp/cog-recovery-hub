@@ -12,29 +12,35 @@ import MemoryMatch from "./pages/games/MemoryMatch";
 import TaskManager from "./pages/TaskManager";
 import SymptomTracker from "./pages/SymptomTracker";
 import NotFound from "./pages/NotFound";
+import React from "react";
 
+// Create a client
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/games" element={<CognitiveGames />} />
-            <Route path="/games/memory-match" element={<MemoryMatch />} />
-            <Route path="/tasks" element={<TaskManager />} />
-            <Route path="/symptoms" element={<SymptomTracker />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/games" element={<CognitiveGames />} />
+                <Route path="/games/memory-match" element={<MemoryMatch />} />
+                <Route path="/tasks" element={<TaskManager />} />
+                <Route path="/symptoms" element={<SymptomTracker />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+}
 
 export default App;
