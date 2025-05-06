@@ -13,10 +13,12 @@ import {
   CheckCircle, 
   Circle, 
   Calendar as CalendarIcon, 
-  MoveHorizontal
+  MoveHorizontal,
+  Plus
 } from "lucide-react";
 import { format, startOfWeek, addDays, isSameDay } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 // Task type definition
 type Task = {
@@ -46,6 +48,9 @@ const TaskManager = () => {
   const [newDifficulty, setNewDifficulty] = useState<number>(5);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [draggingTask, setDraggingTask] = useState<Task | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [newTaskPriority, setNewTaskPriority] = useState<"low" | "medium" | "high">("medium");
+  const [newTaskCategory, setNewTaskCategory] = useState<string>("personal");
   
   // Sample tasks with dates as Date objects and difficulty scores
   const [tasks, setTasks] = useState<Task[]>([
@@ -103,13 +108,16 @@ const TaskManager = () => {
         title: newTask,
         completed: false,
         date: selectedDate,
-        category: "personal",
-        priority: "medium",
+        category: newTaskCategory,
+        priority: newTaskPriority,
         difficulty: newDifficulty,
       };
       setTasks([task, ...tasks]);
       setNewTask("");
       setNewDifficulty(5); // Reset to default
+      setNewTaskPriority("medium");
+      setNewTaskCategory("personal");
+      setDialogOpen(false);
     }
   };
 
@@ -169,6 +177,109 @@ const TaskManager = () => {
           <h1 className="text-3xl font-bold">Task Manager</h1>
           <p className="text-muted-foreground">Organize your daily activities</p>
         </div>
+        
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="mt-4 md:mt-0">
+              <Plus className="mr-2 h-4 w-4" /> Add New Task
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add New Task</DialogTitle>
+              <DialogDescription>
+                Create a new task for {format(selectedDate, 'MMMM d, yyyy')}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <label htmlFor="task" className="text-sm font-medium">
+                  Task description
+                </label>
+                <Input
+                  id="task"
+                  value={newTask}
+                  onChange={(e) => setNewTask(e.target.value)}
+                  placeholder="Enter task description..."
+                  className="col-span-3"
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">
+                  Priority
+                </label>
+                <div className="flex gap-2">
+                  {["low", "medium", "high"].map((priority) => (
+                    <Button
+                      key={priority}
+                      type="button"
+                      variant={newTaskPriority === priority ? "default" : "outline"}
+                      onClick={() => setNewTaskPriority(priority as "low" | "medium" | "high")}
+                      className={`flex-1 ${
+                        priority === "high" ? "hover:bg-red-100 hover:text-red-700" : 
+                        priority === "medium" ? "hover:bg-amber-100 hover:text-amber-700" : 
+                        "hover:bg-green-100 hover:text-green-700"
+                      }`}
+                    >
+                      {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">
+                  Category
+                </label>
+                <div className="flex gap-2">
+                  {["personal", "health", "rehabilitation"].map((category) => (
+                    <Button
+                      key={category}
+                      type="button"
+                      variant={newTaskCategory === category ? "default" : "outline"}
+                      onClick={() => setNewTaskCategory(category)}
+                      className="flex-1"
+                    >
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">
+                  Difficulty (1-10): {newDifficulty}
+                </label>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={newDifficulty}
+                  onChange={(e) => setNewDifficulty(parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">
+                  Date
+                </label>
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => date && setSelectedDate(date)}
+                  className="rounded-md border"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" onClick={handleAddTask}>
+                Add Task
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <ResizablePanelGroup 
@@ -208,41 +319,6 @@ const TaskManager = () => {
             </div>
 
             <div className="p-4">
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle>Add New Task</CardTitle>
-                  <CardDescription>Create a new task for {format(selectedDate, 'MMMM d, yyyy')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col gap-3">
-                    <Input
-                      value={newTask}
-                      onChange={(e) => setNewTask(e.target.value)}
-                      placeholder="Enter task description..."
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleAddTask();
-                      }}
-                    />
-                    <div>
-                      <label className="block text-sm font-medium text-muted-foreground mb-1">
-                        Difficulty (1-10): {newDifficulty}
-                      </label>
-                      <input
-                        type="range"
-                        min="1"
-                        max="10"
-                        value={newDifficulty}
-                        onChange={(e) => setNewDifficulty(parseInt(e.target.value))}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                      />
-                    </div>
-                    <Button onClick={handleAddTask} className="w-full md:w-auto">
-                      Add Task
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
               <TabsContent value="day" className="mt-0 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-semibold">{format(selectedDate, 'MMMM d, yyyy')}</h2>
