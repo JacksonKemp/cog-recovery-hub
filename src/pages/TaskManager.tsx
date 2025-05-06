@@ -4,61 +4,95 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckSquare, Clock, Calendar, Plus, Trash2, CheckCircle, Circle } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { 
+  CheckSquare, 
+  Trash2, 
+  CheckCircle, 
+  Circle, 
+  Calendar as CalendarIcon, 
+  MoveHorizontal
+} from "lucide-react";
+import { format, startOfWeek, addDays, isSameDay } from "date-fns";
+import { cn } from "@/lib/utils";
 
 // Task type definition
 type Task = {
   id: string;
   title: string;
   completed: boolean;
-  date: string;
+  date: Date;
   category: string;
   priority: "low" | "medium" | "high";
+  difficulty: number; // 1-10 score
+};
+
+// Helper function to get day name
+const getDayName = (date: Date) => {
+  return format(date, 'EEEE');
+};
+
+// Helper to calculate total difficulty for a day
+const calculateDayDifficulty = (tasks: Task[], date: Date) => {
+  return tasks
+    .filter(task => isSameDay(task.date, date) && !task.completed)
+    .reduce((sum, task) => sum + task.difficulty, 0);
 };
 
 const TaskManager = () => {
   const [newTask, setNewTask] = useState("");
-  // Sample tasks
+  const [newDifficulty, setNewDifficulty] = useState<number>(5);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [draggingTask, setDraggingTask] = useState<Task | null>(null);
+  
+  // Sample tasks with dates as Date objects and difficulty scores
   const [tasks, setTasks] = useState<Task[]>([
     { 
       id: "1", 
       title: "Take medication", 
       completed: false, 
-      date: "Today, 8:00 PM", 
+      date: new Date(), 
       category: "health",
-      priority: "high" 
+      priority: "high",
+      difficulty: 2
     },
     { 
       id: "2", 
       title: "Doctor appointment", 
       completed: false, 
-      date: "Tomorrow, 2:00 PM", 
+      date: addDays(new Date(), 1), 
       category: "health",
-      priority: "medium" 
+      priority: "medium",
+      difficulty: 5
     },
     { 
       id: "3", 
       title: "Complete memory exercises", 
       completed: true, 
-      date: "Today", 
+      date: new Date(), 
       category: "rehabilitation",
-      priority: "medium" 
+      priority: "medium",
+      difficulty: 7
     },
     { 
       id: "4", 
       title: "Call family member", 
       completed: false, 
-      date: "Today", 
+      date: new Date(), 
       category: "personal",
-      priority: "low" 
+      priority: "low",
+      difficulty: 3
     },
     { 
       id: "5", 
       title: "Grocery shopping", 
       completed: false, 
-      date: "This week", 
+      date: addDays(new Date(), 3), 
       category: "personal",
-      priority: "medium" 
+      priority: "medium",
+      difficulty: 6
     },
   ]);
 
@@ -68,12 +102,14 @@ const TaskManager = () => {
         id: Date.now().toString(),
         title: newTask,
         completed: false,
-        date: "Today",
+        date: selectedDate,
         category: "personal",
         priority: "medium",
+        difficulty: newDifficulty,
       };
       setTasks([task, ...tasks]);
       setNewTask("");
+      setNewDifficulty(5); // Reset to default
     }
   };
 
@@ -89,8 +125,42 @@ const TaskManager = () => {
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  const pendingTasks = tasks.filter((task) => !task.completed);
-  const completedTasks = tasks.filter((task) => task.completed);
+  // Handle drag start
+  const handleDragStart = (task: Task) => {
+    setDraggingTask(task);
+  };
+
+  // Handle drop on a day
+  const handleDrop = (date: Date) => {
+    if (draggingTask) {
+      setTasks(tasks.map(task => 
+        task.id === draggingTask.id 
+          ? { ...task, date } 
+          : task
+      ));
+      setDraggingTask(null);
+    }
+  };
+
+  // Get week dates starting from today
+  const getWeekDates = () => {
+    const today = new Date();
+    const dates = [];
+    for (let i = 0; i < 7; i++) {
+      dates.push(addDays(today, i));
+    }
+    return dates;
+  };
+
+  const weekDates = getWeekDates();
+  
+  // Get today's tasks
+  const todayTasks = tasks.filter(task => 
+    isSameDay(task.date, selectedDate)
+  );
+
+  const pendingTasks = todayTasks.filter(task => !task.completed);
+  const completedTasks = todayTasks.filter(task => task.completed);
 
   return (
     <div className="container py-8">
@@ -101,128 +171,230 @@ const TaskManager = () => {
         </div>
       </div>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Add New Task</CardTitle>
-          <CardDescription>Create a new task to keep track of your activities</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-3">
-            <Input
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              placeholder="Enter task description..."
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleAddTask();
-              }}
+      <ResizablePanelGroup 
+        direction="horizontal" 
+        className="min-h-[500px] rounded-lg border"
+      >
+        <ResizablePanel defaultSize={25}>
+          <div className="p-4 h-full">
+            <div className="mb-4">
+              <h2 className="text-lg font-medium">Calendar</h2>
+              <p className="text-sm text-muted-foreground">Select a day to view tasks</p>
+            </div>
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => date && setSelectedDate(date)}
+              className="rounded-md border"
             />
-            <Button onClick={handleAddTask}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add
-            </Button>
           </div>
-        </CardContent>
-      </Card>
-
-      <Tabs defaultValue="pending" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="pending">
-            <Clock className="h-4 w-4 mr-2" />
-            Pending ({pendingTasks.length})
-          </TabsTrigger>
-          <TabsTrigger value="completed">
-            <CheckCircle className="h-4 w-4 mr-2" />
-            Completed ({completedTasks.length})
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="pending" className="mt-0">
-          {pendingTasks.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              No pending tasks. Add a new task to get started!
+        </ResizablePanel>
+        
+        <ResizableHandle withHandle />
+        
+        <ResizablePanel defaultSize={75}>
+          <Tabs defaultValue="day" className="w-full h-full">
+            <div className="p-4 border-b">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="day">
+                  <CalendarIcon className="h-4 w-4 mr-2" />
+                  Day View
+                </TabsTrigger>
+                <TabsTrigger value="week">
+                  <MoveHorizontal className="h-4 w-4 mr-2" />
+                  Week View
+                </TabsTrigger>
+              </TabsList>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {pendingTasks.map((task) => (
-                <Card key={task.id}>
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <button
-                        className="mr-3 text-muted-foreground hover:text-foreground"
-                        onClick={() => toggleTaskCompletion(task.id)}
-                      >
-                        <Circle className="h-5 w-5" />
-                      </button>
-                      <div>
-                        <p className="font-medium">{task.title}</p>
-                        <div className="flex items-center text-xs text-muted-foreground mt-1">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span>{task.date}</span>
-                          
-                          <span className="mx-2">•</span>
-                          
-                          <div className={`
-                            px-1.5 py-0.5 rounded text-xs
-                            ${task.priority === "high" ? "bg-red-100 text-red-700" : 
-                              task.priority === "medium" ? "bg-amber-100 text-amber-700" : 
-                              "bg-green-100 text-green-700"}
-                          `}>
-                            {task.priority}
+
+            <div className="p-4">
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Add New Task</CardTitle>
+                  <CardDescription>Create a new task for {format(selectedDate, 'MMMM d, yyyy')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col gap-3">
+                    <Input
+                      value={newTask}
+                      onChange={(e) => setNewTask(e.target.value)}
+                      placeholder="Enter task description..."
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleAddTask();
+                      }}
+                    />
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">
+                        Difficulty (1-10): {newDifficulty}
+                      </label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={newDifficulty}
+                        onChange={(e) => setNewDifficulty(parseInt(e.target.value))}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
+                    <Button onClick={handleAddTask} className="w-full md:w-auto">
+                      Add Task
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <TabsContent value="day" className="mt-0 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-semibold">{format(selectedDate, 'MMMM d, yyyy')}</h2>
+                  <div className="bg-muted px-3 py-1 rounded-full text-sm">
+                    Total Difficulty: {calculateDayDifficulty(tasks, selectedDate)}
+                  </div>
+                </div>
+
+                {pendingTasks.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    No pending tasks for today. Add a new task to get started!
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {pendingTasks.map((task) => (
+                      <Card key={task.id}>
+                        <CardContent className="p-4 flex items-center justify-between">
+                          <div className="flex items-center">
+                            <button
+                              className="mr-3 text-muted-foreground hover:text-foreground"
+                              onClick={() => toggleTaskCompletion(task.id)}
+                            >
+                              <Circle className="h-5 w-5" />
+                            </button>
+                            <div>
+                              <p className="font-medium">{task.title}</p>
+                              <div className="flex items-center text-xs text-muted-foreground mt-1">
+                                <div className={`
+                                  px-1.5 py-0.5 rounded text-xs mr-2
+                                  ${task.priority === "high" ? "bg-red-100 text-red-700" : 
+                                    task.priority === "medium" ? "bg-amber-100 text-amber-700" : 
+                                    "bg-green-100 text-green-700"}
+                                `}>
+                                  {task.priority}
+                                </div>
+                                
+                                <div className="px-1.5 py-0.5 rounded text-xs bg-cog-light-purple text-cog-purple">
+                                  Difficulty: {task.difficulty}
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      className="text-muted-foreground hover:text-destructive"
-                      onClick={() => deleteTask(task.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
+                          <button
+                            className="text-muted-foreground hover:text-destructive"
+                            onClick={() => deleteTask(task.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
 
-        <TabsContent value="completed" className="mt-0">
-          {completedTasks.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              No completed tasks yet.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {completedTasks.map((task) => (
-                <Card key={task.id} className="bg-muted/40">
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <button
-                        className="mr-3 text-cog-purple"
-                        onClick={() => toggleTaskCompletion(task.id)}
+                {completedTasks.length > 0 && (
+                  <>
+                    <h3 className="text-lg font-medium mt-8 mb-3">Completed Tasks</h3>
+                    <div className="space-y-3">
+                      {completedTasks.map((task) => (
+                        <Card key={task.id} className="bg-muted/40">
+                          <CardContent className="p-4 flex items-center justify-between">
+                            <div className="flex items-center">
+                              <button
+                                className="mr-3 text-cog-purple"
+                                onClick={() => toggleTaskCompletion(task.id)}
+                              >
+                                <CheckCircle className="h-5 w-5" fill="currentColor" />
+                              </button>
+                              <div>
+                                <p className="font-medium line-through">{task.title}</p>
+                                <div className="flex items-center text-xs text-muted-foreground mt-1">
+                                  <div className="px-1.5 py-0.5 rounded text-xs mr-2 opacity-50">
+                                    {task.priority}
+                                  </div>
+                                  <div className="px-1.5 py-0.5 rounded text-xs opacity-50">
+                                    Difficulty: {task.difficulty}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              className="text-muted-foreground hover:text-destructive"
+                              onClick={() => deleteTask(task.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </TabsContent>
+
+              <TabsContent value="week" className="mt-0">
+                <h2 className="text-2xl font-semibold mb-4">Week View</h2>
+                <p className="text-sm text-muted-foreground mb-4">Drag and drop tasks to balance your week</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
+                  {weekDates.map((date) => {
+                    const dayTasks = tasks.filter(task => 
+                      isSameDay(task.date, date) && !task.completed
+                    );
+                    const dayDifficulty = calculateDayDifficulty(tasks, date);
+                    
+                    return (
+                      <div 
+                        key={format(date, 'yyyy-MM-dd')}
+                        className={cn(
+                          "border rounded-md p-2 min-h-[150px]",
+                          isSameDay(date, new Date()) && "bg-muted/30 border-primary",
+                        )}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => handleDrop(date)}
                       >
-                        <CheckCircle className="h-5 w-5" fill="currentColor" />
-                      </button>
-                      <div>
-                        <p className="font-medium line-through">{task.title}</p>
-                        <div className="flex items-center text-xs text-muted-foreground mt-1">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span>{task.date}</span>
+                        <div className="font-medium text-sm mb-1">
+                          {format(date, 'EEE, MMM d')}
+                        </div>
+                        
+                        <div className={cn(
+                          "text-xs px-2 py-0.5 rounded-full mb-2 inline-block",
+                          dayDifficulty > 20 ? "bg-red-100 text-red-700" :
+                          dayDifficulty > 10 ? "bg-amber-100 text-amber-700" :
+                          "bg-green-100 text-green-700"
+                        )}>
+                          Difficulty: {dayDifficulty}
+                        </div>
+                        
+                        <div className="space-y-1">
+                          {dayTasks.map((task) => (
+                            <div
+                              key={task.id}
+                              draggable
+                              onDragStart={() => handleDragStart(task)}
+                              className="text-xs p-1 bg-card border rounded-sm cursor-move flex items-center justify-between group"
+                            >
+                              <div className="truncate">{task.title}</div>
+                              <span className="bg-cog-light-purple text-cog-purple px-1 rounded text-xxs">
+                                {task.difficulty}
+                              </span>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    </div>
-                    <button
-                      className="text-muted-foreground hover:text-destructive"
-                      onClick={() => deleteTask(task.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </CardContent>
-                </Card>
-              ))}
+                    );
+                  })}
+                </div>
+              </TabsContent>
             </div>
-          )}
-        </TabsContent>
-      </Tabs>
+          </Tabs>
+        </ResizablePanel>
+      </ResizablePanelGroup>
 
       <div className="mt-8 p-6 rounded-lg bg-cog-light-purple">
         <div className="flex flex-col md:flex-row items-center gap-4">
@@ -230,10 +402,11 @@ const TaskManager = () => {
             <CheckSquare className="h-6 w-6 text-cog-purple" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold">Task Completion Tips</h3>
+            <h3 className="text-xl font-semibold">Task Management Tips</h3>
             <p className="text-muted-foreground max-w-xl">
-              Break down large tasks into smaller steps. Set reminders for important tasks. 
-              Celebrate your progress when you complete tasks!
+              Balance your tasks throughout the week to avoid overwhelming days. 
+              Use the difficulty scores to maintain a sustainable daily workload.
+              Aim for a total difficulty score below 15 per day for best results.
             </p>
           </div>
         </div>
