@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Brain, Star, Clock, Timer } from "lucide-react";
@@ -14,7 +14,8 @@ const games = {
       difficulty: "Easy",
       timeToComplete: "5 min",
       category: "Memory",
-      icon: <Brain className="h-5 w-5" />
+      icon: <Brain className="h-5 w-5" />,
+      path: "/games/memory-match"
     },
     {
       id: "sequence-recall",
@@ -102,7 +103,13 @@ const GameCard = ({ game }: { game: any }) => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button className="w-full">Play Game</Button>
+        <Button className="w-full" asChild={!!game.path}>
+          {game.path ? (
+            <Link to={game.path}>Play Game</Link>
+          ) : (
+            "Coming Soon"
+          )}
+        </Button>
       </CardFooter>
     </Card>
   );
