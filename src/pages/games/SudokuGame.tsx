@@ -12,7 +12,7 @@ const SudokuGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            Fill in the 9×9 grid so that each column, row, and 3×3 subgrid contains all digits from 1 to 9.
+            Fill the grid with numbers 1-9.
           </p>
           <Button onClick={() => setGameState('playing')} className="mb-4">
             Start Game
@@ -27,7 +27,7 @@ const SudokuGame = () => {
         <div className="text-center">
           <p className="text-xl mb-6">Game Coming Soon!</p>
           <Button onClick={() => setGameState('intro')}>
-            Back to Instructions
+            Back
           </Button>
         </div>
       )}

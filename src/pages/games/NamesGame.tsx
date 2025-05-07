@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import GameLayout from "@/components/games/GameLayout";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Play, Timer, Check, X } from "lucide-react";
+import { Play, Check, X } from "lucide-react";
 
 type Difficulty = "easy" | "medium" | "hard";
 type GameState = "intro" | "memorize" | "wait" | "recall" | "result";
@@ -149,12 +150,12 @@ const NamesGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            Memorize the names shown briefly, then recall them correctly after a waiting period.
+            Memorize names, then recall them correctly.
           </p>
           
           <div className="flex flex-col items-center gap-6">
             <div className="flex items-center gap-2">
-              <span>Select difficulty:</span>
+              <span>Difficulty:</span>
               <Select value={difficulty} onValueChange={handleDifficultyChange}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
@@ -177,8 +178,7 @@ const NamesGame = () => {
       
       {gameState === "memorize" && (
         <div className="text-center">
-          <h2 className="text-xl mb-2">Memorize these names</h2>
-          <p className="text-muted-foreground mb-6">Time left: {timeLeft} seconds</p>
+          <h2 className="text-xl mb-6">Memorize these names</h2>
           
           <div className="grid gap-4 mb-6 max-w-md mx-auto">
             {people.map((person) => (
@@ -197,24 +197,19 @@ const NamesGame = () => {
               </Card>
             ))}
           </div>
-          
-          <div className="flex justify-center">
-            <Timer className="h-6 w-6 animate-pulse text-primary" />
-          </div>
         </div>
       )}
       
       {gameState === "wait" && (
         <div className="text-center">
-          <h2 className="text-xl mb-6">Wait for {timeLeft} seconds...</h2>
-          <p className="text-4xl mb-8">🧠</p>
-          <p className="text-muted-foreground">Try to keep the names in your memory</p>
+          <h2 className="text-xl mb-6">Please wait...</h2>
+          <p className="text-muted-foreground">Keep the names in your memory</p>
         </div>
       )}
       
       {gameState === "recall" && (
         <div className="text-center">
-          <h2 className="text-xl mb-6">Enter the names you memorized</h2>
+          <h2 className="text-xl mb-6">Enter the names</h2>
           
           <div className="grid gap-6 mb-8 max-w-md mx-auto">
             {people.map((person) => (
@@ -326,7 +321,7 @@ const NamesGame = () => {
           
           <div className="flex justify-center gap-4">
             <Button variant="outline" onClick={() => setGameState("intro")}>
-              Back to Instructions
+              Back
             </Button>
             <Button onClick={startGame}>
               Play Again

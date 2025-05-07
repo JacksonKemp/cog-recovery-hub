@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import GameLayout from "@/components/games/GameLayout";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Play, Timer, Check, X } from "lucide-react";
+import { Play, Check, X } from "lucide-react";
 
 type Difficulty = "easy" | "medium" | "hard";
 type GameState = "intro" | "memorize" | "wait" | "recall" | "result";
@@ -103,12 +104,12 @@ const NumbersGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            Memorize the sequence of numbers shown briefly, then enter them back in the correct order.
+            Memorize numbers, then recall them in order.
           </p>
           
           <div className="flex flex-col items-center gap-6">
             <div className="flex items-center gap-2">
-              <span>Select difficulty:</span>
+              <span>Difficulty:</span>
               <Select value={difficulty} onValueChange={handleDifficultyChange}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
@@ -131,32 +132,26 @@ const NumbersGame = () => {
       
       {gameState === "memorize" && (
         <div className="text-center">
-          <h2 className="text-xl mb-2">Memorize these numbers</h2>
-          <p className="text-muted-foreground mb-6">Time left: {timeLeft} seconds</p>
+          <h2 className="text-xl mb-6">Memorize these numbers</h2>
           
           <Card className="mb-6">
             <CardContent className="p-10">
               <div className="text-4xl font-bold tracking-wider">{numbers}</div>
             </CardContent>
           </Card>
-          
-          <div className="flex justify-center">
-            <Timer className="h-6 w-6 animate-pulse text-primary" />
-          </div>
         </div>
       )}
       
       {gameState === "wait" && (
         <div className="text-center">
-          <h2 className="text-xl mb-6">Wait for {timeLeft} seconds...</h2>
-          <p className="text-4xl mb-8">🧠</p>
-          <p className="text-muted-foreground">Try to keep the number sequence in your memory</p>
+          <h2 className="text-xl mb-6">Please wait...</h2>
+          <p className="text-muted-foreground">Keep the number sequence in your memory</p>
         </div>
       )}
       
       {gameState === "recall" && (
         <div className="text-center">
-          <h2 className="text-xl mb-6">Enter the numbers you memorized</h2>
+          <h2 className="text-xl mb-6">Enter the numbers</h2>
           
           <div className="mb-8">
             <input
@@ -187,7 +182,7 @@ const NumbersGame = () => {
       {gameState === "result" && (
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-6">
-            {isCorrect ? "Correct! 🎉" : "Not quite right 🤔"}
+            {isCorrect ? "Correct!" : "Not correct"}
           </h2>
           
           <div className="flex justify-center mb-8">
@@ -199,7 +194,7 @@ const NumbersGame = () => {
           </div>
           
           <div className="mb-8">
-            <p className="mb-2">The correct sequence was:</p>
+            <p className="mb-2">The correct numbers:</p>
             <div className="text-2xl font-bold">{numbers}</div>
             {!isCorrect && (
               <p className="mt-4">Your answer: <span className="font-medium">{userInput}</span></p>
@@ -208,7 +203,7 @@ const NumbersGame = () => {
           
           <div className="flex justify-center gap-4">
             <Button variant="outline" onClick={() => setGameState("intro")}>
-              Back to Instructions
+              Back
             </Button>
             <Button onClick={startGame}>
               Play Again

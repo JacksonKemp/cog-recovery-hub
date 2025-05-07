@@ -12,7 +12,7 @@ const WordFinderGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            Find the word that is different in a group of similar words as quickly as possible.
+            Find the different word in a group.
           </p>
           <Button onClick={() => setGameState('playing')} className="mb-4">
             Start Game
@@ -27,7 +27,7 @@ const WordFinderGame = () => {
         <div className="text-center">
           <p className="text-xl mb-6">Game Coming Soon!</p>
           <Button onClick={() => setGameState('intro')}>
-            Back to Instructions
+            Back
           </Button>
         </div>
       )}

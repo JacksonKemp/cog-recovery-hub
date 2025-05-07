@@ -12,7 +12,7 @@ const WordSearchesGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            Find hidden words in a grid of letters. Words can be horizontal, vertical, or diagonal.
+            Find words hidden in a letter grid.
           </p>
           <Button onClick={() => setGameState('playing')} className="mb-4">
             Start Game
@@ -27,7 +27,7 @@ const WordSearchesGame = () => {
         <div className="text-center">
           <p className="text-xl mb-6">Game Coming Soon!</p>
           <Button onClick={() => setGameState('intro')}>
-            Back to Instructions
+            Back
           </Button>
         </div>
       )}

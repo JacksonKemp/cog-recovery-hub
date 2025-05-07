@@ -12,7 +12,7 @@ const TheWhatGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            Remember and recall instructions given both visually and through audio.
+            Remember and recall instructions.
           </p>
           <Button onClick={() => setGameState('playing')} className="mb-4">
             Start Game
@@ -27,7 +27,7 @@ const TheWhatGame = () => {
         <div className="text-center">
           <p className="text-xl mb-6">Game Coming Soon!</p>
           <Button onClick={() => setGameState('intro')}>
-            Back to Instructions
+            Back
           </Button>
         </div>
       )}

@@ -2,7 +2,7 @@
 import { ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Trophy, Timer, HelpCircle } from "lucide-react";
+import { ArrowLeft, HelpCircle } from "lucide-react";
 
 interface GameLayoutProps {
   title: string;
@@ -41,17 +41,6 @@ const GameLayout = ({ title, children, backLink = "/games" }: GameLayoutProps) =
       
       <div className="bg-card rounded-lg shadow-sm border p-6">
         {children}
-      </div>
-
-      <div className="mt-8 flex justify-between items-center text-sm text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Trophy className="h-4 w-4" />
-          <span>Best score: Coming soon</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Timer className="h-4 w-4" />
-          <span>Average time: Coming soon</span>
-        </div>
       </div>
     </div>
   );

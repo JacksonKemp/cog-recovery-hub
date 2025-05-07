@@ -12,7 +12,7 @@ const FacesGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            Select the face that matches the emotion word shown from the four displayed faces.
+            Match the emotion word to the correct face.
           </p>
           <Button onClick={() => setGameState('playing')} className="mb-4">
             Start Game
@@ -27,7 +27,7 @@ const FacesGame = () => {
         <div className="text-center">
           <p className="text-xl mb-6">Game Coming Soon!</p>
           <Button onClick={() => setGameState('intro')}>
-            Back to Instructions
+            Back
           </Button>
         </div>
       )}
