@@ -23,6 +23,7 @@ import IdentificationGame from "./pages/games/IdentificationGame";
 import ThenWhatGame from "./pages/games/ThenWhatGame";
 import WordSearchesGame from "./pages/games/WordSearchesGame";
 import SudokuGame from "./pages/games/SudokuGame";
+import MemoryMatchGame from "./pages/games/MemoryMatch";
 
 function App() {
   // Create a client inside the component to ensure it's properly initialized
@@ -52,6 +53,7 @@ function App() {
               <Route path="/games/then-what" element={<ThenWhatGame />} />
               <Route path="/games/word-searches" element={<WordSearchesGame />} />
               <Route path="/games/sudoku" element={<SudokuGame />} />
+              <Route path="/games/memory-match" element={<MemoryMatchGame />} />
               
               <Route path="*" element={<NotFound />} />
             </Route>
