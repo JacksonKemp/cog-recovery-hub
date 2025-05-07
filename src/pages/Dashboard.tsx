@@ -43,40 +43,37 @@ const Dashboard = () => {
       
       {/* Main Content - Simplified Boxes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Symptom Trend */}
-        <Card className="hover:border-cog-teal transition-all duration-300">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-cog-teal" />
-              Symptom Trend
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center py-6">
-              <div className="text-2xl font-bold text-cog-teal mb-2">Improving</div>
-              <div className="text-muted-foreground text-sm">
-                Your symptoms have decreased by 15% this week
+        {/* Symptom Trend with Track Today's Symptoms */}
+        <div className="flex flex-col">
+          <Card className="hover:border-cog-teal transition-all duration-300 mb-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-cog-teal" />
+                Symptom Trend
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-center justify-center py-6">
+                <div className="text-2xl font-bold text-cog-teal mb-2">Improving</div>
+                <div className="text-muted-foreground text-sm">
+                  Your symptoms have decreased by 15% this week
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Track Today's Symptoms */}
-        {!hasLoggedSymptomsToday && (
+            </CardContent>
+          </Card>
+          
+          {/* Track Today's Symptoms Widget */}
           <Link to="/symptoms">
-            <Card className="bg-cog-light-teal hover:border-cog-teal transition-all duration-300 h-full">
-              <CardContent className="flex flex-col items-center justify-center py-10">
+            <div className="bg-cog-light-teal rounded-lg hover:border hover:border-cog-teal transition-all duration-300 p-6">
+              <div className="flex flex-col items-center justify-center text-center">
                 <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-4">
                   <Plus className="h-6 w-6 text-cog-teal" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">Track Today's Symptoms</h3>
-                <p className="text-center text-muted-foreground text-sm">
-                  Keep track of how you're feeling today
-                </p>
-              </CardContent>
-            </Card>
+                <h3 className="font-semibold text-lg mb-0">Track Today's Symptoms</h3>
+              </div>
+            </div>
           </Link>
-        )}
+        </div>
         
         {/* Today's Schedule */}
         <Link to="/tasks">
@@ -108,7 +105,7 @@ const Dashboard = () => {
         </Link>
         
         {/* Message from Practitioner */}
-        <Card className="hover:border-cog-teal transition-all duration-300">
+        <Card className="hover:border-cog-teal transition-all duration-300 md:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-cog-teal" />
