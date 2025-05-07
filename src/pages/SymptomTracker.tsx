@@ -3,10 +3,12 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Calendar, Plus, LineChart, ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { Activity, Calendar, Plus, LineChart, ArrowDown, ArrowUp, Minus, Check } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 // Sample data for charts
 const lastWeekData = [
@@ -54,8 +56,14 @@ const recentEntries: SymptomEntry[] = [
   },
 ];
 
+// Steps for symptom tracking
+type Step = "headache" | "fatigue" | "anxiety" | "focus" | "notes" | "complete";
+
 const SymptomTracker = () => {
   const [selectedTab, setSelectedTab] = useState("track");
+  const [isFlowOpen, setIsFlowOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState<Step>("headache");
+  const { toast } = useToast();
 
   // Current symptom ratings
   const [symptoms, setSymptoms] = useState({
@@ -67,16 +75,84 @@ const SymptomTracker = () => {
   
   const [notes, setNotes] = useState("");
 
-  const handleSymptomChange = (symptom: keyof typeof symptoms, value: number[]) => {
-    setSymptoms({ ...symptoms, [symptom]: value[0] });
+  const handleSymptomChange = (symptom: keyof typeof symptoms, value: number) => {
+    setSymptoms({ ...symptoms, [symptom]: value });
+  };
+
+  const handleNextStep = () => {
+    switch (currentStep) {
+      case "headache":
+        setCurrentStep("fatigue");
+        break;
+      case "fatigue":
+        setCurrentStep("anxiety");
+        break;
+      case "anxiety":
+        setCurrentStep("focus");
+        break;
+      case "focus":
+        setCurrentStep("notes");
+        break;
+      case "notes":
+        setCurrentStep("complete");
+        handleSaveEntry();
+        break;
+      case "complete":
+        resetForm();
+        setIsFlowOpen(false);
+        break;
+    }
+  };
+
+  const handlePrevStep = () => {
+    switch (currentStep) {
+      case "fatigue":
+        setCurrentStep("headache");
+        break;
+      case "anxiety":
+        setCurrentStep("fatigue");
+        break;
+      case "focus":
+        setCurrentStep("anxiety");
+        break;
+      case "notes":
+        setCurrentStep("focus");
+        break;
+    }
+  };
+
+  const resetForm = () => {
+    setSymptoms({ headache: 0, fatigue: 0, anxiety: 0, focus: 5 });
+    setNotes("");
+    setCurrentStep("headache");
+  };
+
+  const startSymptomFlow = () => {
+    resetForm();
+    setIsFlowOpen(true);
   };
 
   const handleSaveEntry = () => {
     // Would save the entry here in a real app
     console.log("Saving entry:", { symptoms, notes, date: new Date() });
-    // Reset form
-    setSymptoms({ headache: 0, fatigue: 0, anxiety: 0, focus: 5 });
-    setNotes("");
+    
+    toast({
+      title: "Symptoms recorded",
+      description: "Your symptoms have been saved successfully.",
+    });
+  };
+
+  const getRatingLabel = (value: number, type: string) => {
+    if (type === "focus") {
+      if (value <= 3) return "Poor";
+      if (value <= 6) return "Fair";
+      return "Good";
+    } else {
+      if (value === 0) return "None";
+      if (value <= 3) return "Mild";
+      if (value <= 6) return "Moderate";
+      return "Severe";
+    }
   };
 
   const getTrendIcon = (currentValue: number, previousValue: number) => {
@@ -113,109 +189,16 @@ const SymptomTracker = () => {
           <Card>
             <CardHeader>
               <CardTitle>How are you feeling today?</CardTitle>
-              <CardDescription>Rate your symptoms to track your recovery</CardDescription>
+              <CardDescription>Track your symptoms to monitor your recovery</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-8">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <label className="font-medium">Headache Intensity</label>
-                    <span className="text-sm text-muted-foreground">
-                      {symptoms.headache === 0 ? "None" : 
-                       symptoms.headache <= 3 ? "Mild" : 
-                       symptoms.headache <= 6 ? "Moderate" : "Severe"}
-                    </span>
-                  </div>
-                  <Slider 
-                    value={[symptoms.headache]} 
-                    min={0} 
-                    max={10} 
-                    step={1} 
-                    onValueChange={(value) => handleSymptomChange("headache", value)} 
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>None</span>
-                    <span>Severe</span>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <label className="font-medium">Fatigue Level</label>
-                    <span className="text-sm text-muted-foreground">
-                      {symptoms.fatigue === 0 ? "None" : 
-                       symptoms.fatigue <= 3 ? "Mild" : 
-                       symptoms.fatigue <= 6 ? "Moderate" : "Severe"}
-                    </span>
-                  </div>
-                  <Slider 
-                    value={[symptoms.fatigue]} 
-                    min={0} 
-                    max={10} 
-                    step={1} 
-                    onValueChange={(value) => handleSymptomChange("fatigue", value)} 
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>None</span>
-                    <span>Severe</span>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <label className="font-medium">Anxiety Level</label>
-                    <span className="text-sm text-muted-foreground">
-                      {symptoms.anxiety === 0 ? "None" : 
-                       symptoms.anxiety <= 3 ? "Mild" : 
-                       symptoms.anxiety <= 6 ? "Moderate" : "Severe"}
-                    </span>
-                  </div>
-                  <Slider 
-                    value={[symptoms.anxiety]} 
-                    min={0} 
-                    max={10} 
-                    step={1} 
-                    onValueChange={(value) => handleSymptomChange("anxiety", value)} 
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>None</span>
-                    <span>Severe</span>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <label className="font-medium">Focus & Concentration</label>
-                    <span className="text-sm text-muted-foreground">
-                      {symptoms.focus <= 3 ? "Poor" : 
-                       symptoms.focus <= 6 ? "Fair" : "Good"}
-                    </span>
-                  </div>
-                  <Slider 
-                    value={[symptoms.focus]} 
-                    min={0} 
-                    max={10} 
-                    step={1} 
-                    onValueChange={(value) => handleSymptomChange("focus", value)} 
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>Poor</span>
-                    <span>Excellent</span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="font-medium block mb-2">Notes</label>
-                  <textarea 
-                    className="w-full min-h-[100px] p-3 border rounded-md" 
-                    placeholder="Add any additional notes about how you're feeling..."
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                  ></textarea>
-                </div>
-
-                <Button className="w-full" onClick={handleSaveEntry}>Save Today's Entry</Button>
-              </div>
+            <CardContent className="flex flex-col items-center">
+              <Button 
+                onClick={startSymptomFlow} 
+                className="w-full max-w-md"
+                size="lg"
+              >
+                <Plus className="mr-2" /> Start Recording Symptoms
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -348,6 +331,147 @@ const SymptomTracker = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Symptom Flow Dialog */}
+      <Dialog open={isFlowOpen} onOpenChange={setIsFlowOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {currentStep === "complete" ? "Symptoms Recorded" : `Rate your ${currentStep}`}
+            </DialogTitle>
+          </DialogHeader>
+
+          {currentStep === "headache" && (
+            <div className="py-4">
+              <h3 className="mb-4 font-medium">Headache Intensity</h3>
+              <RadioGroup 
+                value={symptoms.headache.toString()}
+                onValueChange={(value) => handleSymptomChange("headache", parseInt(value))}
+                className="grid grid-cols-5 gap-2"
+              >
+                {[...Array(11)].map((_, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <RadioGroupItem value={i.toString()} id={`headache-${i}`} className="mx-auto" />
+                    <label htmlFor={`headache-${i}`} className="text-sm mt-1">{i}</label>
+                    {i === 0 && <span className="text-xs text-muted-foreground">None</span>}
+                    {i === 10 && <span className="text-xs text-muted-foreground">Severe</span>}
+                  </div>
+                ))}
+              </RadioGroup>
+              <p className="text-sm text-center mt-4">
+                Selected: <span className="font-medium">{symptoms.headache}</span> - {getRatingLabel(symptoms.headache, "headache")}
+              </p>
+            </div>
+          )}
+
+          {currentStep === "fatigue" && (
+            <div className="py-4">
+              <h3 className="mb-4 font-medium">Fatigue Level</h3>
+              <RadioGroup 
+                value={symptoms.fatigue.toString()}
+                onValueChange={(value) => handleSymptomChange("fatigue", parseInt(value))}
+                className="grid grid-cols-5 gap-2"
+              >
+                {[...Array(11)].map((_, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <RadioGroupItem value={i.toString()} id={`fatigue-${i}`} className="mx-auto" />
+                    <label htmlFor={`fatigue-${i}`} className="text-sm mt-1">{i}</label>
+                    {i === 0 && <span className="text-xs text-muted-foreground">None</span>}
+                    {i === 10 && <span className="text-xs text-muted-foreground">Severe</span>}
+                  </div>
+                ))}
+              </RadioGroup>
+              <p className="text-sm text-center mt-4">
+                Selected: <span className="font-medium">{symptoms.fatigue}</span> - {getRatingLabel(symptoms.fatigue, "fatigue")}
+              </p>
+            </div>
+          )}
+
+          {currentStep === "anxiety" && (
+            <div className="py-4">
+              <h3 className="mb-4 font-medium">Anxiety Level</h3>
+              <RadioGroup 
+                value={symptoms.anxiety.toString()}
+                onValueChange={(value) => handleSymptomChange("anxiety", parseInt(value))}
+                className="grid grid-cols-5 gap-2"
+              >
+                {[...Array(11)].map((_, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <RadioGroupItem value={i.toString()} id={`anxiety-${i}`} className="mx-auto" />
+                    <label htmlFor={`anxiety-${i}`} className="text-sm mt-1">{i}</label>
+                    {i === 0 && <span className="text-xs text-muted-foreground">None</span>}
+                    {i === 10 && <span className="text-xs text-muted-foreground">Severe</span>}
+                  </div>
+                ))}
+              </RadioGroup>
+              <p className="text-sm text-center mt-4">
+                Selected: <span className="font-medium">{symptoms.anxiety}</span> - {getRatingLabel(symptoms.anxiety, "anxiety")}
+              </p>
+            </div>
+          )}
+
+          {currentStep === "focus" && (
+            <div className="py-4">
+              <h3 className="mb-4 font-medium">Focus & Concentration</h3>
+              <RadioGroup 
+                value={symptoms.focus.toString()}
+                onValueChange={(value) => handleSymptomChange("focus", parseInt(value))}
+                className="grid grid-cols-5 gap-2"
+              >
+                {[...Array(11)].map((_, i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <RadioGroupItem value={i.toString()} id={`focus-${i}`} className="mx-auto" />
+                    <label htmlFor={`focus-${i}`} className="text-sm mt-1">{i}</label>
+                    {i === 0 && <span className="text-xs text-muted-foreground">Poor</span>}
+                    {i === 10 && <span className="text-xs text-muted-foreground">Excellent</span>}
+                  </div>
+                ))}
+              </RadioGroup>
+              <p className="text-sm text-center mt-4">
+                Selected: <span className="font-medium">{symptoms.focus}</span> - {getRatingLabel(symptoms.focus, "focus")}
+              </p>
+            </div>
+          )}
+
+          {currentStep === "notes" && (
+            <div className="py-4">
+              <h3 className="mb-4 font-medium">Additional Notes (Optional)</h3>
+              <textarea 
+                className="w-full min-h-[100px] p-3 border rounded-md" 
+                placeholder="Add any additional notes about how you're feeling..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              ></textarea>
+            </div>
+          )}
+
+          {currentStep === "complete" && (
+            <div className="py-4 text-center">
+              <div className="w-16 h-16 rounded-full bg-green-100 mx-auto flex items-center justify-center mb-4">
+                <Check className="h-8 w-8 text-green-600" />
+              </div>
+              <p className="text-lg font-medium">Your symptoms have been recorded</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Thank you for tracking your symptoms. This helps monitor your recovery progress.
+              </p>
+            </div>
+          )}
+
+          <DialogFooter className="flex justify-between sm:justify-between">
+            {currentStep !== "headache" && currentStep !== "complete" ? (
+              <Button variant="outline" onClick={handlePrevStep}>
+                Back
+              </Button>
+            ) : (
+              <div></div>
+            )}
+            <Button onClick={handleNextStep}>
+              {currentStep === "notes" ? "Save" : 
+               currentStep === "complete" ? "Done" : "Next"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
