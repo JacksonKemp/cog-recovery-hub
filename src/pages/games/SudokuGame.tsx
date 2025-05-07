@@ -167,14 +167,14 @@ const SudokuGame = () => {
     const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     
     return (
-      <div className="flex flex-wrap justify-center gap-2 mt-4">
+      <div className="flex flex-wrap justify-center gap-2 mt-6">
         {numbers.map(number => (
           <Button 
             key={number}
             onClick={() => handleNumberInput(number)}
             disabled={!selectedCell}
             variant="outline"
-            className="w-10 h-10"
+            className="w-12 h-12 text-lg font-bold"
           >
             {number}
           </Button>
@@ -183,7 +183,7 @@ const SudokuGame = () => {
           onClick={() => handleNumberInput(0)}
           disabled={!selectedCell}
           variant="outline"
-          className="w-10 h-10"
+          className="w-12 h-12 text-sm"
         >
           Clear
         </Button>
@@ -197,7 +197,7 @@ const SudokuGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            Fill the grid with numbers 1-9.
+            Fill the grid with numbers 1-9 so that each row, column, and 3×3 box contains all digits from 1 to 9 without repetition.
           </p>
           
           <div className="flex flex-col items-center gap-6">
@@ -225,27 +225,37 @@ const SudokuGame = () => {
       
       {gameState === "playing" && currentGrid.length > 0 && (
         <div className="text-center">
-          <Card className="mb-6">
+          <Card className="mb-6 max-w-md mx-auto">
             <CardContent className="p-4">
-              <div className="grid grid-cols-9 gap-[1px] bg-gray-300 border border-gray-400">
+              <div className="grid grid-cols-9 bg-white border border-gray-300 shadow-sm">
                 {currentGrid.map((row, rowIndex) => 
                   row.map((cell, colIndex) => {
                     const isOriginal = originalGrid[rowIndex][colIndex] !== 0;
                     const isSelected = selectedCell && selectedCell[0] === rowIndex && selectedCell[1] === colIndex;
+                    const isSameRow = selectedCell && selectedCell[0] === rowIndex;
+                    const isSameCol = selectedCell && selectedCell[1] === colIndex;
                     const isSameBox = 
                       selectedCell && 
                       Math.floor(rowIndex / 3) === Math.floor(selectedCell[0] / 3) &&
                       Math.floor(colIndex / 3) === Math.floor(selectedCell[1] / 3);
                     
+                    const borderClasses = [
+                      // Horizontal lines
+                      (rowIndex + 1) % 3 === 0 && rowIndex < 8 ? "border-b-2 border-gray-400" : "border-b border-gray-300",
+                      // Vertical lines
+                      (colIndex + 1) % 3 === 0 && colIndex < 8 ? "border-r-2 border-gray-400" : "border-r border-gray-300"
+                    ].filter(Boolean).join(" ");
+                    
                     return (
                       <div
                         key={`${rowIndex}-${colIndex}`}
-                        className={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center font-medium
-                          ${isOriginal ? "bg-gray-100" : "bg-white hover:bg-gray-50 cursor-pointer"}
-                          ${isSelected ? "bg-primary text-primary-foreground" : ""}
-                          ${isSameBox && !isSelected ? "bg-gray-50" : ""}
-                          ${(rowIndex + 1) % 3 === 0 && rowIndex < 8 ? "border-b border-gray-500" : ""}
-                          ${(colIndex + 1) % 3 === 0 && colIndex < 8 ? "border-r border-gray-500" : ""}
+                        className={`
+                          w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center 
+                          font-medium text-lg relative ${borderClasses}
+                          ${isOriginal ? "font-bold" : "text-blue-600"}
+                          ${isSelected ? "bg-blue-200" : ""}
+                          ${!isSelected && (isSameRow || isSameCol) ? "bg-blue-50" : ""}
+                          ${!isSelected && isSameBox && !(isSameRow || isSameCol) ? "bg-blue-50" : ""}
                         `}
                         onClick={() => handleCellClick(rowIndex, colIndex)}
                       >
@@ -265,7 +275,7 @@ const SudokuGame = () => {
               <RotateCcw className="h-4 w-4" />
               Reset
             </Button>
-            <Button onClick={checkSolution} disabled={!isValid}>
+            <Button onClick={checkSolution} disabled={!isValid} className="px-6">
               Check Solution
             </Button>
             <Button variant="outline" onClick={resetGame}>
