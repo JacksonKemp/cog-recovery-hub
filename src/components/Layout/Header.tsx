@@ -4,6 +4,12 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard" },
@@ -48,38 +54,36 @@ export const Header = () => {
           ))}
         </nav>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden p-2"
-          onClick={toggleMobileMenu}
-          aria-label="Toggle Menu"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Navigation */}
-      <div
-        className={cn(
-          "fixed inset-0 top-16 z-50 bg-background md:hidden",
-          mobileMenuOpen ? "block" : "hidden"
-        )}
-      >
-        <div className="container py-4">
-          <nav className="flex flex-col space-y-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className="text-lg py-2 border-b border-muted"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+        {/* Mobile Menu with Dropdown */}
+        <div className="md:hidden flex items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-10 w-10 border border-blue-500 bg-white">
+                <Menu size={22} className={cn("transition-opacity", mobileMenuOpen ? "opacity-0" : "opacity-100")} />
+                <X size={22} className={cn("absolute transition-opacity", mobileMenuOpen ? "opacity-100" : "opacity-0")} />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              align="end"
+              className="w-[200px] bg-[#F8F8F8] rounded-md mt-2 border border-gray-200 shadow-md"
+            >
+              {navItems.map((item) => (
+                <DropdownMenuItem key={item.href} asChild>
+                  <Link 
+                    to={item.href}
+                    className="w-full px-4 py-3 hover:bg-gray-200 cursor-pointer text-foreground"
+                  >
+                    {item.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
+
+      {/* Remove the old mobile menu implementation */}
     </header>
   );
 };
