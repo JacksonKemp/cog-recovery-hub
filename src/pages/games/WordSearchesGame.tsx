@@ -38,7 +38,7 @@ const WordSearchesGame = () => {
           selectedCells={selectedCells}
           onCellClick={handleCellClick}
           onCheckSelection={checkSelection}
-          isGameComplete={isGameComplete}
+          isGameComplete={isGameComplete()}
           onEndGame={endGame}
           onCancel={resetGame}
         />

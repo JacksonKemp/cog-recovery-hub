@@ -57,7 +57,7 @@ const PlayingScreen = ({
           <Button onClick={onCheckSelection} disabled={selectedCells.length < 2} className="mb-2 w-full">
             Check Selection
           </Button>
-          {isGameComplete() && (
+          {isGameComplete && (
             <Button onClick={onEndGame} className="w-full">
               Finish Game
             </Button>
