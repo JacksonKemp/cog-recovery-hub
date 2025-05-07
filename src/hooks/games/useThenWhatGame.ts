@@ -1,19 +1,5 @@
 
 import { useState } from "react";
-import GameLayout from "@/components/games/GameLayout";
-import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent,
-} from "@/components/ui/card";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Play, Check, X } from "lucide-react";
 
 type Difficulty = "easy" | "medium" | "hard";
 type GameState = "intro" | "instruction" | "recall" | "result";
@@ -76,7 +62,7 @@ const instructionTemplates = [
   }
 ];
 
-const TheWhatGame = () => {
+export const useThenWhatGame = () => {
   const [gameState, setGameState] = useState<GameState>("intro");
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [instructions, setInstructions] = useState<InstructionTask[]>([]);
@@ -194,139 +180,26 @@ const TheWhatGame = () => {
     setSelectedAnswer("");
     setScore(0);
   };
-  
-  return (
-    <GameLayout title="The What Game">
-      {gameState === "intro" && (
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
-          <p className="mb-6">
-            Remember and recall instructions.
-          </p>
-          
-          <div className="flex flex-col items-center gap-6">
-            <div className="flex items-center gap-2">
-              <span>Difficulty:</span>
-              <Select value={difficulty} onValueChange={handleDifficultyChange}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <Button onClick={startGame} className="flex items-center gap-2">
-              <Play className="h-4 w-4" />
-              Start Game
-            </Button>
-          </div>
-        </div>
-      )}
-      
-      {gameState === "instruction" && instructions.length > 0 && (
-        <div className="text-center">
-          <h2 className="text-xl mb-2">
-            Remember This Instruction ({currentInstructionIndex + 1} of {instructions.length})
-          </h2>
-          
-          <Card className="mb-8">
-            <CardContent className="p-6">
-              <p className="text-xl font-medium mb-4">
-                {instructions[currentInstructionIndex].text}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Button onClick={nextInstruction}>
-            {currentInstructionIndex < instructions.length - 1 ? "Next Instruction" : "Start Recall"}
-          </Button>
-        </div>
-      )}
-      
-      {gameState === "recall" && instructions.length > 0 && (
-        <div className="text-center">
-          <h2 className="text-xl mb-4">
-            Recall ({currentInstructionIndex + 1} of {instructions.length})
-          </h2>
-          
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <p className="text-lg font-medium mb-4">
-                What was the instruction about?
-              </p>
-              
-              {instructions[currentInstructionIndex].choices ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {instructions[currentInstructionIndex].choices?.map((choice, index) => (
-                    <Button 
-                      key={index}
-                      variant={selectedAnswer === choice ? "default" : "outline"}
-                      onClick={() => handleAnswerSelect(choice)}
-                    >
-                      {choice}
-                    </Button>
-                  ))}
-                </div>
-              ) : (
-                <div className="mb-4">
-                  <input
-                    type="text"
-                    value={selectedAnswer}
-                    onChange={(e) => setSelectedAnswer(e.target.value)}
-                    placeholder="Enter your answer"
-                    className="w-full p-3 border rounded-md"
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          
-          <div className="flex justify-center gap-4">
-            <Button variant="outline" onClick={resetGame}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={submitAnswer}
-              disabled={!selectedAnswer && instructions[currentInstructionIndex].choices !== undefined}
-            >
-              {currentInstructionIndex < instructions.length - 1 ? "Next" : "Finish"}
-            </Button>
-          </div>
-        </div>
-      )}
-      
-      {gameState === "result" && (
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-6">
-            Results: {score} out of {instructions.length}
-          </h2>
-          
-          <div className="flex justify-center mb-8">
-            {score === instructions.length ? (
-              <Check className="h-16 w-16 text-green-500" />
-            ) : (
-              <div className="text-4xl">
-                {score / instructions.length >= 0.5 ? "🎉" : "🤔"}
-              </div>
-            )}
-          </div>
-          
-          <div className="flex justify-center gap-4">
-            <Button variant="outline" onClick={resetGame}>
-              Back
-            </Button>
-            <Button onClick={startGame}>
-              Play Again
-            </Button>
-          </div>
-        </div>
-      )}
-    </GameLayout>
-  );
+
+  return {
+    gameState,
+    difficulty,
+    instructions,
+    currentInstructionIndex,
+    selectedAnswer,
+    score,
+    handleDifficultyChange,
+    startGame,
+    nextInstruction,
+    handleAnswerSelect,
+    submitAnswer,
+    resetGame
+  };
 };
 
-export default TheWhatGame;
+export type {
+  Difficulty,
+  GameState,
+  InstructionTask,
+  GameConfig
+};

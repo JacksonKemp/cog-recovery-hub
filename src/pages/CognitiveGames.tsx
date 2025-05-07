@@ -73,14 +73,14 @@ const games = {
   ],
   processing: [
     {
-      id: "the-what",
-      title: "The What",
+      id: "then-what",
+      title: "Then What",
       description: "Remember and recall text and voice instructions",
       difficulty: "Hard",
       timeToComplete: "8 min",
       category: "Processing Speed",
       icon: <FileText className="h-5 w-5" />,
-      path: "/games/the-what"
+      path: "/games/then-what"
     },
     {
       id: "word-searches",

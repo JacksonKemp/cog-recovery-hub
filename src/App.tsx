@@ -20,7 +20,7 @@ import FacesGame from "./pages/games/FacesGame";
 import RGBGame from "./pages/games/RGBGame";
 import WordFinderGame from "./pages/games/WordFinderGame";
 import IdentificationGame from "./pages/games/IdentificationGame";
-import TheWhatGame from "./pages/games/TheWhatGame";
+import ThenWhatGame from "./pages/games/ThenWhatGame";
 import WordSearchesGame from "./pages/games/WordSearchesGame";
 import SudokuGame from "./pages/games/SudokuGame";
 
@@ -49,7 +49,7 @@ function App() {
               <Route path="/games/rgb" element={<RGBGame />} />
               <Route path="/games/word-finder" element={<WordFinderGame />} />
               <Route path="/games/identification" element={<IdentificationGame />} />
-              <Route path="/games/the-what" element={<TheWhatGame />} />
+              <Route path="/games/then-what" element={<ThenWhatGame />} />
               <Route path="/games/word-searches" element={<WordSearchesGame />} />
               <Route path="/games/sudoku" element={<SudokuGame />} />
               
