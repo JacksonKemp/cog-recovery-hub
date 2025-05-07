@@ -5,20 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, Calendar, Plus, LineChart, ArrowDown, ArrowUp, Minus, Check } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
 // Sample data for charts
 const lastWeekData = [
-  { date: "Mon", headache: 8, fatigue: 7, anxiety: 4, focus: 3 },
-  { date: "Tue", headache: 7, fatigue: 6, anxiety: 3, focus: 4 },
-  { date: "Wed", headache: 5, fatigue: 5, anxiety: 2, focus: 5 },
-  { date: "Thu", headache: 6, fatigue: 4, anxiety: 3, focus: 6 },
-  { date: "Fri", headache: 4, fatigue: 5, anxiety: 2, focus: 6 },
-  { date: "Sat", headache: 3, fatigue: 3, anxiety: 1, focus: 7 },
-  { date: "Sun", headache: 2, fatigue: 4, anxiety: 2, focus: 7 },
+  { date: "Mon", headache: 4, fatigue: 3, anxiety: 2, focus: 1 },
+  { date: "Tue", headache: 3, fatigue: 3, anxiety: 1, focus: 2 },
+  { date: "Wed", headache: 2, fatigue: 2, anxiety: 1, focus: 3 },
+  { date: "Thu", headache: 3, fatigue: 2, anxiety: 1, focus: 3 },
+  { date: "Fri", headache: 2, fatigue: 3, anxiety: 1, focus: 3 },
+  { date: "Sat", headache: 1, fatigue: 1, anxiety: 0, focus: 4 },
+  { date: "Sun", headache: 1, fatigue: 2, anxiety: 1, focus: 4 },
 ];
 
 // Type for symptom entry
@@ -39,19 +38,19 @@ const recentEntries: SymptomEntry[] = [
   {
     id: "1",
     date: "Today",
-    symptoms: { headache: 2, fatigue: 4, anxiety: 2, focus: 7 },
+    symptoms: { headache: 1, fatigue: 2, anxiety: 1, focus: 4 },
     notes: "Felt better after afternoon rest."
   },
   {
     id: "2",
     date: "Yesterday",
-    symptoms: { headache: 3, fatigue: 5, anxiety: 1, focus: 6 },
+    symptoms: { headache: 2, fatigue: 3, anxiety: 0, focus: 3 },
     notes: "Mild headache in the morning."
   },
   {
     id: "3",
     date: format(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), "MMM d, yyyy"),
-    symptoms: { headache: 4, fatigue: 5, anxiety: 2, focus: 6 },
+    symptoms: { headache: 2, fatigue: 3, anxiety: 1, focus: 3 },
     notes: "More tired than usual."
   },
 ];
@@ -70,29 +69,28 @@ const SymptomTracker = () => {
     headache: 0,
     fatigue: 0,
     anxiety: 0,
-    focus: 5
+    focus: 3
   });
   
   const [notes, setNotes] = useState("");
 
   const handleSymptomChange = (symptom: keyof typeof symptoms, value: number) => {
     setSymptoms({ ...symptoms, [symptom]: value });
+    
+    // Automatically advance to next step on selection
+    if (symptom === "headache") {
+      setCurrentStep("fatigue");
+    } else if (symptom === "fatigue") {
+      setCurrentStep("anxiety");
+    } else if (symptom === "anxiety") {
+      setCurrentStep("focus");
+    } else if (symptom === "focus") {
+      setCurrentStep("notes");
+    }
   };
 
   const handleNextStep = () => {
     switch (currentStep) {
-      case "headache":
-        setCurrentStep("fatigue");
-        break;
-      case "fatigue":
-        setCurrentStep("anxiety");
-        break;
-      case "anxiety":
-        setCurrentStep("focus");
-        break;
-      case "focus":
-        setCurrentStep("notes");
-        break;
       case "notes":
         setCurrentStep("complete");
         handleSaveEntry();
@@ -122,7 +120,7 @@ const SymptomTracker = () => {
   };
 
   const resetForm = () => {
-    setSymptoms({ headache: 0, fatigue: 0, anxiety: 0, focus: 5 });
+    setSymptoms({ headache: 0, fatigue: 0, anxiety: 0, focus: 3 });
     setNotes("");
     setCurrentStep("headache");
   };
@@ -144,13 +142,13 @@ const SymptomTracker = () => {
 
   const getRatingLabel = (value: number, type: string) => {
     if (type === "focus") {
-      if (value <= 3) return "Poor";
-      if (value <= 6) return "Fair";
+      if (value <= 1) return "Poor";
+      if (value <= 3) return "Fair";
       return "Good";
     } else {
       if (value === 0) return "None";
-      if (value <= 3) return "Mild";
-      if (value <= 6) return "Moderate";
+      if (value <= 2) return "Mild";
+      if (value <= 3) return "Moderate";
       return "Severe";
     }
   };
@@ -233,7 +231,7 @@ const SymptomTracker = () => {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
-                    <YAxis domain={[0, 10]} />
+                    <YAxis domain={[0, 5]} />
                     <Tooltip />
                     <Area type="monotone" dataKey="headache" stroke="#8884d8" fillOpacity={1} fill="url(#colorHeadache)" />
                     <Area type="monotone" dataKey="fatigue" stroke="#82ca9d" fillOpacity={1} fill="url(#colorFatigue)" />
@@ -267,7 +265,7 @@ const SymptomTracker = () => {
                             {entry.symptoms.headache}
                             {getTrendIcon(
                               entry.symptoms.headache,
-                              entry.id === "1" ? recentEntries[1].symptoms.headache : 5
+                              entry.id === "1" ? recentEntries[1].symptoms.headache : 3
                             )}
                           </div>
                         </div>
@@ -277,7 +275,7 @@ const SymptomTracker = () => {
                             {entry.symptoms.fatigue}
                             {getTrendIcon(
                               entry.symptoms.fatigue,
-                              entry.id === "1" ? recentEntries[1].symptoms.fatigue : 6
+                              entry.id === "1" ? recentEntries[1].symptoms.fatigue : 3
                             )}
                           </div>
                         </div>
@@ -287,7 +285,7 @@ const SymptomTracker = () => {
                             {entry.symptoms.anxiety}
                             {getTrendIcon(
                               entry.symptoms.anxiety,
-                              entry.id === "1" ? recentEntries[1].symptoms.anxiety : 3
+                              entry.id === "1" ? recentEntries[1].symptoms.anxiety : 1
                             )}
                           </div>
                         </div>
@@ -297,7 +295,7 @@ const SymptomTracker = () => {
                             {entry.symptoms.focus}
                             {getTrendIcon(
                               entry.symptoms.focus,
-                              entry.id === "1" ? recentEntries[1].symptoms.focus : 5
+                              entry.id === "1" ? recentEntries[1].symptoms.focus : 3
                             )}
                           </div>
                         </div>
@@ -342,94 +340,110 @@ const SymptomTracker = () => {
           </DialogHeader>
 
           {currentStep === "headache" && (
-            <div className="py-4">
-              <h3 className="mb-4 font-medium">Headache Intensity</h3>
-              <RadioGroup 
-                value={symptoms.headache.toString()}
-                onValueChange={(value) => handleSymptomChange("headache", parseInt(value))}
-                className="grid grid-cols-5 gap-2"
-              >
-                {[...Array(11)].map((_, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <RadioGroupItem value={i.toString()} id={`headache-${i}`} className="mx-auto" />
-                    <label htmlFor={`headache-${i}`} className="text-sm mt-1">{i}</label>
-                    {i === 0 && <span className="text-xs text-muted-foreground">None</span>}
-                    {i === 10 && <span className="text-xs text-muted-foreground">Severe</span>}
-                  </div>
+            <div className="py-4 space-y-4">
+              <h3 className="mb-4 font-medium text-center">Headache Intensity</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleSymptomChange("headache", i)}
+                    className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors ${
+                      symptoms.headache === i ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-primary/50'
+                    }`}
+                  >
+                    <span className="text-2xl font-bold mb-2">{i}</span>
+                    {i === 0 && <span className="text-sm text-muted-foreground">None</span>}
+                    {i === 5 && <span className="text-sm text-muted-foreground">Severe</span>}
+                    {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
+                  </button>
                 ))}
-              </RadioGroup>
-              <p className="text-sm text-center mt-4">
-                Selected: <span className="font-medium">{symptoms.headache}</span> - {getRatingLabel(symptoms.headache, "headache")}
-              </p>
+              </div>
+              {symptoms.headache > 0 && (
+                <p className="text-center mt-4">
+                  Selected: <span className="font-medium">{symptoms.headache}</span> - {getRatingLabel(symptoms.headache, "headache")}
+                </p>
+              )}
             </div>
           )}
 
           {currentStep === "fatigue" && (
-            <div className="py-4">
-              <h3 className="mb-4 font-medium">Fatigue Level</h3>
-              <RadioGroup 
-                value={symptoms.fatigue.toString()}
-                onValueChange={(value) => handleSymptomChange("fatigue", parseInt(value))}
-                className="grid grid-cols-5 gap-2"
-              >
-                {[...Array(11)].map((_, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <RadioGroupItem value={i.toString()} id={`fatigue-${i}`} className="mx-auto" />
-                    <label htmlFor={`fatigue-${i}`} className="text-sm mt-1">{i}</label>
-                    {i === 0 && <span className="text-xs text-muted-foreground">None</span>}
-                    {i === 10 && <span className="text-xs text-muted-foreground">Severe</span>}
-                  </div>
+            <div className="py-4 space-y-4">
+              <h3 className="mb-4 font-medium text-center">Fatigue Level</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleSymptomChange("fatigue", i)}
+                    className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors ${
+                      symptoms.fatigue === i ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-primary/50'
+                    }`}
+                  >
+                    <span className="text-2xl font-bold mb-2">{i}</span>
+                    {i === 0 && <span className="text-sm text-muted-foreground">None</span>}
+                    {i === 5 && <span className="text-sm text-muted-foreground">Severe</span>}
+                    {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
+                  </button>
                 ))}
-              </RadioGroup>
-              <p className="text-sm text-center mt-4">
-                Selected: <span className="font-medium">{symptoms.fatigue}</span> - {getRatingLabel(symptoms.fatigue, "fatigue")}
-              </p>
+              </div>
+              {symptoms.fatigue > 0 && (
+                <p className="text-center mt-4">
+                  Selected: <span className="font-medium">{symptoms.fatigue}</span> - {getRatingLabel(symptoms.fatigue, "fatigue")}
+                </p>
+              )}
             </div>
           )}
 
           {currentStep === "anxiety" && (
-            <div className="py-4">
-              <h3 className="mb-4 font-medium">Anxiety Level</h3>
-              <RadioGroup 
-                value={symptoms.anxiety.toString()}
-                onValueChange={(value) => handleSymptomChange("anxiety", parseInt(value))}
-                className="grid grid-cols-5 gap-2"
-              >
-                {[...Array(11)].map((_, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <RadioGroupItem value={i.toString()} id={`anxiety-${i}`} className="mx-auto" />
-                    <label htmlFor={`anxiety-${i}`} className="text-sm mt-1">{i}</label>
-                    {i === 0 && <span className="text-xs text-muted-foreground">None</span>}
-                    {i === 10 && <span className="text-xs text-muted-foreground">Severe</span>}
-                  </div>
+            <div className="py-4 space-y-4">
+              <h3 className="mb-4 font-medium text-center">Anxiety Level</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleSymptomChange("anxiety", i)}
+                    className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors ${
+                      symptoms.anxiety === i ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-primary/50'
+                    }`}
+                  >
+                    <span className="text-2xl font-bold mb-2">{i}</span>
+                    {i === 0 && <span className="text-sm text-muted-foreground">None</span>}
+                    {i === 5 && <span className="text-sm text-muted-foreground">Severe</span>}
+                    {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
+                  </button>
                 ))}
-              </RadioGroup>
-              <p className="text-sm text-center mt-4">
-                Selected: <span className="font-medium">{symptoms.anxiety}</span> - {getRatingLabel(symptoms.anxiety, "anxiety")}
-              </p>
+              </div>
+              {symptoms.anxiety > 0 && (
+                <p className="text-center mt-4">
+                  Selected: <span className="font-medium">{symptoms.anxiety}</span> - {getRatingLabel(symptoms.anxiety, "anxiety")}
+                </p>
+              )}
             </div>
           )}
 
           {currentStep === "focus" && (
-            <div className="py-4">
-              <h3 className="mb-4 font-medium">Focus & Concentration</h3>
-              <RadioGroup 
-                value={symptoms.focus.toString()}
-                onValueChange={(value) => handleSymptomChange("focus", parseInt(value))}
-                className="grid grid-cols-5 gap-2"
-              >
-                {[...Array(11)].map((_, i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <RadioGroupItem value={i.toString()} id={`focus-${i}`} className="mx-auto" />
-                    <label htmlFor={`focus-${i}`} className="text-sm mt-1">{i}</label>
-                    {i === 0 && <span className="text-xs text-muted-foreground">Poor</span>}
-                    {i === 10 && <span className="text-xs text-muted-foreground">Excellent</span>}
-                  </div>
+            <div className="py-4 space-y-4">
+              <h3 className="mb-4 font-medium text-center">Focus & Concentration</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleSymptomChange("focus", i)}
+                    className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors ${
+                      symptoms.focus === i ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-primary/50'
+                    }`}
+                  >
+                    <span className="text-2xl font-bold mb-2">{i}</span>
+                    {i === 0 && <span className="text-sm text-muted-foreground">Poor</span>}
+                    {i === 5 && <span className="text-sm text-muted-foreground">Excellent</span>}
+                    {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
+                  </button>
                 ))}
-              </RadioGroup>
-              <p className="text-sm text-center mt-4">
-                Selected: <span className="font-medium">{symptoms.focus}</span> - {getRatingLabel(symptoms.focus, "focus")}
-              </p>
+              </div>
+              {symptoms.focus > 0 && (
+                <p className="text-center mt-4">
+                  Selected: <span className="font-medium">{symptoms.focus}</span> - {getRatingLabel(symptoms.focus, "focus")}
+                </p>
+              )}
             </div>
           )}
 
@@ -442,6 +456,11 @@ const SymptomTracker = () => {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               ></textarea>
+              <div className="mt-4 flex justify-center">
+                <Button onClick={handleNextStep}>
+                  Save
+                </Button>
+              </div>
             </div>
           )}
 
@@ -454,22 +473,21 @@ const SymptomTracker = () => {
               <p className="text-sm text-muted-foreground mt-2">
                 Thank you for tracking your symptoms. This helps monitor your recovery progress.
               </p>
+              <div className="mt-4">
+                <Button onClick={handleNextStep}>
+                  Done
+                </Button>
+              </div>
             </div>
           )}
 
-          <DialogFooter className="flex justify-between sm:justify-between">
-            {currentStep !== "headache" && currentStep !== "complete" ? (
+          {currentStep !== "headache" && currentStep !== "complete" && (
+            <DialogFooter className="flex justify-between sm:justify-between mt-4">
               <Button variant="outline" onClick={handlePrevStep}>
                 Back
               </Button>
-            ) : (
-              <div></div>
-            )}
-            <Button onClick={handleNextStep}>
-              {currentStep === "notes" ? "Save" : 
-               currentStep === "complete" ? "Done" : "Next"}
-            </Button>
-          </DialogFooter>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </div>
