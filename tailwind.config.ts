@@ -69,6 +69,9 @@ export default {
 					'dark-purple': '#7E69AB',
 					'soft-blue': '#D3E4FD',
 					'soft-gray': '#F1F0FB',
+					teal: '#4FBDB9',
+					'dark-teal': '#3E9E9A',
+					'light-teal': '#D6EFEE',
 				}
 			},
 			borderRadius: {

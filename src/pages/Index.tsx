@@ -7,12 +7,12 @@ const Index = () => {
   return (
     <div className="flex flex-col min-h-[calc(100vh-64px)]">
       {/* Hero Section */}
-      <section className="bg-gradient-to-b from-cog-light-purple to-white py-16 md:py-24">
+      <section className="bg-gradient-to-b from-cog-light-teal to-white py-16 md:py-24">
         <div className="container">
           <div className="flex flex-col md:flex-row items-center gap-10">
             <div className="md:w-1/2 space-y-6 animate-fade-in">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
-                Recovery at <span className="text-cog-purple">your pace</span>
+                Recovery at <span className="text-cog-teal">your pace</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground">
                 Customized cognitive rehabilitation for traumatic brain injury recovery with games, 
@@ -28,8 +28,8 @@ const Index = () => {
               </div>
             </div>
             <div className="md:w-1/2 flex justify-center">
-              <div className="relative w-64 h-64 md:w-80 md:h-80 bg-cog-purple rounded-full flex items-center justify-center animate-pulse-gentle">
-                <div className="w-48 h-48 md:w-60 md:h-60 bg-cog-light-purple rounded-full flex items-center justify-center">
+              <div className="relative w-64 h-64 md:w-80 md:h-80 bg-cog-teal rounded-full flex items-center justify-center animate-pulse-gentle">
+                <div className="w-48 h-48 md:w-60 md:h-60 bg-cog-light-teal rounded-full flex items-center justify-center">
                   <div className="w-32 h-32 md:w-40 md:h-40 bg-white rounded-full"></div>
                 </div>
                 <div className="absolute top-0 right-0 w-16 h-16 bg-cog-soft-blue rounded-full"></div>
@@ -53,8 +53,8 @@ const Index = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="feature-card">
-              <div className="mb-4 w-12 h-12 rounded-full bg-cog-light-purple flex items-center justify-center">
-                <Brain className="h-6 w-6 text-cog-purple" />
+              <div className="mb-4 w-12 h-12 rounded-full bg-cog-light-teal flex items-center justify-center">
+                <Brain className="h-6 w-6 text-cog-teal" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Cognitive Games</h3>
               <p className="text-muted-foreground">
@@ -63,8 +63,8 @@ const Index = () => {
             </div>
 
             <div className="feature-card">
-              <div className="mb-4 w-12 h-12 rounded-full bg-cog-light-purple flex items-center justify-center">
-                <CheckSquare className="h-6 w-6 text-cog-purple" />
+              <div className="mb-4 w-12 h-12 rounded-full bg-cog-light-teal flex items-center justify-center">
+                <CheckSquare className="h-6 w-6 text-cog-teal" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Task Manager</h3>
               <p className="text-muted-foreground">
@@ -73,8 +73,8 @@ const Index = () => {
             </div>
 
             <div className="feature-card">
-              <div className="mb-4 w-12 h-12 rounded-full bg-cog-light-purple flex items-center justify-center">
-                <Activity className="h-6 w-6 text-cog-purple" />
+              <div className="mb-4 w-12 h-12 rounded-full bg-cog-light-teal flex items-center justify-center">
+                <Activity className="h-6 w-6 text-cog-teal" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Symptom Tracker</h3>
               <p className="text-muted-foreground">
@@ -83,8 +83,8 @@ const Index = () => {
             </div>
 
             <div className="feature-card">
-              <div className="mb-4 w-12 h-12 rounded-full bg-cog-light-purple flex items-center justify-center">
-                <Clock className="h-6 w-6 text-cog-purple" />
+              <div className="mb-4 w-12 h-12 rounded-full bg-cog-light-teal flex items-center justify-center">
+                <Clock className="h-6 w-6 text-cog-teal" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Progress Insights</h3>
               <p className="text-muted-foreground">

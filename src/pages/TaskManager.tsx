@@ -298,7 +298,7 @@ const TaskManager = () => {
                           <div>
                             <p className="font-medium">{task.title}</p>
                             <div className="flex items-center text-xs text-muted-foreground mt-1">
-                              <div className="px-1.5 py-0.5 rounded text-xs bg-cog-light-purple text-cog-purple">
+                              <div className="px-1.5 py-0.5 rounded text-xs bg-cog-light-teal text-cog-teal">
                                 Difficulty: {task.difficulty}
                               </div>
                             </div>
@@ -336,7 +336,7 @@ const TaskManager = () => {
                             <CardContent className="p-4 flex items-center justify-between">
                               <div className="flex items-center">
                                 <button
-                                  className="mr-3 text-cog-purple"
+                                  className="mr-3 text-cog-teal"
                                   onClick={() => toggleTaskCompletion(task.id)}
                                 >
                                   <CheckCircle className="h-5 w-5" fill="currentColor" />
@@ -409,7 +409,7 @@ const TaskManager = () => {
                             className="text-xs p-1 bg-card border rounded-sm cursor-move flex items-center justify-between group"
                           >
                             <div className="truncate">{task.title}</div>
-                            <span className="bg-cog-light-purple text-cog-purple px-1 rounded text-xxs">
+                            <span className="bg-cog-light-teal text-cog-teal px-1 rounded text-xxs">
                               {task.difficulty}
                             </span>
                           </div>
@@ -424,10 +424,10 @@ const TaskManager = () => {
         </Tabs>
       </div>
 
-      <div className="mt-8 p-6 rounded-lg bg-cog-light-purple">
+      <div className="mt-8 p-6 rounded-lg bg-cog-light-teal">
         <div className="flex flex-col md:flex-row items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-            <CheckSquare className="h-6 w-6 text-cog-purple" />
+            <CheckSquare className="h-6 w-6 text-cog-teal" />
           </div>
           <div>
             <h3 className="text-xl font-semibold">Message from your Occupational Therapist</h3>

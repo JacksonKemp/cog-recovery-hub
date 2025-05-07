@@ -25,14 +25,14 @@ const Dashboard = () => {
         <h1 className="text-2xl font-bold">Hello, Sam</h1>
         <div className="flex gap-6">
           <div className="flex items-center">
-            <Clock className="h-5 w-5 text-cog-purple mr-2" />
+            <Clock className="h-5 w-5 text-cog-teal mr-2" />
             <div>
               <span className="text-sm text-muted-foreground">Streak</span>
               <p className="font-semibold">{streakDays} days</p>
             </div>
           </div>
           <div className="flex items-center">
-            <Brain className="h-5 w-5 text-cog-purple mr-2" />
+            <Brain className="h-5 w-5 text-cog-teal mr-2" />
             <div>
               <span className="text-sm text-muted-foreground">Games</span>
               <p className="font-semibold">{completedGames} completed</p>
@@ -44,16 +44,16 @@ const Dashboard = () => {
       {/* Main Content - Simplified Boxes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Symptom Trend */}
-        <Card className="hover:border-cog-purple transition-all duration-300">
+        <Card className="hover:border-cog-teal transition-all duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-cog-purple" />
+              <Activity className="h-5 w-5 text-cog-teal" />
               Symptom Trend
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center justify-center py-6">
-              <div className="text-2xl font-bold text-cog-purple mb-2">Improving</div>
+              <div className="text-2xl font-bold text-cog-teal mb-2">Improving</div>
               <div className="text-muted-foreground text-sm">
                 Your symptoms have decreased by 15% this week
               </div>
@@ -64,10 +64,10 @@ const Dashboard = () => {
         {/* Track Today's Symptoms */}
         {!hasLoggedSymptomsToday && (
           <Link to="/symptoms">
-            <Card className="bg-cog-soft-blue hover:border-cog-purple transition-all duration-300 h-full">
+            <Card className="bg-cog-light-teal hover:border-cog-teal transition-all duration-300 h-full">
               <CardContent className="flex flex-col items-center justify-center py-10">
-                <div className="w-12 h-12 rounded-full bg-cog-light-purple flex items-center justify-center mb-4">
-                  <Plus className="h-6 w-6 text-cog-purple" />
+                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-4">
+                  <Plus className="h-6 w-6 text-cog-teal" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Track Today's Symptoms</h3>
                 <p className="text-center text-muted-foreground text-sm">
@@ -80,10 +80,10 @@ const Dashboard = () => {
         
         {/* Today's Schedule */}
         <Link to="/tasks">
-          <Card className="hover:border-cog-purple transition-all duration-300 h-full">
+          <Card className="hover:border-cog-teal transition-all duration-300 h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-cog-purple" />
+                <Calendar className="h-5 w-5 text-cog-teal" />
                 Today's Schedule
               </CardTitle>
             </CardHeader>
@@ -93,9 +93,9 @@ const Dashboard = () => {
                   <div key={task.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                     <div className="flex items-center">
                       {task.type === "exercise" ? (
-                        <Brain className="h-4 w-4 text-cog-purple mr-3" />
+                        <Brain className="h-4 w-4 text-cog-teal mr-3" />
                       ) : (
-                        <CheckSquare className="h-4 w-4 text-cog-purple mr-3" />
+                        <CheckSquare className="h-4 w-4 text-cog-teal mr-3" />
                       )}
                       <p className="font-medium">{task.name}</p>
                     </div>
@@ -108,10 +108,10 @@ const Dashboard = () => {
         </Link>
         
         {/* Message from Practitioner */}
-        <Card className="hover:border-cog-purple transition-all duration-300">
+        <Card className="hover:border-cog-teal transition-all duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-cog-purple" />
+              <MessageSquare className="h-5 w-5 text-cog-teal" />
               Message from Dr. Johnson
             </CardTitle>
           </CardHeader>
