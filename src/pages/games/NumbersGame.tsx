@@ -1,215 +1,61 @@
 
-import { useState, useEffect } from "react";
 import GameLayout from "@/components/games/GameLayout";
-import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent,
-} from "@/components/ui/card";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Play, Check, X } from "lucide-react";
-
-type Difficulty = "easy" | "medium" | "hard";
-type GameState = "intro" | "memorize" | "wait" | "recall" | "result";
-
-interface GameConfig {
-  digits: number;
-  memorizeTime: number;
-  waitTime: number;
-}
-
-const difficultySettings: Record<Difficulty, GameConfig> = {
-  easy: { digits: 5, memorizeTime: 10, waitTime: 15 },
-  medium: { digits: 7, memorizeTime: 7, waitTime: 15 },
-  hard: { digits: 9, memorizeTime: 5, waitTime: 15 },
-};
+import IntroScreen from "@/components/games/numbers/IntroScreen";
+import MemorizeScreen from "@/components/games/numbers/MemorizeScreen";
+import WaitScreen from "@/components/games/numbers/WaitScreen";
+import RecallScreen from "@/components/games/numbers/RecallScreen";
+import ResultScreen from "@/components/games/numbers/ResultScreen";
+import { useNumbersGame } from "@/hooks/games/useNumbersGame";
 
 const NumbersGame = () => {
-  const [gameState, setGameState] = useState<GameState>("intro");
-  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
-  const [numbers, setNumbers] = useState<string>("");
-  const [userInput, setUserInput] = useState<string>("");
-  const [timeLeft, setTimeLeft] = useState<number>(0);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [gameConfig, setGameConfig] = useState<GameConfig>(difficultySettings.medium);
-  
-  // Generate random numbers based on difficulty
-  const generateNumbers = (digits: number): string => {
-    let result = "";
-    for (let i = 0; i < digits; i++) {
-      result += Math.floor(Math.random() * 10).toString();
-    }
-    return result;
-  };
-  
-  // Handle difficulty change
-  const handleDifficultyChange = (value: string) => {
-    const newDifficulty = value as Difficulty;
-    setDifficulty(newDifficulty);
-    setGameConfig(difficultySettings[newDifficulty]);
-  };
-  
-  // Start the game
-  const startGame = () => {
-    const newNumbers = generateNumbers(gameConfig.digits);
-    setNumbers(newNumbers);
-    setTimeLeft(gameConfig.memorizeTime);
-    setGameState("memorize");
-    setUserInput("");
-    setIsCorrect(null);
-  };
-  
-  // Timer effect
-  useEffect(() => {
-    if ((gameState === "memorize" || gameState === "wait") && timeLeft > 0) {
-      const timer = setTimeout(() => {
-        setTimeLeft(timeLeft - 1);
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    } else if (timeLeft === 0) {
-      if (gameState === "memorize") {
-        setGameState("wait");
-        setTimeLeft(gameConfig.waitTime);
-      } else if (gameState === "wait") {
-        setGameState("recall");
-      }
-    }
-  }, [timeLeft, gameState, gameConfig.waitTime]);
-  
-  // Check the answer
-  const checkAnswer = () => {
-    const correct = userInput === numbers;
-    setIsCorrect(correct);
-    setGameState("result");
-  };
-  
-  // Reset the game
-  const resetGame = () => {
-    setGameState("intro");
-    setNumbers("");
-    setUserInput("");
-    setIsCorrect(null);
-  };
+  const {
+    gameState,
+    difficulty,
+    numbers,
+    userInput,
+    isCorrect,
+    handleDifficultyChange,
+    startGame,
+    checkAnswer,
+    resetGame,
+    handleUserInputChange
+  } = useNumbersGame();
   
   return (
     <GameLayout title="Numbers Memory Game">
       {gameState === "intro" && (
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
-          <p className="mb-6">
-            Memorize numbers, then recall them in order.
-          </p>
-          
-          <div className="flex flex-col items-center gap-6">
-            <div className="flex items-center gap-2">
-              <span>Difficulty:</span>
-              <Select value={difficulty} onValueChange={handleDifficultyChange}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <Button onClick={startGame} className="flex items-center gap-2">
-              <Play className="h-4 w-4" />
-              Start Game
-            </Button>
-          </div>
-        </div>
+        <IntroScreen 
+          difficulty={difficulty}
+          onDifficultyChange={handleDifficultyChange}
+          onStartGame={startGame}
+        />
       )}
       
       {gameState === "memorize" && (
-        <div className="text-center">
-          <h2 className="text-xl mb-6">Memorize these numbers</h2>
-          
-          <Card className="mb-6">
-            <CardContent className="p-10">
-              <div className="text-4xl font-bold tracking-wider">{numbers}</div>
-            </CardContent>
-          </Card>
-        </div>
+        <MemorizeScreen numbers={numbers} />
       )}
       
       {gameState === "wait" && (
-        <div className="text-center">
-          <h2 className="text-xl mb-6">Please wait...</h2>
-          <p className="text-muted-foreground">Keep the number sequence in your memory</p>
-        </div>
+        <WaitScreen />
       )}
       
       {gameState === "recall" && (
-        <div className="text-center">
-          <h2 className="text-xl mb-6">Enter the numbers</h2>
-          
-          <div className="mb-8">
-            <input
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              className="w-full max-w-xs p-4 text-center text-2xl border rounded-md"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              autoFocus
-            />
-          </div>
-          
-          <div className="flex justify-center gap-4">
-            <Button variant="outline" onClick={resetGame}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={checkAnswer} 
-              disabled={!userInput.length}
-            >
-              Check Answer
-            </Button>
-          </div>
-        </div>
+        <RecallScreen 
+          userInput={userInput}
+          onUserInputChange={handleUserInputChange}
+          onCheckAnswer={checkAnswer}
+          onCancel={resetGame}
+        />
       )}
       
       {gameState === "result" && (
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-6">
-            {isCorrect ? "Correct!" : "Not correct"}
-          </h2>
-          
-          <div className="flex justify-center mb-8">
-            {isCorrect ? (
-              <Check className="h-16 w-16 text-green-500" />
-            ) : (
-              <X className="h-16 w-16 text-red-500" />
-            )}
-          </div>
-          
-          <div className="mb-8">
-            <p className="mb-2">The correct numbers:</p>
-            <div className="text-2xl font-bold">{numbers}</div>
-            {!isCorrect && (
-              <p className="mt-4">Your answer: <span className="font-medium">{userInput}</span></p>
-            )}
-          </div>
-          
-          <div className="flex justify-center gap-4">
-            <Button variant="outline" onClick={() => setGameState("intro")}>
-              Back
-            </Button>
-            <Button onClick={startGame}>
-              Play Again
-            </Button>
-          </div>
-        </div>
+        <ResultScreen 
+          isCorrect={isCorrect}
+          numbers={numbers}
+          userInput={userInput}
+          onBackToIntro={() => resetGame()}
+          onPlayAgain={startGame}
+        />
       )}
     </GameLayout>
   );
