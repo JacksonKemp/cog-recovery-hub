@@ -1,8 +1,8 @@
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trophy, Timer, HelpCircle } from "lucide-react";
 
 interface GameLayoutProps {
   title: string;
@@ -11,20 +11,47 @@ interface GameLayoutProps {
 }
 
 const GameLayout = ({ title, children, backLink = "/games" }: GameLayoutProps) => {
+  const [showHelp, setShowHelp] = useState(false);
+  
   return (
     <div className="container py-8 max-w-4xl mx-auto">
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" size="sm" asChild className="mr-2">
-          <Link to={backLink}>
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
-          </Link>
-        </Button>
-        <h1 className="text-3xl font-bold">{title}</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <Button variant="ghost" size="sm" asChild className="mr-2">
+            <Link to={backLink}>
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back
+            </Link>
+          </Button>
+          <h1 className="text-3xl font-bold">{title}</h1>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowHelp(!showHelp)}
+            className="flex items-center gap-1"
+          >
+            <HelpCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">Help</span>
+          </Button>
+        </div>
       </div>
       
       <div className="bg-card rounded-lg shadow-sm border p-6">
         {children}
+      </div>
+
+      <div className="mt-8 flex justify-between items-center text-sm text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <Trophy className="h-4 w-4" />
+          <span>Best score: Coming soon</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Timer className="h-4 w-4" />
+          <span>Average time: Coming soon</span>
+        </div>
       </div>
     </div>
   );
