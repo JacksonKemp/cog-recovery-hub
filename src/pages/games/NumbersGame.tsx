@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import GameLayout from "@/components/games/GameLayout";
 import { Button } from "@/components/ui/button";
@@ -104,18 +103,8 @@ const NumbersGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            You will be shown a sequence of numbers for a short time. Memorize them, 
-            wait for a time period, and then enter them back in the correct order.
+            Memorize the sequence of numbers shown briefly, then enter them back in the correct order.
           </p>
-          
-          <div className="mb-8">
-            <h3 className="text-lg font-medium mb-2">Difficulty Levels</h3>
-            <ul className="space-y-2 max-w-md mx-auto text-left">
-              <li>Easy: 5 digits, 10 seconds to memorize</li>
-              <li>Medium: 7 digits, 7 seconds to memorize</li>
-              <li>Hard: 9 digits, 5 seconds to memorize</li>
-            </ul>
-          </div>
           
           <div className="flex flex-col items-center gap-6">
             <div className="flex items-center gap-2">

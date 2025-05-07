@@ -12,17 +12,8 @@ const SudokuGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            Fill in the 9×9 grid with digits so that each column, each row, and each of the 
-            nine 3×3 subgrids contains all of the digits from 1 to 9.
+            Fill in the 9×9 grid so that each column, row, and 3×3 subgrid contains all digits from 1 to 9.
           </p>
-          <div className="mb-8">
-            <h3 className="text-lg font-medium mb-2">Difficulty Levels</h3>
-            <ul className="space-y-2 max-w-md mx-auto text-left">
-              <li>Easy: More starting numbers, fewer cells to fill</li>
-              <li>Medium: Balanced challenge with moderate starting numbers</li>
-              <li>Hard: Fewer starting numbers, requiring more complex strategies</li>
-            </ul>
-          </div>
           <Button onClick={() => setGameState('playing')} className="mb-4">
             Start Game
           </Button>

@@ -12,17 +12,8 @@ const FacesGame = () => {
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">How to Play</h2>
           <p className="mb-6">
-            You will be shown 4 faces displaying different emotions. Select the face
-            that matches the emotion word shown.
+            Select the face that matches the emotion word shown from the four displayed faces.
           </p>
-          <div className="mb-8">
-            <h3 className="text-lg font-medium mb-2">Difficulty Levels</h3>
-            <ul className="space-y-2 max-w-md mx-auto text-left">
-              <li>Easy: Basic emotions (happy, sad, angry)</li>
-              <li>Medium: More nuanced emotions (frustrated, surprised, confused)</li>
-              <li>Hard: Subtle emotions (contemplative, anxious, wistful)</li>
-            </ul>
-          </div>
           <Button onClick={() => setGameState('playing')} className="mb-4">
             Start Game
           </Button>
