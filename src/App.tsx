@@ -13,6 +13,17 @@ import SymptomTracker from "./pages/SymptomTracker";
 import NotFound from "./pages/NotFound";
 import * as React from "react";
 
+// Game imports
+import NumbersGame from "./pages/games/NumbersGame";
+import NamesGame from "./pages/games/NamesGame";
+import FacesGame from "./pages/games/FacesGame";
+import RGBGame from "./pages/games/RGBGame";
+import WordFinderGame from "./pages/games/WordFinderGame";
+import IdentificationGame from "./pages/games/IdentificationGame";
+import TheWhatGame from "./pages/games/TheWhatGame";
+import WordSearchesGame from "./pages/games/WordSearchesGame";
+import SudokuGame from "./pages/games/SudokuGame";
+
 function App() {
   // Create a client inside the component to ensure it's properly initialized
   const [queryClient] = React.useState(() => new QueryClient());
@@ -30,6 +41,18 @@ function App() {
               <Route path="/games" element={<CognitiveGames />} />
               <Route path="/tasks" element={<TaskManager />} />
               <Route path="/symptoms" element={<SymptomTracker />} />
+              
+              {/* Game routes */}
+              <Route path="/games/numbers" element={<NumbersGame />} />
+              <Route path="/games/names" element={<NamesGame />} />
+              <Route path="/games/faces" element={<FacesGame />} />
+              <Route path="/games/rgb" element={<RGBGame />} />
+              <Route path="/games/word-finder" element={<WordFinderGame />} />
+              <Route path="/games/identification" element={<IdentificationGame />} />
+              <Route path="/games/the-what" element={<TheWhatGame />} />
+              <Route path="/games/word-searches" element={<WordSearchesGame />} />
+              <Route path="/games/sudoku" element={<SudokuGame />} />
+              
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

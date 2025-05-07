@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Star, Clock, Timer } from "lucide-react";
+import { Brain, Star, Clock, Timer, Text, Circle, Square, BookOpen, Puzzle, Grid3X3, FileText, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const games = {
@@ -15,7 +15,8 @@ const games = {
       difficulty: "Medium",
       timeToComplete: "5 min",
       category: "Memory",
-      icon: <Brain className="h-5 w-5" />
+      icon: <Brain className="h-5 w-5" />,
+      path: "/games/numbers"
     },
     {
       id: "names",
@@ -24,7 +25,8 @@ const games = {
       difficulty: "Hard",
       timeToComplete: "7 min",
       category: "Memory",
-      icon: <Brain className="h-5 w-5" />
+      icon: <BookOpen className="h-5 w-5" />,
+      path: "/games/names"
     }
   ],
   attention: [
@@ -35,7 +37,8 @@ const games = {
       difficulty: "Medium",
       timeToComplete: "5 min",
       category: "Attention",
-      icon: <Brain className="h-5 w-5" />
+      icon: <Circle className="h-5 w-5" />,
+      path: "/games/faces"
     },
     {
       id: "rgb",
@@ -44,7 +47,8 @@ const games = {
       difficulty: "Easy",
       timeToComplete: "3 min",
       category: "Attention",
-      icon: <Brain className="h-5 w-5" />
+      icon: <Square className="h-5 w-5" />,
+      path: "/games/rgb"
     },
     {
       id: "word-finder",
@@ -53,7 +57,8 @@ const games = {
       difficulty: "Medium",
       timeToComplete: "6 min",
       category: "Attention",
-      icon: <Brain className="h-5 w-5" />
+      icon: <Text className="h-5 w-5" />,
+      path: "/games/word-finder"
     },
     {
       id: "identification",
@@ -62,7 +67,8 @@ const games = {
       difficulty: "Easy",
       timeToComplete: "4 min",
       category: "Attention",
-      icon: <Brain className="h-5 w-5" />
+      icon: <Circle className="h-5 w-5" />,
+      path: "/games/identification"
     }
   ],
   processing: [
@@ -73,7 +79,8 @@ const games = {
       difficulty: "Hard",
       timeToComplete: "8 min",
       category: "Processing Speed",
-      icon: <Brain className="h-5 w-5" />
+      icon: <FileText className="h-5 w-5" />,
+      path: "/games/the-what"
     },
     {
       id: "word-searches",
@@ -82,7 +89,8 @@ const games = {
       difficulty: "Medium",
       timeToComplete: "7 min",
       category: "Processing Speed",
-      icon: <Brain className="h-5 w-5" />
+      icon: <Search className="h-5 w-5" />,
+      path: "/games/word-searches"
     },
     {
       id: "sudoku",
@@ -91,7 +99,8 @@ const games = {
       difficulty: "Hard",
       timeToComplete: "10 min",
       category: "Processing Speed",
-      icon: <Brain className="h-5 w-5" />
+      icon: <Grid3X3 className="h-5 w-5" />,
+      path: "/games/sudoku"
     }
   ]
 };
