@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,70 +9,87 @@ import { Button } from "@/components/ui/button";
 const games = {
   memory: [
     {
-      id: "memory-match",
-      title: "Memory Match",
-      description: "Match pairs of cards to test your visual memory",
-      difficulty: "Easy",
-      timeToComplete: "5 min",
-      category: "Memory",
-      icon: <Brain className="h-5 w-5" />,
-      path: "/games/memory-match"
-    },
-    {
-      id: "sequence-recall",
-      title: "Sequence Recall",
-      description: "Remember and repeat growing sequences of items",
+      id: "numbers",
+      title: "Numbers",
+      description: "Memorize a sequence of numbers, then recall them in order",
       difficulty: "Medium",
-      timeToComplete: "7 min",
+      timeToComplete: "5 min",
       category: "Memory",
       icon: <Brain className="h-5 w-5" />
     },
     {
-      id: "word-pairs",
-      title: "Word Pairs",
-      description: "Memorize pairs of related words and recall them later",
+      id: "names",
+      title: "Names",
+      description: "Remember a series of first and last names, then recall them",
       difficulty: "Hard",
-      timeToComplete: "10 min",
+      timeToComplete: "7 min",
       category: "Memory",
       icon: <Brain className="h-5 w-5" />
     }
   ],
   attention: [
     {
-      id: "focus-finder",
-      title: "Focus Finder",
-      description: "Identify specific targets among distractions",
-      difficulty: "Easy",
+      id: "faces",
+      title: "Faces",
+      description: "Match faces to the emotions they're expressing",
+      difficulty: "Medium",
       timeToComplete: "5 min",
       category: "Attention",
       icon: <Brain className="h-5 w-5" />
     },
     {
-      id: "dual-task",
-      title: "Dual Task Challenge",
-      description: "Perform two different tasks simultaneously",
-      difficulty: "Hard",
-      timeToComplete: "8 min",
+      id: "rgb",
+      title: "Red, Green, Blue",
+      description: "Test your reflexes by tapping colored squares as prompted",
+      difficulty: "Easy",
+      timeToComplete: "3 min",
+      category: "Attention",
+      icon: <Brain className="h-5 w-5" />
+    },
+    {
+      id: "word-finder",
+      title: "Word Finder",
+      description: "Find the different word in a group of similar words",
+      difficulty: "Medium",
+      timeToComplete: "6 min",
+      category: "Attention",
+      icon: <Brain className="h-5 w-5" />
+    },
+    {
+      id: "identification",
+      title: "Identification",
+      description: "Select options based on specific instructions",
+      difficulty: "Easy",
+      timeToComplete: "4 min",
       category: "Attention",
       icon: <Brain className="h-5 w-5" />
     }
   ],
   processing: [
     {
-      id: "quick-sort",
-      title: "Quick Sort",
-      description: "Sort items into categories as quickly as possible",
-      difficulty: "Medium",
-      timeToComplete: "6 min",
+      id: "the-what",
+      title: "The What",
+      description: "Remember and recall text and voice instructions",
+      difficulty: "Hard",
+      timeToComplete: "8 min",
       category: "Processing Speed",
       icon: <Brain className="h-5 w-5" />
     },
     {
-      id: "reaction-time",
-      title: "Reaction Time Test",
-      description: "Test how quickly you can respond to visual stimuli",
-      difficulty: "Easy",
-      timeToComplete: "4 min",
+      id: "word-searches",
+      title: "Word Searches",
+      description: "Find hidden words in a grid of letters",
+      difficulty: "Medium",
+      timeToComplete: "7 min",
+      category: "Processing Speed",
+      icon: <Brain className="h-5 w-5" />
+    },
+    {
+      id: "sudoku",
+      title: "Sudoku",
+      description: "Fill in the grid so every row, column, and section contains digits 1-9",
+      difficulty: "Hard",
+      timeToComplete: "10 min",
       category: "Processing Speed",
       icon: <Brain className="h-5 w-5" />
     }
