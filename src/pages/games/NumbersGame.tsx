@@ -14,6 +14,7 @@ const NumbersGame = () => {
     numbers,
     userInput,
     isCorrect,
+    score,
     handleDifficultyChange,
     startGame,
     checkAnswer,
@@ -53,6 +54,7 @@ const NumbersGame = () => {
           isCorrect={isCorrect}
           numbers={numbers}
           userInput={userInput}
+          score={score}
           onBackToIntro={() => resetGame()}
           onPlayAgain={startGame}
         />

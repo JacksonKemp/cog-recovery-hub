@@ -23,6 +23,7 @@ export const useNumbersGame = () => {
   const [userInput, setUserInput] = useState<string>("");
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [score, setScore] = useState<number>(0);
   const [gameConfig, setGameConfig] = useState<GameConfig>(difficultySettings.medium);
   
   // Generate random numbers based on difficulty
@@ -49,12 +50,28 @@ export const useNumbersGame = () => {
     setGameState("memorize");
     setUserInput("");
     setIsCorrect(null);
+    setScore(0);
+  };
+
+  // Calculate score based on correct digits
+  const calculateScore = (): number => {
+    const correctDigits = numbers.split('').filter((digit, index) => {
+      return userInput[index] === digit;
+    }).length;
+    
+    const totalDigits = numbers.length;
+    const scorePercentage = Math.round((correctDigits / totalDigits) * 100);
+    
+    return scorePercentage;
   };
 
   // Check the answer
   const checkAnswer = () => {
     const correct = userInput === numbers;
+    const calculatedScore = calculateScore();
+    
     setIsCorrect(correct);
+    setScore(calculatedScore);
     setGameState("result");
   };
   
@@ -64,11 +81,15 @@ export const useNumbersGame = () => {
     setNumbers("");
     setUserInput("");
     setIsCorrect(null);
+    setScore(0);
   };
 
   // Handle user input change
   const handleUserInputChange = (value: string) => {
-    setUserInput(value);
+    // Only allow numbers
+    if (/^\d*$/.test(value)) {
+      setUserInput(value);
+    }
   };
   
   // Timer effect
@@ -95,6 +116,7 @@ export const useNumbersGame = () => {
     numbers,
     userInput,
     isCorrect,
+    score,
     handleDifficultyChange,
     startGame,
     checkAnswer,
