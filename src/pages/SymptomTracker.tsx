@@ -1,13 +1,14 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Activity, Calendar, Plus, LineChart, ArrowDown, ArrowUp, Minus, Check } from "lucide-react";
+import { Activity, Calendar, Plus, LineChart, ArrowDown, ArrowUp, Minus, Check, Loader2 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { SymptomEntry, SymptomRatings, hasEntryForToday, saveSymptomEntry, getRecentEntries } from "@/services/symptomService";
 
 // Sample data for charts
 const lastWeekData = [
@@ -20,41 +21,6 @@ const lastWeekData = [
   { date: "Sun", headache: 1, fatigue: 2, anxiety: 1, focus: 4 },
 ];
 
-// Type for symptom entry
-type SymptomEntry = {
-  id: string;
-  date: string;
-  symptoms: {
-    headache: number;
-    fatigue: number;
-    anxiety: number;
-    focus: number;
-  };
-  notes: string;
-};
-
-// Recent entries
-const recentEntries: SymptomEntry[] = [
-  {
-    id: "1",
-    date: "Today",
-    symptoms: { headache: 1, fatigue: 2, anxiety: 1, focus: 4 },
-    notes: "Felt better after afternoon rest."
-  },
-  {
-    id: "2",
-    date: "Yesterday",
-    symptoms: { headache: 2, fatigue: 3, anxiety: 0, focus: 3 },
-    notes: "Mild headache in the morning."
-  },
-  {
-    id: "3",
-    date: format(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), "MMM d, yyyy"),
-    symptoms: { headache: 2, fatigue: 3, anxiety: 1, focus: 3 },
-    notes: "More tired than usual."
-  },
-];
-
 // Steps for symptom tracking
 type Step = "headache" | "fatigue" | "anxiety" | "focus" | "notes" | "complete";
 
@@ -65,7 +31,7 @@ const SymptomTracker = () => {
   const { toast } = useToast();
 
   // Current symptom ratings
-  const [symptoms, setSymptoms] = useState({
+  const [symptoms, setSymptoms] = useState<SymptomRatings>({
     headache: 0,
     fatigue: 0,
     anxiety: 0,
@@ -73,8 +39,38 @@ const SymptomTracker = () => {
   });
   
   const [notes, setNotes] = useState("");
+  const [recentEntries, setRecentEntries] = useState<SymptomEntry[]>([]);
+  const [hasRecordedToday, setHasRecordedToday] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleSymptomChange = (symptom: keyof typeof symptoms, value: number) => {
+  // Load data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        // Check if the user has already recorded symptoms today
+        const hasEntry = await hasEntryForToday();
+        setHasRecordedToday(hasEntry);
+        
+        // Get recent entries
+        const entries = await getRecentEntries();
+        setRecentEntries(entries);
+      } catch (error) {
+        console.error("Error loading data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load your symptom data",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadData();
+  }, [toast]);
+
+  const handleSymptomChange = (symptom: keyof SymptomRatings, value: number) => {
     setSymptoms({ ...symptoms, [symptom]: value });
     
     // Automatically advance to next step on selection
@@ -130,14 +126,29 @@ const SymptomTracker = () => {
     setIsFlowOpen(true);
   };
 
-  const handleSaveEntry = () => {
-    // Would save the entry here in a real app
-    console.log("Saving entry:", { symptoms, notes, date: new Date() });
-    
-    toast({
-      title: "Symptoms recorded",
-      description: "Your symptoms have been saved successfully.",
-    });
+  const handleSaveEntry = async () => {
+    try {
+      await saveSymptomEntry(symptoms, notes);
+      
+      // Update the UI state
+      setHasRecordedToday(true);
+      
+      // Refresh the recent entries
+      const entries = await getRecentEntries();
+      setRecentEntries(entries);
+      
+      toast({
+        title: "Symptoms recorded",
+        description: "Your symptoms have been saved successfully.",
+      });
+    } catch (error) {
+      console.error("Error saving entry:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save your symptoms",
+        variant: "destructive"
+      });
+    }
   };
 
   const getRatingLabel = (value: number, type: string) => {
@@ -190,13 +201,30 @@ const SymptomTracker = () => {
               <CardDescription>Track your symptoms to monitor your recovery</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col items-center">
-              <Button 
-                onClick={startSymptomFlow} 
-                className="w-full max-w-md"
-                size="lg"
-              >
-                <Plus className="mr-2" /> Start Recording Symptoms
-              </Button>
+              {isLoading ? (
+                <div className="flex flex-col items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-2" />
+                  <p className="text-muted-foreground">Loading your data...</p>
+                </div>
+              ) : hasRecordedToday ? (
+                <div className="text-center py-4">
+                  <div className="bg-primary/10 text-primary p-4 rounded-md mb-4 flex items-center">
+                    <Check className="h-5 w-5 mr-2" />
+                    <p>You've already recorded your symptoms today.</p>
+                  </div>
+                  <p className="text-muted-foreground">
+                    Come back tomorrow to continue tracking your recovery.
+                  </p>
+                </div>
+              ) : (
+                <Button 
+                  onClick={startSymptomFlow} 
+                  className="w-full max-w-md"
+                  size="lg"
+                >
+                  <Plus className="mr-2" /> Start Recording Symptoms
+                </Button>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -209,36 +237,42 @@ const SymptomTracker = () => {
                 <CardDescription>Track how your symptoms have changed over time</CardDescription>
               </CardHeader>
               <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={lastWeekData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorHeadache" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorFatigue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorAnxiety" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#ffc658" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorFocus" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#9b87f5" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis domain={[0, 5]} />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="headache" stroke="#8884d8" fillOpacity={1} fill="url(#colorHeadache)" />
-                    <Area type="monotone" dataKey="fatigue" stroke="#82ca9d" fillOpacity={1} fill="url(#colorFatigue)" />
-                    <Area type="monotone" dataKey="anxiety" stroke="#ffc658" fillOpacity={1} fill="url(#colorAnxiety)" />
-                    <Area type="monotone" dataKey="focus" stroke="#9b87f5" fillOpacity={1} fill="url(#colorFocus)" />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {isLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={lastWeekData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorHeadache" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorFatigue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorAnxiety" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#ffc658" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorFocus" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#9b87f5" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis domain={[0, 5]} />
+                      <Tooltip />
+                      <Area type="monotone" dataKey="headache" stroke="#8884d8" fillOpacity={1} fill="url(#colorHeadache)" />
+                      <Area type="monotone" dataKey="fatigue" stroke="#82ca9d" fillOpacity={1} fill="url(#colorFatigue)" />
+                      <Area type="monotone" dataKey="anxiety" stroke="#ffc658" fillOpacity={1} fill="url(#colorAnxiety)" />
+                      <Area type="monotone" dataKey="focus" stroke="#9b87f5" fillOpacity={1} fill="url(#colorFocus)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
               </CardContent>
             </Card>
 
@@ -248,67 +282,77 @@ const SymptomTracker = () => {
                 <CardDescription>Your latest symptom records</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentEntries.map((entry) => (
-                    <div key={entry.id} className="p-3 bg-muted/50 rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-2 text-cog-purple" />
-                          <span className="font-medium">{entry.date}</span>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : recentEntries.length > 0 ? (
+                  <div className="space-y-4">
+                    {recentEntries.map((entry) => (
+                      <div key={entry.id} className="p-3 bg-muted/50 rounded-lg">
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center">
+                            <Calendar className="h-4 w-4 mr-2 text-cog-purple" />
+                            <span className="font-medium">{entry.date}</span>
+                          </div>
                         </div>
+                        
+                        <div className="grid grid-cols-2 gap-2 mb-2">
+                          <div className="flex items-center justify-between text-sm bg-white rounded p-1.5">
+                            <span>Headache:</span>
+                            <div className="flex items-center">
+                              {entry.symptoms.headache}
+                              {recentEntries[1] && getTrendIcon(
+                                entry.symptoms.headache,
+                                recentEntries[1].symptoms.headache
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-sm bg-white rounded p-1.5">
+                            <span>Fatigue:</span>
+                            <div className="flex items-center">
+                              {entry.symptoms.fatigue}
+                              {recentEntries[1] && getTrendIcon(
+                                entry.symptoms.fatigue,
+                                recentEntries[1].symptoms.fatigue
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-sm bg-white rounded p-1.5">
+                            <span>Anxiety:</span>
+                            <div className="flex items-center">
+                              {entry.symptoms.anxiety}
+                              {recentEntries[1] && getTrendIcon(
+                                entry.symptoms.anxiety,
+                                recentEntries[1].symptoms.anxiety
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-sm bg-white rounded p-1.5">
+                            <span>Focus:</span>
+                            <div className="flex items-center">
+                              {entry.symptoms.focus}
+                              {recentEntries[1] && getTrendIcon(
+                                entry.symptoms.focus,
+                                recentEntries[1].symptoms.focus
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {entry.notes && (
+                          <p className="text-sm text-muted-foreground mt-2 italic">
+                            "{entry.notes}"
+                          </p>
+                        )}
                       </div>
-                      
-                      <div className="grid grid-cols-2 gap-2 mb-2">
-                        <div className="flex items-center justify-between text-sm bg-white rounded p-1.5">
-                          <span>Headache:</span>
-                          <div className="flex items-center">
-                            {entry.symptoms.headache}
-                            {getTrendIcon(
-                              entry.symptoms.headache,
-                              entry.id === "1" ? recentEntries[1].symptoms.headache : 3
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-sm bg-white rounded p-1.5">
-                          <span>Fatigue:</span>
-                          <div className="flex items-center">
-                            {entry.symptoms.fatigue}
-                            {getTrendIcon(
-                              entry.symptoms.fatigue,
-                              entry.id === "1" ? recentEntries[1].symptoms.fatigue : 3
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-sm bg-white rounded p-1.5">
-                          <span>Anxiety:</span>
-                          <div className="flex items-center">
-                            {entry.symptoms.anxiety}
-                            {getTrendIcon(
-                              entry.symptoms.anxiety,
-                              entry.id === "1" ? recentEntries[1].symptoms.anxiety : 1
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-sm bg-white rounded p-1.5">
-                          <span>Focus:</span>
-                          <div className="flex items-center">
-                            {entry.symptoms.focus}
-                            {getTrendIcon(
-                              entry.symptoms.focus,
-                              entry.id === "1" ? recentEntries[1].symptoms.focus : 3
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {entry.notes && (
-                        <p className="text-sm text-muted-foreground mt-2 italic">
-                          "{entry.notes}"
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-muted-foreground py-8">
+                    No symptom entries yet. Start tracking to see your history here.
+                  </p>
+                )}
               </CardContent>
             </Card>
           </div>
