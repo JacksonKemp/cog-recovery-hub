@@ -15,9 +15,10 @@ import {
   ChevronDown,
   ChevronUp,
   Bell,
-  BellOff
+  BellOff,
+  Clock
 } from "lucide-react";
-import { format, startOfWeek, addDays, isSameDay } from "date-fns";
+import { format, startOfWeek, addDays, isSameDay, parse, isEqual } from "date-fns";
 import { cn } from "@/lib/utils";
 import { 
   Select,
@@ -31,7 +32,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useToast } from "@/hooks/use-toast";
 
 // Task type definition
 type Task = {
@@ -39,10 +45,21 @@ type Task = {
   title: string;
   completed: boolean;
   date: Date;
-  isEvent: boolean;
   hasReminder: boolean;
-  difficulty?: number;
+  difficulty: number;
+  reminderTimes: string[];
 };
+
+// Reminder time options
+const reminderOptions = [
+  { value: "15min", label: "15 minutes before" },
+  { value: "30min", label: "30 minutes before" },
+  { value: "1hour", label: "1 hour before" },
+  { value: "2hours", label: "2 hours before" },
+  { value: "1day", label: "1 day before" },
+  { value: "2days", label: "2 days before" },
+  { value: "1week", label: "1 week before" }
+];
 
 // Helper function to get day name
 const getDayName = (date: Date) => {
@@ -53,7 +70,16 @@ const getDayName = (date: Date) => {
 const calculateDayDifficulty = (tasks: Task[], date: Date) => {
   return tasks
     .filter(task => isSameDay(task.date, date) && !task.completed)
-    .reduce((sum, task) => sum + (task.difficulty || 3), 0);
+    .reduce((sum, task) => sum + task.difficulty, 0);
+};
+
+// Check if a time slot is already taken
+const isTimeSlotTaken = (tasks: Task[], date: Date, id?: string) => {
+  return tasks.some(task => 
+    isSameDay(task.date, date) && 
+    format(task.date, 'HH:mm') === format(date, 'HH:mm') &&
+    task.id !== id
+  );
 };
 
 const TaskManager = () => {
@@ -62,13 +88,12 @@ const TaskManager = () => {
   const [draggingTask, setDraggingTask] = useState<Task | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
-  const [isEvent, setIsEvent] = useState(false);
+  const [showSchedule, setShowSchedule] = useState(false);
   const [hasReminder, setHasReminder] = useState(false);
-  
-  // Date selection for events
-  const [selectedDay, setSelectedDay] = useState<string>("1");
-  const [selectedMonth, setSelectedMonth] = useState<string>("5"); // May
+  const [selectedReminders, setSelectedReminders] = useState<string[]>([]);
+  const [taskDifficulty, setTaskDifficulty] = useState<number>(3);
   const [selectedTime, setSelectedTime] = useState<string>("12:00");
+  const { toast } = useToast();
   
   // Sample tasks with dates as Date objects
   const [tasks, setTasks] = useState<Task[]>([
@@ -77,47 +102,63 @@ const TaskManager = () => {
       title: "Take medication", 
       completed: false, 
       date: new Date(), 
-      isEvent: false,
-      hasReminder: true
+      hasReminder: true,
+      difficulty: 2,
+      reminderTimes: ["15min"]
     },
     { 
       id: "2", 
       title: "Doctor appointment", 
       completed: false, 
       date: addDays(new Date(), 1), 
-      isEvent: true,
-      hasReminder: true
+      hasReminder: true,
+      difficulty: 5,
+      reminderTimes: ["1day", "1hour"]
     },
     { 
       id: "3", 
       title: "Complete memory exercises", 
       completed: true, 
       date: new Date(), 
-      isEvent: false,
-      hasReminder: false
+      hasReminder: false,
+      difficulty: 4,
+      reminderTimes: []
     },
     { 
       id: "4", 
       title: "Call family member", 
       completed: false, 
       date: new Date(), 
-      isEvent: false,
-      hasReminder: false
+      hasReminder: false,
+      difficulty: 3,
+      reminderTimes: []
     }
   ]);
 
   const handleAddTask = () => {
     if (newTaskTitle.trim() !== "") {
+      // Create task date (today by default)
       let taskDate = new Date();
       
-      // If it's an event, use the selected date and time
-      if (isEvent) {
-        const year = new Date().getFullYear();
-        const month = parseInt(selectedMonth) - 1; // 0-indexed
-        const day = parseInt(selectedDay);
+      // If scheduling is enabled, set the custom date and time
+      if (showSchedule) {
+        // Get the hours and minutes from the selected time
         const [hours, minutes] = selectedTime.split(':').map(Number);
         
-        taskDate = new Date(year, month, day, hours, minutes);
+        // Create a new date with the selected date but with current time
+        taskDate = new Date(selectedDate);
+        // Set the time from the time picker
+        taskDate.setHours(hours, minutes);
+        
+        // Check if the time slot is already taken
+        if (isTimeSlotTaken(tasks, taskDate)) {
+          toast({
+            title: "Time Conflict",
+            description: "There's already a task scheduled at this time.",
+            variant: "destructive"
+          });
+          return;
+        }
       }
       
       const task: Task = {
@@ -125,14 +166,17 @@ const TaskManager = () => {
         title: newTaskTitle,
         completed: false,
         date: taskDate,
-        isEvent,
         hasReminder,
+        difficulty: taskDifficulty,
+        reminderTimes: hasReminder ? selectedReminders : [],
       };
       
       setTasks([task, ...tasks]);
       setNewTaskTitle("");
-      setIsEvent(false);
+      setShowSchedule(false);
       setHasReminder(false);
+      setSelectedReminders([]);
+      setTaskDifficulty(3);
       setDialogOpen(false);
     }
   };
@@ -157,9 +201,27 @@ const TaskManager = () => {
   // Handle drop on a day
   const handleDrop = (date: Date) => {
     if (draggingTask) {
+      // Create a new date that combines the target date with the original time
+      const newDate = new Date(date);
+      newDate.setHours(
+        draggingTask.date.getHours(),
+        draggingTask.date.getMinutes()
+      );
+      
+      // Check for time conflicts
+      if (isTimeSlotTaken(tasks, newDate, draggingTask.id)) {
+        toast({
+          title: "Time Conflict",
+          description: "There's already a task scheduled at this time on the target day.",
+          variant: "destructive"
+        });
+        setDraggingTask(null);
+        return;
+      }
+      
       setTasks(tasks.map(task => 
         task.id === draggingTask.id 
-          ? { ...task, date } 
+          ? { ...task, date: newDate } 
           : task
       ));
       setDraggingTask(null);
@@ -176,6 +238,15 @@ const TaskManager = () => {
     return dates;
   };
 
+  // Toggle reminder status for a task
+  const toggleReminderSelection = (value: string) => {
+    setSelectedReminders(prev => 
+      prev.includes(value)
+        ? prev.filter(item => item !== value)
+        : [...prev, value]
+    );
+  };
+
   const weekDates = getWeekDates();
   
   // Get today's tasks
@@ -185,25 +256,14 @@ const TaskManager = () => {
 
   const pendingTasks = todayTasks.filter(task => !task.completed);
   const completedTasks = todayTasks.filter(task => task.completed);
-
-  // Generate days for select options (1-31)
-  const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
   
-  // Generate months (1-12)
-  const months = [
-    "1", "2", "3", "4", "5", "6", 
-    "7", "8", "9", "10", "11", "12"
-  ];
-  
-  // Generate times (hourly)
-  const times = Array.from({ length: 24 }, (_, i) => 
-    `${i.toString().padStart(2, '0')}:00`
-  );
-
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
+  // Generate times (every 30 minutes)
+  const times = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute of [0, 30]) {
+      times.push(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+    }
+  }
 
   return (
     <div className="container py-8">
@@ -215,95 +275,118 @@ const TaskManager = () => {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="mt-4 md:mt-0">
-              <Plus className="mr-2 h-4 w-4" /> Add New Item
+              <Plus className="mr-2 h-4 w-4" /> Add New Task
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add New Item</DialogTitle>
+              <DialogTitle>Add New Task</DialogTitle>
               <DialogDescription>
-                Create a new task or event
+                Create a new task for your schedule
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              {/* Item Name */}
+              {/* Task Name */}
               <div className="grid gap-2">
                 <label htmlFor="task" className="text-sm font-medium">
-                  Item Name
+                  Task Name
                 </label>
                 <Input
                   id="task"
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
-                  placeholder="Enter item name..."
+                  placeholder="Enter task name..."
                   className="col-span-3"
                 />
               </div>
               
-              {/* Task or Event selection */}
+              {/* Difficulty Level */}
               <div className="grid gap-2">
                 <label className="text-sm font-medium">
-                  Type
+                  Difficulty Level (1-10)
                 </label>
-                <div className="flex gap-2">
+                <Select 
+                  value={taskDifficulty.toString()} 
+                  onValueChange={(value) => setTaskDifficulty(parseInt(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
+                      <SelectItem key={level} value={level.toString()}>
+                        {level}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Schedule Option */}
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">
+                    Schedule for Later
+                  </label>
                   <Button
                     type="button"
-                    variant={!isEvent ? "default" : "outline"}
-                    onClick={() => setIsEvent(false)}
-                    className="flex-1"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSchedule(!showSchedule)}
+                    className={cn(
+                      "w-[100px]",
+                      showSchedule && "bg-muted text-foreground border-primary"
+                    )}
                   >
-                    Task
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={isEvent ? "default" : "outline"}
-                    onClick={() => setIsEvent(true)}
-                    className="flex-1"
-                  >
-                    Event
+                    {showSchedule ? "Enabled" : "Disabled"}
                   </Button>
                 </div>
               </div>
               
-              {/* Date selection for events */}
-              {isEvent && (
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">
-                    Date & Time
-                  </label>
-                  <div className="flex gap-2">
-                    <Select value={selectedDay} onValueChange={setSelectedDay}>
-                      <SelectTrigger className="flex-1">
-                        <SelectValue placeholder="Day" />
+              {/* Date & Time Selection */}
+              {showSchedule && (
+                <div className="grid gap-4">
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium">
+                      Select Date
+                    </label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "justify-start text-left font-normal",
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {format(selectedDate, "MMMM d, yyyy")}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(date) => date && setSelectedDate(date)}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium">
+                      Select Time
+                    </label>
+                    <Select 
+                      value={selectedTime}
+                      onValueChange={setSelectedTime}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select time" />
                       </SelectTrigger>
                       <SelectContent>
-                        {days.map(day => (
-                          <SelectItem key={day} value={day}>
-                            {day}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
-                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                      <SelectTrigger className="flex-1">
-                        <SelectValue placeholder="Month" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {months.map((month, index) => (
-                          <SelectItem key={month} value={month}>
-                            {monthNames[index]}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
-                    <Select value={selectedTime} onValueChange={setSelectedTime}>
-                      <SelectTrigger className="flex-1">
-                        <SelectValue placeholder="Time" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {times.map(time => (
+                        {times.map((time) => (
                           <SelectItem key={time} value={time}>
                             {time}
                           </SelectItem>
@@ -315,37 +398,69 @@ const TaskManager = () => {
               )}
               
               {/* Reminder toggle */}
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">
-                  Set Reminder
-                </label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setHasReminder(!hasReminder)}
-                  className={cn(
-                    "w-[100px]",
-                    hasReminder && "bg-cog-light-teal text-cog-teal border-cog-teal"
-                  )}
-                >
-                  {hasReminder ? (
-                    <>
-                      <Bell className="h-4 w-4 mr-2" />
-                      On
-                    </>
-                  ) : (
-                    <>
-                      <BellOff className="h-4 w-4 mr-2" />
-                      Off
-                    </>
-                  )}
-                </Button>
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">
+                    Set Reminder
+                  </label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setHasReminder(!hasReminder);
+                      if (!hasReminder && selectedReminders.length === 0) {
+                        setSelectedReminders(["30min"]);
+                      }
+                    }}
+                    className={cn(
+                      "w-[100px]",
+                      hasReminder && "bg-cog-light-teal text-cog-teal border-cog-teal"
+                    )}
+                  >
+                    {hasReminder ? (
+                      <>
+                        <Bell className="h-4 w-4 mr-2" />
+                        On
+                      </>
+                    ) : (
+                      <>
+                        <BellOff className="h-4 w-4 mr-2" />
+                        Off
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
+              
+              {/* Reminder options */}
+              {hasReminder && (
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium">
+                    Reminder Times (Select Multiple)
+                  </label>
+                  <div className="border rounded-md p-4 space-y-2">
+                    {reminderOptions.map((option) => (
+                      <div key={option.value} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={`reminder-${option.value}`}
+                          checked={selectedReminders.includes(option.value)}
+                          onChange={() => toggleReminderSelection(option.value)}
+                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        />
+                        <label htmlFor={`reminder-${option.value}`} className="text-sm">
+                          {option.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button type="submit" onClick={handleAddTask}>
-                Add Item
+                Add Task
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -373,7 +488,7 @@ const TaskManager = () => {
 
               {pendingTasks.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
-                  No pending tasks for today. Add a new item to get started!
+                  No pending tasks for today. Add a new task to get started!
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -388,16 +503,27 @@ const TaskManager = () => {
                             <Circle className="h-5 w-5" />
                           </button>
                           <div>
-                            <p className="font-medium">{task.title}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{task.title}</p>
+                              <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
+                                Difficulty: {task.difficulty}
+                              </span>
+                            </div>
                             <div className="flex items-center text-xs text-muted-foreground mt-1 gap-2">
-                              {task.isEvent && (
+                              {!isSameDay(task.date, new Date()) && (
                                 <div className="px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700">
                                   {format(task.date, 'MMM d, h:mm a')}
                                 </div>
                               )}
+                              {isSameDay(task.date, new Date()) && format(task.date, 'h:mm a') !== '12:00 AM' && (
+                                <div className="px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700">
+                                  {format(task.date, 'h:mm a')}
+                                </div>
+                              )}
                               {task.hasReminder && (
                                 <div className="flex items-center text-xs text-cog-teal">
-                                  <Bell className="h-3 w-3 mr-1" /> Reminder
+                                  <Bell className="h-3 w-3 mr-1" /> 
+                                  {task.reminderTimes.length > 0 && `${task.reminderTimes.length} reminder${task.reminderTimes.length > 1 ? 's' : ''}`}
                                 </div>
                               )}
                             </div>
@@ -420,7 +546,7 @@ const TaskManager = () => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" className="w-full flex justify-between">
-                        <span>Completed Items ({completedTasks.length})</span>
+                        <span>Completed Tasks ({completedTasks.length})</span>
                         {showCompleted ? (
                           <ChevronUp className="h-4 w-4 ml-2" />
                         ) : (
@@ -441,7 +567,12 @@ const TaskManager = () => {
                                   <CheckCircle className="h-5 w-5" fill="currentColor" />
                                 </button>
                                 <div>
-                                  <p className="font-medium line-through">{task.title}</p>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium line-through">{task.title}</p>
+                                    <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
+                                      Difficulty: {task.difficulty}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
                               <button
@@ -469,6 +600,8 @@ const TaskManager = () => {
                     isSameDay(task.date, date) && !task.completed
                   );
                   
+                  const totalDifficulty = calculateDayDifficulty(tasks, date);
+                  
                   return (
                     <div 
                       key={format(date, 'yyyy-MM-dd')}
@@ -478,9 +611,15 @@ const TaskManager = () => {
                       )}
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={() => handleDrop(date)}
+                      onClick={() => setSelectedDate(date)}
                     >
                       <div className="font-medium text-sm mb-1">
                         {format(date, 'EEE, MMM d')}
+                        {totalDifficulty > 0 && (
+                          <span className="ml-1 px-1.5 py-0.5 bg-muted text-xs rounded-full">
+                            Difficulty: {totalDifficulty}
+                          </span>
+                        )}
                       </div>
                       
                       <div className="space-y-1">
@@ -491,8 +630,13 @@ const TaskManager = () => {
                             onDragStart={() => handleDragStart(task)}
                             className="text-xs p-1 bg-card border rounded-sm cursor-move flex items-center justify-between group"
                           >
-                            <div className="truncate">{task.title}</div>
-                            {task.hasReminder && <Bell className="h-3 w-3 text-cog-teal opacity-70" />}
+                            <div className="truncate flex-1">{task.title}</div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] opacity-70">
+                                {format(task.date, 'HH:mm') !== '00:00' && format(task.date, 'HH:mm')}
+                              </span>
+                              {task.hasReminder && <Bell className="h-3 w-3 text-cog-teal opacity-70" />}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -513,8 +657,8 @@ const TaskManager = () => {
           <div>
             <h3 className="text-xl font-semibold">Message from your Occupational Therapist</h3>
             <p className="text-muted-foreground max-w-xl">
-              The simplified task manager helps you keep track of your schedule without overwhelming you.
-              Don't forget to set reminders for important items.
+              Breaking down tasks by difficulty helps manage your cognitive load throughout the day.
+              Don't forget to set reminders for important tasks.
             </p>
           </div>
         </div>
