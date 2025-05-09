@@ -13,7 +13,7 @@ export type GameProgressEntry = {
 };
 
 export const getGameProgress = async (category?: string): Promise<GameProgressEntry[]> => {
-  const { user } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     throw new Error("User not authenticated");
   }
@@ -46,7 +46,7 @@ export const saveGameProgress = async (
   level?: number,
   timeTaken?: number
 ): Promise<string> => {
-  const { user } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     throw new Error("User not authenticated");
   }
@@ -73,7 +73,7 @@ export const saveGameProgress = async (
 };
 
 export const getMostImprovedGame = async (category: string): Promise<{ game: string; improvement: number } | null> => {
-  const { user } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return null;
   }
