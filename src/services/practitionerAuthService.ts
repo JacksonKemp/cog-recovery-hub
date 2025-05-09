@@ -24,7 +24,7 @@ export const verifyPractitionerAccess = async (accessCode: string): Promise<Pati
       .eq('access_code', accessCode)
       .eq('is_active', true)
       .maybeSingle()
-      .options({ headers: customHeaders });
+      .headers(customHeaders);
 
     if (accessError || !accessData) {
       console.error("Access verification failed:", accessError);
@@ -45,7 +45,7 @@ export const verifyPractitionerAccess = async (accessCode: string): Promise<Pati
       .select('id, full_name')
       .eq('id', accessData.user_id)
       .maybeSingle()
-      .options({ headers: customHeaders });
+      .headers(customHeaders);
 
     if (userError) {
       console.error("Error fetching user data:", userError);

@@ -14,7 +14,7 @@ export const getPractitionerViewGameProgress = async (patientId: string): Promis
     .select('*')
     .eq('user_id', patientId)
     .order('created_at', { ascending: false })
-    .options({ headers });
+    .headers(headers);
 
   if (error) {
     console.error("Error fetching game progress:", error);
@@ -43,7 +43,7 @@ export const getPractitionerViewSymptoms = async (patientId: string): Promise<Sy
     .select('*')
     .eq('user_id', patientId)
     .order('created_at', { ascending: false })
-    .options({ headers });
+    .headers(headers);
 
   if (error) {
     console.error("Error fetching symptoms:", error);
