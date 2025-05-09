@@ -141,6 +141,7 @@ const SymptomTracker = () => {
     }
   };
 
+  // Fixed to correctly handle the data point index
   const handleDataPointClick = (data: any, index: number) => {
     setSelectedDataPoint(index);
   };
@@ -409,7 +410,15 @@ const SymptomTracker = () => {
                               stroke={chartConfig.headache.color} 
                               strokeWidth={2}
                               dot={{ r: 4 }}
-                              activeDot={{ r: 6, onClick: (_, index) => setSelectedDataPoint(index) }}
+                              activeDot={{ 
+                                r: 6, 
+                                onClick: (_, index) => {
+                                  if (typeof index === 'number') {
+                                    setSelectedDataPoint(index);
+                                  }
+                                }
+                              }}
+                              fill="none"
                             />
                             <Line 
                               type="monotone" 
@@ -418,7 +427,15 @@ const SymptomTracker = () => {
                               stroke={chartConfig.fatigue.color} 
                               strokeWidth={2}
                               dot={{ r: 4 }}
-                              activeDot={{ r: 6, onClick: (_, index) => setSelectedDataPoint(index) }}
+                              activeDot={{ 
+                                r: 6, 
+                                onClick: (_, index) => {
+                                  if (typeof index === 'number') {
+                                    setSelectedDataPoint(index);
+                                  }
+                                }
+                              }}
+                              fill="none"
                             />
                             <Line 
                               type="monotone" 
@@ -427,7 +444,15 @@ const SymptomTracker = () => {
                               stroke={chartConfig.anxiety.color} 
                               strokeWidth={2}
                               dot={{ r: 4 }}
-                              activeDot={{ r: 6, onClick: (_, index) => setSelectedDataPoint(index) }}
+                              activeDot={{ 
+                                r: 6, 
+                                onClick: (_, index) => {
+                                  if (typeof index === 'number') {
+                                    setSelectedDataPoint(index);
+                                  }
+                                }
+                              }}
+                              fill="none"
                             />
                             <Line 
                               type="monotone" 
@@ -436,7 +461,15 @@ const SymptomTracker = () => {
                               stroke={chartConfig.focus.color} 
                               strokeWidth={2}
                               dot={{ r: 4 }}
-                              activeDot={{ r: 6, onClick: (_, index) => setSelectedDataPoint(index) }}
+                              activeDot={{ 
+                                r: 6, 
+                                onClick: (_, index) => {
+                                  if (typeof index === 'number') {
+                                    setSelectedDataPoint(index);
+                                  }
+                                }
+                              }}
+                              fill="none"
                             />
                           </RechartsLineChart>
                         </ResponsiveContainer>
