@@ -1,13 +1,17 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { GameProgressEntry } from "@/services/gameService";
-import { usePractitionerHeaders } from "@/services/practitionerAuthService";
+import { getPractitionerAccessCode } from "@/services/practitionerAuthService";
 
 export const getPractitionerViewGameProgress = async (patientId: string): Promise<GameProgressEntry[]> => {
-  const headers = usePractitionerHeaders();
-  if (!headers['x-practitioner-access-code']) {
+  const accessCode = getPractitionerAccessCode();
+  if (!accessCode) {
     throw new Error("Practitioner access code not provided");
   }
+  
+  const headers = {
+    'x-practitioner-access-code': accessCode
+  };
 
   const { data, error } = await supabase
     .from('game_progress')
@@ -33,10 +37,14 @@ export type SymptomEntry = {
 };
 
 export const getPractitionerViewSymptoms = async (patientId: string): Promise<SymptomEntry[]> => {
-  const headers = usePractitionerHeaders();
-  if (!headers['x-practitioner-access-code']) {
+  const accessCode = getPractitionerAccessCode();
+  if (!accessCode) {
     throw new Error("Practitioner access code not provided");
   }
+  
+  const headers = {
+    'x-practitioner-access-code': accessCode
+  };
 
   const { data, error } = await supabase
     .from('symptom_entries')
