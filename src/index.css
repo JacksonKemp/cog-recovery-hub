@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700&display=swap');
 
 @tailwind base;
@@ -120,5 +121,24 @@
   
   .rotate-y-180 {
     transform: rotateY(180deg);
+  }
+
+  /* Mobile optimizations */
+  .touch-action-manipulation {
+    touch-action: manipulation;
+  }
+  
+  @media (max-width: 768px) {
+    .mobile-buttons-grid {
+      @apply grid grid-cols-1 gap-2;
+    }
+    
+    .mobile-button {
+      @apply min-h-12 w-full py-3 text-base flex items-center justify-center;
+    }
+    
+    .mobile-dialog-content {
+      @apply p-4;
+    }
   }
 }

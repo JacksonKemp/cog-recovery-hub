@@ -38,6 +38,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Task type definition
 type Task = {
@@ -94,6 +95,7 @@ const TaskManager = () => {
   const [taskDifficulty, setTaskDifficulty] = useState<number>(3);
   const [selectedTime, setSelectedTime] = useState<string>("12:00");
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   // Sample tasks with dates as Date objects
   const [tasks, setTasks] = useState<Task[]>([
@@ -266,19 +268,19 @@ const TaskManager = () => {
   }
 
   return (
-    <div className="container py-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+    <div className="container py-4 md:py-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Task Manager</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Task Manager</h1>
         </div>
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="mt-4 md:mt-0">
+            <Button className="mt-4 md:mt-0" size={isMobile ? "mobile" : "default"}>
               <Plus className="mr-2 h-4 w-4" /> Add New Task
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className={cn("sm:max-w-[425px]", isMobile && "mobile-dialog-content")}>
             <DialogHeader>
               <DialogTitle>Add New Task</DialogTitle>
               <DialogDescription>
@@ -296,7 +298,7 @@ const TaskManager = () => {
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   placeholder="Enter task name..."
-                  className="col-span-3"
+                  className={cn("col-span-3", isMobile && "h-12 text-base")}
                 />
               </div>
               
@@ -309,7 +311,7 @@ const TaskManager = () => {
                   value={taskDifficulty.toString()} 
                   onValueChange={(value) => setTaskDifficulty(parseInt(value))}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
                     <SelectValue placeholder="Select difficulty" />
                   </SelectTrigger>
                   <SelectContent>
@@ -331,7 +333,7 @@ const TaskManager = () => {
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
+                    size={isMobile ? "mobile" : "sm"}
                     onClick={() => setShowSchedule(!showSchedule)}
                     className={cn(
                       "w-[100px]",
@@ -354,6 +356,7 @@ const TaskManager = () => {
                       <PopoverTrigger asChild>
                         <Button
                           variant={"outline"}
+                          size={isMobile ? "mobile" : "default"}
                           className={cn(
                             "justify-start text-left font-normal",
                           )}
@@ -382,7 +385,7 @@ const TaskManager = () => {
                       value={selectedTime}
                       onValueChange={setSelectedTime}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
                         <SelectValue placeholder="Select time" />
                       </SelectTrigger>
                       <SelectContent>
@@ -406,7 +409,7 @@ const TaskManager = () => {
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
+                    size={isMobile ? "mobile" : "sm"}
                     onClick={() => {
                       setHasReminder(!hasReminder);
                       if (!hasReminder && selectedReminders.length === 0) {
@@ -441,15 +444,24 @@ const TaskManager = () => {
                   </label>
                   <div className="border rounded-md p-4 space-y-2">
                     {reminderOptions.map((option) => (
-                      <div key={option.value} className="flex items-center space-x-2">
+                      <div key={option.value} className={cn(
+                        "flex items-center space-x-2",
+                        isMobile && "py-1"
+                      )}>
                         <input
                           type="checkbox"
                           id={`reminder-${option.value}`}
                           checked={selectedReminders.includes(option.value)}
                           onChange={() => toggleReminderSelection(option.value)}
-                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          className={cn(
+                            "h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary",
+                            isMobile && "h-5 w-5"
+                          )}
                         />
-                        <label htmlFor={`reminder-${option.value}`} className="text-sm">
+                        <label 
+                          htmlFor={`reminder-${option.value}`} 
+                          className={cn("text-sm", isMobile && "text-base py-2")}
+                        >
                           {option.label}
                         </label>
                       </div>
@@ -458,8 +470,13 @@ const TaskManager = () => {
                 </div>
               )}
             </div>
-            <DialogFooter>
-              <Button type="submit" onClick={handleAddTask}>
+            <DialogFooter className={cn(isMobile && "mobile-buttons-grid")}>
+              <Button 
+                type="submit" 
+                onClick={handleAddTask}
+                size={isMobile ? "mobile" : "default"}
+                className={cn(isMobile && "mobile-button")}
+              >
                 Add Task
               </Button>
             </DialogFooter>
@@ -469,42 +486,48 @@ const TaskManager = () => {
 
       <div className="rounded-lg border">
         <Tabs defaultValue="day" className="w-full">
-          <div className="p-4 border-b">
+          <div className="p-3 md:p-4 border-b">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="day">
+              <TabsTrigger value="day" className={cn(isMobile && "py-3")}>
                 <CalendarIcon className="h-4 w-4 mr-2" />
                 Day View
               </TabsTrigger>
-              <TabsTrigger value="week">
+              <TabsTrigger value="week" className={cn(isMobile && "py-3")}>
                 <MoveHorizontal className="h-4 w-4 mr-2" />
                 Week View
               </TabsTrigger>
             </TabsList>
           </div>
 
-          <div className="p-4">
+          <div className="p-3 md:p-4">
             <TabsContent value="day" className="mt-0 space-y-4">
-              <h2 className="text-2xl font-semibold">{format(selectedDate, 'MMMM d, yyyy')}</h2>
+              <h2 className="text-xl md:text-2xl font-semibold">{format(selectedDate, 'MMMM d, yyyy')}</h2>
 
               {pendingTasks.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
+                <div className="text-center py-10 md:py-12 text-muted-foreground">
                   No pending tasks for today. Add a new task to get started!
                 </div>
               ) : (
                 <div className="space-y-3">
                   {pendingTasks.map((task) => (
                     <Card key={task.id}>
-                      <CardContent className="p-4 flex items-center justify-between">
+                      <CardContent className={cn(
+                        "p-4 flex items-center justify-between",
+                        isMobile && "p-3"
+                      )}>
                         <div className="flex items-center">
                           <button
-                            className="mr-3 text-muted-foreground hover:text-foreground"
+                            className={cn(
+                              "mr-3 text-muted-foreground hover:text-foreground",
+                              isMobile && "mr-2"
+                            )}
                             onClick={() => toggleTaskCompletion(task.id)}
                           >
-                            <Circle className="h-5 w-5" />
+                            <Circle className={cn("h-5 w-5", isMobile && "h-6 w-6")} />
                           </button>
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className="font-medium">{task.title}</p>
+                              <p className={cn("font-medium", isMobile && "text-base")}>{task.title}</p>
                               <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
                                 Difficulty: {task.difficulty}
                               </span>
@@ -530,10 +553,13 @@ const TaskManager = () => {
                           </div>
                         </div>
                         <button
-                          className="text-muted-foreground hover:text-destructive"
+                          className={cn(
+                            "text-muted-foreground hover:text-destructive",
+                            isMobile && "p-2"
+                          )}
                           onClick={() => deleteTask(task.id)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
                         </button>
                       </CardContent>
                     </Card>
@@ -545,7 +571,11 @@ const TaskManager = () => {
                 <div className="mt-4">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full flex justify-between">
+                      <Button 
+                        variant="outline" 
+                        className="w-full flex justify-between"
+                        size={isMobile ? "mobile" : "default"}
+                      >
                         <span>Completed Tasks ({completedTasks.length})</span>
                         {showCompleted ? (
                           <ChevronUp className="h-4 w-4 ml-2" />
@@ -558,17 +588,25 @@ const TaskManager = () => {
                       <div className="space-y-3 p-2">
                         {completedTasks.map((task) => (
                           <Card key={task.id} className="bg-muted/40">
-                            <CardContent className="p-4 flex items-center justify-between">
+                            <CardContent className={cn(
+                              "p-4 flex items-center justify-between",
+                              isMobile && "p-3"
+                            )}>
                               <div className="flex items-center">
                                 <button
-                                  className="mr-3 text-cog-teal"
+                                  className={cn("mr-3 text-cog-teal", isMobile && "mr-2")}
                                   onClick={() => toggleTaskCompletion(task.id)}
                                 >
-                                  <CheckCircle className="h-5 w-5" fill="currentColor" />
+                                  <CheckCircle className={cn("h-5 w-5", isMobile && "h-6 w-6")} fill="currentColor" />
                                 </button>
                                 <div>
                                   <div className="flex items-center gap-2">
-                                    <p className="font-medium line-through">{task.title}</p>
+                                    <p className={cn(
+                                      "font-medium line-through",
+                                      isMobile && "text-base"
+                                    )}>
+                                      {task.title}
+                                    </p>
                                     <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
                                       Difficulty: {task.difficulty}
                                     </span>
@@ -576,10 +614,13 @@ const TaskManager = () => {
                                 </div>
                               </div>
                               <button
-                                className="text-muted-foreground hover:text-destructive"
+                                className={cn(
+                                  "text-muted-foreground hover:text-destructive",
+                                  isMobile && "p-2"
+                                )}
                                 onClick={() => deleteTask(task.id)}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
                               </button>
                             </CardContent>
                           </Card>
@@ -592,7 +633,7 @@ const TaskManager = () => {
             </TabsContent>
 
             <TabsContent value="week" className="mt-0">
-              <h2 className="text-2xl font-semibold mb-4">Week View</h2>
+              <h2 className="text-xl md:text-2xl font-semibold mb-4">Week View</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
                 {weekDates.map((date) => {
@@ -606,7 +647,8 @@ const TaskManager = () => {
                     <div 
                       key={format(date, 'yyyy-MM-dd')}
                       className={cn(
-                        "border rounded-md p-2 min-h-[150px]",
+                        "border rounded-md p-2 min-h-[120px] md:min-h-[150px]",
+                        isMobile && "mb-2",
                         isSameDay(date, new Date()) && "bg-muted/30 border-primary",
                       )}
                       onDragOver={(e) => e.preventDefault()}
@@ -628,7 +670,10 @@ const TaskManager = () => {
                             key={task.id}
                             draggable
                             onDragStart={() => handleDragStart(task)}
-                            className="text-xs p-1 bg-card border rounded-sm cursor-move flex items-center justify-between group"
+                            className={cn(
+                              "text-xs p-1 bg-card border rounded-sm cursor-move flex items-center justify-between group",
+                              isMobile && "p-2 text-sm"
+                            )}
                           >
                             <div className="truncate flex-1">{task.title}</div>
                             <div className="flex items-center gap-1">
@@ -649,13 +694,13 @@ const TaskManager = () => {
         </Tabs>
       </div>
 
-      <div className="mt-8 p-6 rounded-lg bg-cog-light-teal">
+      <div className="mt-6 md:mt-8 p-4 md:p-6 rounded-lg bg-cog-light-teal">
         <div className="flex flex-col md:flex-row items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
             <CheckSquare className="h-6 w-6 text-cog-teal" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold">Message from your Occupational Therapist</h3>
+            <h3 className="text-lg md:text-xl font-semibold">Message from your Occupational Therapist</h3>
             <p className="text-muted-foreground max-w-xl">
               Breaking down tasks by difficulty helps manage your cognitive load throughout the day.
               Don't forget to set reminders for important tasks.
