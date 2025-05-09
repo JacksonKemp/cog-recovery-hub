@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -201,7 +200,9 @@ const CognitiveGames = () => {
               Keep playing games regularly to see improvement in your cognitive abilities.
             </p>
           </div>
-          <Button className="mt-4 md:mt-0">View Progress Stats</Button>
+          <Button className="mt-4 md:mt-0" asChild>
+            <Link to="/games/progress">View Progress Stats</Link>
+          </Button>
         </div>
       </div>
     </div>

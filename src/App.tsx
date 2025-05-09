@@ -13,6 +13,7 @@ import SymptomTracker from "./pages/SymptomTracker";
 import NotFound from "./pages/NotFound";
 import * as React from "react";
 import { initializeReminders } from "./utils/reminderUtils";
+import GameProgress from "./pages/GameProgress";
 
 // Game imports
 import NumbersGame from "./pages/games/NumbersGame";
@@ -54,6 +55,7 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/games" element={<CognitiveGames />} />
+              <Route path="/games/progress" element={<GameProgress />} />
               <Route path="/tasks" element={<TaskManager />} />
               <Route path="/symptoms" element={<SymptomTracker />} />
               
