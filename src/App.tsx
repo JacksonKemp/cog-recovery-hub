@@ -17,6 +17,8 @@ import GameProgress from "./pages/GameProgress";
 import Auth from "./pages/Auth";
 import { AuthProvider } from "./hooks/use-auth";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import PractitionerAuth from "./pages/PractitionerAuth";
+import PractitionerDashboard from "./pages/PractitionerDashboard";
 
 // Game imports
 import NumbersGame from "./pages/games/NumbersGame";
@@ -57,6 +59,10 @@ function App() {
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route path="/" element={<Index />} />
+              
+              {/* Practitioner routes */}
+              <Route path="/practitioner" element={<PractitionerAuth />} />
+              <Route path="/practitioner/dashboard" element={<PractitionerDashboard />} />
               
               {/* Protected routes */}
               <Route element={<ProtectedRoute />}>

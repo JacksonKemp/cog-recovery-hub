@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PractitionerAccessButton } from "@/components/PractitionerAccessButton";
 
 const Dashboard = () => {
   // Mock data
@@ -198,11 +199,12 @@ const Dashboard = () => {
         
         {/* Message from Practitioner */}
         <Card className="hover:border-cog-teal transition-all duration-300 md:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-cog-teal" />
-              Message from Dr. Johnson
-            </CardTitle>
+              <CardTitle>Message from Dr. Johnson</CardTitle>
+            </div>
+            <PractitionerAccessButton />
           </CardHeader>
           <CardContent>
             <div className="p-3 bg-muted/30 rounded-lg">

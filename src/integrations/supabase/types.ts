@@ -45,6 +45,30 @@ export type Database = {
         }
         Relationships: []
       }
+      practitioners: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          specialty: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          specialty?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          specialty?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -93,12 +117,66 @@ export type Database = {
         }
         Relationships: []
       }
+      user_practitioners: {
+        Row: {
+          access_code: string
+          access_expires_at: string | null
+          access_granted_at: string
+          created_at: string
+          id: string
+          is_active: boolean
+          practitioner_id: string
+          user_id: string
+        }
+        Insert: {
+          access_code: string
+          access_expires_at?: string | null
+          access_granted_at?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          practitioner_id: string
+          user_id: string
+        }
+        Update: {
+          access_code?: string
+          access_expires_at?: string | null
+          access_granted_at?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          practitioner_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_practitioners_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "practitioners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_practitioner_for_user: {
+        Args: {
+          _user_id: string
+          _practitioner_name: string
+          _practitioner_email: string
+          _practitioner_specialty?: string
+          _expires_in_days?: number
+        }
+        Returns: string
+      }
+      generate_access_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
