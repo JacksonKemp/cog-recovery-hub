@@ -14,6 +14,9 @@ import NotFound from "./pages/NotFound";
 import * as React from "react";
 import { initializeReminders } from "./utils/reminderUtils";
 import GameProgress from "./pages/GameProgress";
+import Auth from "./pages/Auth";
+import { AuthProvider } from "./hooks/use-auth";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Game imports
 import NumbersGame from "./pages/games/NumbersGame";
@@ -46,36 +49,43 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route element={<MainLayout />}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
               <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/games" element={<CognitiveGames />} />
-              <Route path="/games/progress" element={<GameProgress />} />
-              <Route path="/tasks" element={<TaskManager />} />
-              <Route path="/symptoms" element={<SymptomTracker />} />
               
-              {/* Game routes */}
-              <Route path="/games/numbers" element={<NumbersGame />} />
-              <Route path="/games/names" element={<NamesGame />} />
-              <Route path="/games/faces" element={<FacesGame />} />
-              <Route path="/games/rgb" element={<RGBGame />} />
-              <Route path="/games/word-finder" element={<WordFinderGame />} />
-              <Route path="/games/identification" element={<IdentificationGame />} />
-              <Route path="/games/then-what" element={<ThenWhatGame />} />
-              <Route path="/games/word-searches" element={<WordSearchesGame />} />
-              <Route path="/games/sudoku" element={<SudokuGame />} />
-              <Route path="/games/memory-match" element={<MemoryMatchGame />} />
+              {/* Protected routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route element={<MainLayout />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/games" element={<CognitiveGames />} />
+                  <Route path="/games/progress" element={<GameProgress />} />
+                  <Route path="/tasks" element={<TaskManager />} />
+                  <Route path="/symptoms" element={<SymptomTracker />} />
+                  
+                  {/* Game routes */}
+                  <Route path="/games/numbers" element={<NumbersGame />} />
+                  <Route path="/games/names" element={<NamesGame />} />
+                  <Route path="/games/faces" element={<FacesGame />} />
+                  <Route path="/games/rgb" element={<RGBGame />} />
+                  <Route path="/games/word-finder" element={<WordFinderGame />} />
+                  <Route path="/games/identification" element={<IdentificationGame />} />
+                  <Route path="/games/then-what" element={<ThenWhatGame />} />
+                  <Route path="/games/word-searches" element={<WordSearchesGame />} />
+                  <Route path="/games/sudoku" element={<SudokuGame />} />
+                  <Route path="/games/memory-match" element={<MemoryMatchGame />} />
+                </Route>
+              </Route>
               
               <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
