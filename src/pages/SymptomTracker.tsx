@@ -4,11 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, Calendar, Plus, LineChart, ArrowDown, ArrowUp, Minus, Check, Loader2 } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { SymptomEntry, SymptomRatings, hasEntryForToday, saveSymptomEntry, getRecentEntries } from "@/services/symptomService";
+import { ChartContainer, ChartLegendContent, ChartTooltipContent } from "@/components/ui/chart";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Sample data for charts
 const lastWeekData = [
@@ -21,13 +23,42 @@ const lastWeekData = [
   { date: "Sun", headache: 1, fatigue: 2, anxiety: 1, focus: 4 },
 ];
 
+const lastMonthData = [
+  // Week 1
+  { date: "Week 1", headache: 3, fatigue: 3, anxiety: 2, focus: 2 },
+  // Week 2
+  { date: "Week 2", headache: 2, fatigue: 2, anxiety: 1, focus: 3 },
+  // Week 3
+  { date: "Week 3", headache: 2, fatigue: 2, anxiety: 1, focus: 3 },
+  // Week 4
+  { date: "Week 4", headache: 1, fatigue: 1, anxiety: 1, focus: 4 },
+];
+
+const lastYearData = [
+  { date: "Jan", headache: 4, fatigue: 4, anxiety: 3, focus: 1 },
+  { date: "Feb", headache: 4, fatigue: 3, anxiety: 3, focus: 2 },
+  { date: "Mar", headache: 3, fatigue: 3, anxiety: 2, focus: 2 },
+  { date: "Apr", headache: 3, fatigue: 2, anxiety: 2, focus: 3 },
+  { date: "May", headache: 2, fatigue: 2, anxiety: 1, focus: 3 },
+  { date: "Jun", headache: 2, fatigue: 2, anxiety: 1, focus: 3 },
+  { date: "Jul", headache: 1, fatigue: 1, anxiety: 1, focus: 4 },
+  { date: "Aug", headache: 1, fatigue: 1, anxiety: 0, focus: 4 },
+  { date: "Sep", headache: 1, fatigue: 1, anxiety: 0, focus: 4 },
+  { date: "Oct", headache: 1, fatigue: 1, anxiety: 0, focus: 4 },
+  { date: "Nov", headache: 0, fatigue: 1, anxiety: 0, focus: 5 },
+  { date: "Dec", headache: 0, fatigue: 0, anxiety: 0, focus: 5 },
+];
+
 // Steps for symptom tracking
 type Step = "headache" | "fatigue" | "anxiety" | "focus" | "notes" | "complete";
+type TimeFrame = "week" | "month" | "year" | "all";
 
 const SymptomTracker = () => {
   const [selectedTab, setSelectedTab] = useState("track");
   const [isFlowOpen, setIsFlowOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState<Step>("headache");
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>("week");
+  const [selectedDataPoint, setSelectedDataPoint] = useState<number | null>(null);
   const { toast } = useToast();
 
   // Current symptom ratings
@@ -42,6 +73,24 @@ const SymptomTracker = () => {
   const [recentEntries, setRecentEntries] = useState<SymptomEntry[]>([]);
   const [hasRecordedToday, setHasRecordedToday] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Get chart data based on selected timeframe
+  const getChartData = () => {
+    switch (timeFrame) {
+      case "week":
+        return lastWeekData;
+      case "month":
+        return lastMonthData;
+      case "year":
+        return lastYearData;
+      case "all":
+        return lastYearData; // Using year data for 'all' as well for this demo
+      default:
+        return lastWeekData;
+    }
+  };
+
+  const chartData = getChartData();
 
   // Load data on component mount
   useEffect(() => {
@@ -70,6 +119,13 @@ const SymptomTracker = () => {
     loadData();
   }, [toast]);
 
+  // Set the initial selected data point when chart data changes
+  useEffect(() => {
+    if (chartData && chartData.length > 0) {
+      setSelectedDataPoint(0);
+    }
+  }, [chartData]);
+
   const handleSymptomChange = (symptom: keyof SymptomRatings, value: number) => {
     setSymptoms({ ...symptoms, [symptom]: value });
     
@@ -83,6 +139,10 @@ const SymptomTracker = () => {
     } else if (symptom === "focus") {
       setCurrentStep("notes");
     }
+  };
+
+  const handleDataPointClick = (data: any, index: number) => {
+    setSelectedDataPoint(index);
   };
 
   const handleNextStep = () => {
@@ -173,6 +233,42 @@ const SymptomTracker = () => {
     return <Minus className="h-4 w-4 text-gray-500" />;
   };
 
+  // Configure chart colors and labels
+  const chartConfig = {
+    headache: { 
+      label: "Headache", 
+      color: "#8884d8", 
+    },
+    fatigue: { 
+      label: "Fatigue", 
+      color: "#82ca9d", 
+    },
+    anxiety: { 
+      label: "Anxiety", 
+      color: "#ffc658", 
+    },
+    focus: { 
+      label: "Focus", 
+      color: "#9b87f5", 
+    },
+  };
+
+  // Get timeframe label
+  const getTimeframeLabel = () => {
+    switch(timeFrame) {
+      case "week": return "Last 7 Days";
+      case "month": return "Last 4 Weeks";
+      case "year": return "Last 12 Months";
+      case "all": return "All Time";
+      default: return "Last 7 Days";
+    }
+  };
+
+  // Get Y-Axis label
+  const getYAxisLabel = () => {
+    return "Severity (0-5)";
+  };
+
   return (
     <div className="container py-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -232,46 +328,177 @@ const SymptomTracker = () => {
         <TabsContent value="history" className="mt-0">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Symptom Trends</CardTitle>
-                <CardDescription>Track how your symptoms have changed over time</CardDescription>
+              <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <CardTitle>Symptom Trends</CardTitle>
+                  <CardDescription>Track how your symptoms have changed over time</CardDescription>
+                </div>
+                <div className="w-full md:w-40">
+                  <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select timeframe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="week">Week</SelectItem>
+                      <SelectItem value="month">Month</SelectItem>
+                      <SelectItem value="year">Year</SelectItem>
+                      <SelectItem value="all">All Time</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </CardHeader>
-              <CardContent className="h-80">
+              <CardContent>
                 {isLoading ? (
-                  <div className="flex items-center justify-center h-full">
+                  <div className="flex items-center justify-center h-80">
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                   </div>
                 ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={lastWeekData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorHeadache" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-                        </linearGradient>
-                        <linearGradient id="colorFatigue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
-                        </linearGradient>
-                        <linearGradient id="colorAnxiety" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#ffc658" stopOpacity={0}/>
-                        </linearGradient>
-                        <linearGradient id="colorFocus" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor="#9b87f5" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis domain={[0, 5]} />
-                      <Tooltip />
-                      <Area type="monotone" dataKey="headache" stroke="#8884d8" fillOpacity={1} fill="url(#colorHeadache)" />
-                      <Area type="monotone" dataKey="fatigue" stroke="#82ca9d" fillOpacity={1} fill="url(#colorFatigue)" />
-                      <Area type="monotone" dataKey="anxiety" stroke="#ffc658" fillOpacity={1} fill="url(#colorAnxiety)" />
-                      <Area type="monotone" dataKey="focus" stroke="#9b87f5" fillOpacity={1} fill="url(#colorFocus)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
+                  <div className="space-y-6">
+                    <div className="h-80">
+                      <ChartContainer 
+                        className="h-full"
+                        config={chartConfig}
+                      >
+                        <ResponsiveContainer width="100%" height="100%">
+                          <RechartsLineChart 
+                            data={chartData}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+                            onClick={(data) => {
+                              if (data.activeTooltipIndex !== undefined) {
+                                handleDataPointClick(data, data.activeTooltipIndex);
+                              }
+                            }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis 
+                              dataKey="date"
+                              tick={{ fontSize: 12 }}
+                              label={{ 
+                                value: getTimeframeLabel(), 
+                                position: 'insideBottom', 
+                                offset: -15,
+                                fontSize: 12
+                              }}
+                            />
+                            <YAxis 
+                              domain={[0, 5]}
+                              tick={{ fontSize: 12 }}
+                              label={{ 
+                                value: getYAxisLabel(), 
+                                angle: -90, 
+                                position: 'insideLeft',
+                                style: { textAnchor: 'middle' },
+                                fontSize: 12
+                              }}
+                            />
+                            <Tooltip 
+                              content={<ChartTooltipContent />}
+                              wrapperStyle={{ outline: "none" }}
+                            />
+                            <Legend 
+                              layout="horizontal"
+                              verticalAlign="top"
+                              align="center"
+                              content={<ChartLegendContent />}
+                              wrapperStyle={{ paddingBottom: 20 }}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="headache" 
+                              name="Headache"
+                              stroke={chartConfig.headache.color} 
+                              strokeWidth={2}
+                              dot={{ r: 4 }}
+                              activeDot={{ r: 6, onClick: (_, index) => setSelectedDataPoint(index) }}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="fatigue" 
+                              name="Fatigue"
+                              stroke={chartConfig.fatigue.color} 
+                              strokeWidth={2}
+                              dot={{ r: 4 }}
+                              activeDot={{ r: 6, onClick: (_, index) => setSelectedDataPoint(index) }}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="anxiety" 
+                              name="Anxiety"
+                              stroke={chartConfig.anxiety.color} 
+                              strokeWidth={2}
+                              dot={{ r: 4 }}
+                              activeDot={{ r: 6, onClick: (_, index) => setSelectedDataPoint(index) }}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="focus" 
+                              name="Focus"
+                              stroke={chartConfig.focus.color} 
+                              strokeWidth={2}
+                              dot={{ r: 4 }}
+                              activeDot={{ r: 6, onClick: (_, index) => setSelectedDataPoint(index) }}
+                            />
+                          </RechartsLineChart>
+                        </ResponsiveContainer>
+                      </ChartContainer>
+                    </div>
+                    
+                    {/* Always visible data point details */}
+                    {selectedDataPoint !== null && chartData[selectedDataPoint] && (
+                      <div className="p-4 border rounded-lg bg-background shadow-sm">
+                        <div className="flex justify-between items-center mb-2">
+                          <h3 className="font-semibold text-lg">{chartData[selectedDataPoint].date}</h3>
+                          <span className="text-xs text-muted-foreground">{getTimeframeLabel()}</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div className="flex flex-col p-2 bg-muted/30 rounded border">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{backgroundColor: chartConfig.headache.color}}></div>
+                              <span className="text-sm font-medium">Headache:</span>
+                            </div>
+                            <span className="text-xl font-semibold">{chartData[selectedDataPoint].headache}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {getRatingLabel(chartData[selectedDataPoint].headache, "headache")}
+                            </span>
+                          </div>
+                          
+                          <div className="flex flex-col p-2 bg-muted/30 rounded border">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{backgroundColor: chartConfig.fatigue.color}}></div>
+                              <span className="text-sm font-medium">Fatigue:</span>
+                            </div>
+                            <span className="text-xl font-semibold">{chartData[selectedDataPoint].fatigue}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {getRatingLabel(chartData[selectedDataPoint].fatigue, "fatigue")}
+                            </span>
+                          </div>
+                          
+                          <div className="flex flex-col p-2 bg-muted/30 rounded border">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{backgroundColor: chartConfig.anxiety.color}}></div>
+                              <span className="text-sm font-medium">Anxiety:</span>
+                            </div>
+                            <span className="text-xl font-semibold">{chartData[selectedDataPoint].anxiety}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {getRatingLabel(chartData[selectedDataPoint].anxiety, "anxiety")}
+                            </span>
+                          </div>
+                          
+                          <div className="flex flex-col p-2 bg-muted/30 rounded border">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{backgroundColor: chartConfig.focus.color}}></div>
+                              <span className="text-sm font-medium">Focus:</span>
+                            </div>
+                            <span className="text-xl font-semibold">{chartData[selectedDataPoint].focus}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {getRatingLabel(chartData[selectedDataPoint].focus, "focus")}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </CardContent>
             </Card>
