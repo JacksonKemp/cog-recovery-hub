@@ -141,4 +141,21 @@
       @apply p-4;
     }
   }
+
+  /* Toast notification styles */
+  .toast-notification {
+    @apply bg-white dark:bg-gray-800 shadow-lg rounded-lg border-l-4 border-cog-teal;
+  }
+  
+  .toast-title {
+    @apply font-semibold text-foreground;
+  }
+  
+  .toast-description {
+    @apply text-sm text-muted-foreground mt-1;
+  }
+  
+  .toast-action {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 shadow-none;
+  }
 }

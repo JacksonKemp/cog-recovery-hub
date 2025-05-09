@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import type {
@@ -5,8 +6,8 @@ import type {
   ToastProps,
 } from "@/components/ui/toast"
 
-const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_LIMIT = 5 // Increased from 1 to 5
+const TOAST_REMOVE_DELAY = 5000 // Reduced from 1000000 to 5000 for notifications to disappear after 5 seconds
 
 type ToasterToast = ToastProps & {
   id: string
@@ -168,6 +169,16 @@ function toast({ ...props }: Toast) {
   }
 }
 
+// This is a new function specifically for reminders
+function reminder(task: { id: string, title: string }) {
+  return toast({
+    title: "Reminder",
+    description: `Don't forget: ${task.title}`,
+    variant: "default",
+    duration: 10000, // Show for 10 seconds
+  })
+}
+
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
@@ -184,6 +195,7 @@ function useToast() {
   return {
     ...state,
     toast,
+    reminder,
     dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
   }
 }

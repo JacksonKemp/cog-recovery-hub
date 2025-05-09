@@ -12,6 +12,7 @@ import TaskManager from "./pages/TaskManager";
 import SymptomTracker from "./pages/SymptomTracker";
 import NotFound from "./pages/NotFound";
 import * as React from "react";
+import { initializeReminders } from "./utils/reminderUtils";
 
 // Game imports
 import NumbersGame from "./pages/games/NumbersGame";
@@ -28,6 +29,19 @@ import MemoryMatchGame from "./pages/games/MemoryMatch";
 function App() {
   // Create a client inside the component to ensure it's properly initialized
   const [queryClient] = React.useState(() => new QueryClient());
+
+  // Request notification permission and initialize reminders when app loads
+  React.useEffect(() => {
+    // Request notification permission
+    if ('Notification' in window) {
+      Notification.requestPermission().then(permission => {
+        console.log("Notification permission status:", permission);
+      });
+    }
+    
+    // Initialize reminders from sessionStorage
+    initializeReminders();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
