@@ -1,9 +1,10 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Brain, CheckSquare, Clock, ArrowRight, Calendar, MessageSquare, Plus } from "lucide-react";
+import { Activity, Brain, CheckSquare, Clock, ArrowRight, Calendar, MessageSquare, Plus, Dumbbell } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const Dashboard = () => {
   // Mock data
@@ -64,6 +65,44 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Exercise Widget - Floating button */}
+      <div className="fixed bottom-20 right-6 z-10 md:bottom-24 md:right-10">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              size="icon" 
+              className="h-14 w-14 rounded-full shadow-lg bg-cog-teal hover:bg-cog-teal/90 touch-action-manipulation"
+            >
+              <Dumbbell className="h-6 w-6" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent side="top" className="w-64 p-0">
+            <Link to="/games" className="block">
+              <div className="flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors rounded-t-md">
+                <div className="bg-cog-light-teal p-2 rounded-full">
+                  <Brain className="h-5 w-5 text-cog-teal" />
+                </div>
+                <div>
+                  <p className="font-medium">Cognitive Exercises</p>
+                  <p className="text-xs text-muted-foreground">Train your brain</p>
+                </div>
+              </div>
+            </Link>
+            <Link to="/tasks" className="block">
+              <div className="flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-t">
+                <div className="bg-cog-light-purple p-2 rounded-full">
+                  <CheckSquare className="h-5 w-5 text-cog-purple" />
+                </div>
+                <div>
+                  <p className="font-medium">Task Manager</p>
+                  <p className="text-xs text-muted-foreground">Track your activities</p>
+                </div>
+              </div>
+            </Link>
+          </PopoverContent>
+        </Popover>
       </div>
       
       {/* Main Content - Simplified Boxes */}
