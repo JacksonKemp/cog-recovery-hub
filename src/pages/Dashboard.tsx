@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Dashboard = () => {
   // Mock data
@@ -18,6 +19,13 @@ const Dashboard = () => {
   ];
   
   const hasLoggedSymptomsToday = false;
+  
+  // Recommended exercises
+  const recommendedExercises = [
+    { id: 1, name: "Memory Match", description: "Train your visual memory", path: "/games/memory-match", icon: Brain },
+    { id: 2, name: "Number Recall", description: "Improve number retention", path: "/games/numbers", icon: Brain },
+    { id: 3, name: "Word Finder", description: "Enhance vocabulary skills", path: "/games/word-finder", icon: Brain }
+  ];
   
   // Function to render task items with optional links for games
   const renderTaskItem = (task) => {
@@ -146,6 +154,44 @@ const Dashboard = () => {
           <CardContent>
             <div className="space-y-4">
               {upcomingTasks.map((task) => renderTaskItem(task))}
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Daily Exercises Widget - ADDED HERE */}
+        <Card className="hover:border-cog-teal transition-all duration-300 h-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Dumbbell className="h-5 w-5 text-cog-teal" />
+              Daily Exercises
+            </CardTitle>
+            <CardDescription>Recommended activities for today</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recommendedExercises.map((exercise) => (
+                <Link key={exercise.id} to={exercise.path} className="block">
+                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                    <div className="flex items-center">
+                      <div className="bg-cog-light-teal p-2 rounded-full mr-3">
+                        <exercise.icon className="h-4 w-4 text-cog-teal" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{exercise.name}</p>
+                        <p className="text-xs text-muted-foreground">{exercise.description}</p>
+                      </div>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-4">
+              <Link to="/games">
+                <Button variant="outline" className="w-full">
+                  View All Exercises
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
