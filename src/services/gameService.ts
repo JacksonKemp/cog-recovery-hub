@@ -51,6 +51,16 @@ export const saveGameProgress = async (
     throw new Error("User not authenticated");
   }
   
+  console.log("Saving game progress:", {
+    user_id: user.id,
+    game_type: gameType,
+    category: category,
+    score: score,
+    max_score: maxScore || null,
+    level: level || null,
+    time_taken: timeTaken || null
+  });
+  
   const { data, error } = await supabase
     .from('game_progress')
     .insert({

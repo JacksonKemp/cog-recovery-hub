@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, ArrowLeft, Timer, Brain } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { saveGameProgress } from "@/services/gameService";
 
 type Card = {
   id: number;
@@ -145,32 +145,20 @@ const MemoryMatch = () => {
     toast.success(`Game completed! Final Score: ${finalScore}`);
     
     try {
-      // Temporarily comment out Supabase save until we have the table created
-      console.log('Game results:', { 
-        game_name: 'Memory Match', 
-        score: finalScore,
-        difficulty,
-        time_taken: timeElapsed,
-        moves_made: moves
-      });
+      // Save game progress to the database using the gameService
+      await saveGameProgress(
+        "memory-match", // game_type
+        "memory",       // category
+        finalScore,     // score
+        undefined,      // maxScore - not applicable for this game
+        undefined,      // level - not applicable for this game
+        timeElapsed     // timeTaken
+      );
       
-      /* We'll uncomment this once we've created the game_results table
-      const { error } = await supabase
-        .from('game_results')
-        .insert([
-          { 
-            game_name: 'Memory Match', 
-            score: finalScore,
-            difficulty,
-            time_taken: timeElapsed,
-            moves_made: moves
-          }
-        ]);
-      
-      if (error) throw error;
-      */
+      toast.success("Game progress saved!");
     } catch (error) {
-      console.error('Error saving game results:', error);
+      console.error('Error saving game progress:', error);
+      toast.error("Failed to save game progress");
     }
   };
 

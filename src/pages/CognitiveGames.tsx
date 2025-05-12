@@ -26,6 +26,16 @@ const games = {
       category: "Memory",
       icon: <BookOpen className="h-5 w-5" />,
       path: "/games/names"
+    },
+    {
+      id: "memory-match",
+      title: "Memory Match",
+      description: "Find matching pairs of cards in the shortest time",
+      difficulty: "Easy",
+      timeToComplete: "3 min",
+      category: "Memory",
+      icon: <Puzzle className="h-5 w-5" />,
+      path: "/games/memory-match"
     }
   ],
   attention: [
