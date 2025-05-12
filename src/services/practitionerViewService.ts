@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { GameProgressEntry } from "@/services/gameService";
 import { getPractitionerAccessCode } from "@/services/practitionerAuthService";
@@ -47,8 +48,11 @@ export const getPractitionerViewSymptoms = async (patientId: string): Promise<Sy
     throw new Error("Failed to fetch symptoms");
   }
 
+  // Properly convert the JSON symptoms to the expected Record<string, number> type
   return (data || []).map(entry => ({
     ...entry,
-    symptoms: entry.symptoms as Record<string, number>,
+    symptoms: typeof entry.symptoms === 'string' 
+      ? JSON.parse(entry.symptoms) 
+      : entry.symptoms as Record<string, number>,
   }));
 };
