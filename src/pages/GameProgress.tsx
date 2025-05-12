@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Activity, Brain, Clock, Bug } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +5,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getGameProgress, getMostImprovedGame, GameProgressEntry, testSaveGameProgress } from "@/services/gameService";
+import { 
+  getGameProgress, 
+  getMostImprovedGame, 
+  testSaveGameProgress,
+  GameProgressEntry 
+} from "@/services/game";
 import { format, parseISO } from "date-fns";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts";
