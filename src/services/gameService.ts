@@ -36,7 +36,8 @@ export const getGameProgress = async (category?: string): Promise<GameProgressEn
       query = query.eq('category', category);
     }
     
-    console.log("Executing query:", JSON.stringify(query.toJSON?.()));
+    // The toJSON() method doesn't exist on PostgrestFilterBuilder, removing this line
+    console.log("Executing query for game progress");
     
     const { data, error } = await query;
     
