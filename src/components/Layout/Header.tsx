@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Menu, User } from "lucide-react";
 import {
@@ -20,9 +21,11 @@ export const Header = () => {
     try {
       await signOut();
       toast.success("Signed out successfully");
-      navigate("/");
+      // Force a full page refresh to clear all states
+      window.location.href = "/";
     } catch (error) {
       toast.error("Error signing out");
+      console.error("Sign out error:", error);
     }
   };
 
