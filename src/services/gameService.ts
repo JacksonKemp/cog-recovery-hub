@@ -85,12 +85,19 @@ export const getMostImprovedGame = async (category: string): Promise<{ game: str
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
     
-  if (error || !data || data.length < 2) {
+  if (error || !data) {
+    return null;
+  }
+  
+  // Ensure data is treated as an array of GameProgressEntry
+  const progressEntries = data as GameProgressEntry[];
+  
+  if (progressEntries.length < 2) {
     return null;
   }
   
   // Group by game type
-  const gameTypeGroups = data.reduce((acc: Record<string, GameProgressEntry[]>, entry) => {
+  const gameTypeGroups = progressEntries.reduce((acc: Record<string, GameProgressEntry[]>, entry) => {
     if (!acc[entry.game_type]) {
       acc[entry.game_type] = [];
     }
