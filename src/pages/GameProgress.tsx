@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { Activity, Brain, Clock } from "lucide-react";
+import { Activity, Brain, Clock, Bug } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getGameProgress, getMostImprovedGame, GameProgressEntry } from "@/services/gameService";
+import { getGameProgress, getMostImprovedGame, GameProgressEntry, testSaveGameProgress } from "@/services/gameService";
 import { format, parseISO } from "date-fns";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts";
@@ -16,19 +16,22 @@ import { toast } from "sonner";
 const GameProgress = () => {
   const [selectedCategory, setSelectedCategory] = useState("memory");
   const { user } = useAuth();
+  const [isDebugVisible, setIsDebugVisible] = useState(false);
   
   useEffect(() => {
     if (!user) {
       console.warn("User not authenticated in GameProgress component");
+      toast.error("You must be signed in to view game progress");
     } else {
       console.log("Authenticated user in GameProgress:", user.id);
     }
   }, [user]);
   
-  const { data: progressData = [], isLoading, error } = useQuery({
+  const { data: progressData = [], isLoading, error, refetch } = useQuery({
     queryKey: ['gameProgress', selectedCategory],
     queryFn: () => getGameProgress(selectedCategory),
-    enabled: !!user
+    enabled: !!user,
+    retry: 1
   });
   
   useEffect(() => {
@@ -41,6 +44,8 @@ const GameProgress = () => {
   useEffect(() => {
     if (progressData && progressData.length > 0) {
       console.log("Loaded game progress data:", progressData.length, "entries");
+    } else {
+      console.log("No game progress data found");
     }
   }, [progressData]);
   
@@ -49,6 +54,21 @@ const GameProgress = () => {
     queryFn: () => getMostImprovedGame(selectedCategory),
     enabled: progressData.length > 0
   });
+
+  // Function to run test save
+  const handleTestSave = async () => {
+    try {
+      await testSaveGameProgress();
+      refetch(); // Refetch data after test save
+    } catch (error) {
+      console.error("Test save error:", error);
+    }
+  };
+  
+  // Toggle debug panel
+  const toggleDebugPanel = () => {
+    setIsDebugVisible(!isDebugVisible);
+  };
   
   // Process data for chart
   const chartData = processChartData(progressData);
@@ -61,15 +81,49 @@ const GameProgress = () => {
           <p className="text-muted-foreground">Track your improvement across cognitive games</p>
         </div>
         
-        <div className="mt-4 md:mt-0">
+        <div className="mt-4 md:mt-0 flex gap-2">
           <Button asChild variant="outline">
             <Link to="/games" className="flex items-center gap-2">
               <Brain className="h-4 w-4" />
               Back to Games
             </Link>
           </Button>
+          
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={toggleDebugPanel}
+            className="ml-2"
+            title="Debug Tools"
+          >
+            <Bug className="h-4 w-4" />
+          </Button>
         </div>
       </div>
+      
+      {isDebugVisible && (
+        <Card className="mb-6 border-orange-300 bg-orange-50 dark:bg-orange-950">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-orange-600">Debug Tools</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-4">
+              <div>
+                <p><strong>User:</strong> {user ? `Authenticated (${user.id})` : 'Not authenticated'}</p>
+                <p><strong>Game data count:</strong> {progressData.length} entries</p>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleTestSave} variant="default">
+                  Test Save Game Data
+                </Button>
+                <Button onClick={() => refetch()} variant="outline">
+                  Refresh Data
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
       <Tabs defaultValue="memory" value={selectedCategory} onValueChange={setSelectedCategory}>
         <TabsList className="grid w-full grid-cols-3 mb-8">
@@ -229,7 +283,8 @@ function formatGameName(gameType: string): string {
     'then-what': 'Then What',
     'word-searches': 'Word Searches',
     'sudoku': 'Sudoku',
-    'memory-match': 'Memory Match'
+    'memory-match': 'Memory Match',
+    'test-game': 'Test Game'
   };
   
   return gameNames[gameType] || gameType;

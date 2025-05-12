@@ -36,6 +36,8 @@ export const getGameProgress = async (category?: string): Promise<GameProgressEn
       query = query.eq('category', category);
     }
     
+    console.log("Executing query:", JSON.stringify(query.toJSON?.()));
+    
     const { data, error } = await query;
     
     if (error) {
@@ -45,6 +47,10 @@ export const getGameProgress = async (category?: string): Promise<GameProgressEn
     }
     
     console.log("Game progress data retrieved:", data?.length || 0, "entries");
+    if (data?.length) {
+      console.log("Sample entry:", data[0]);
+    }
+    
     return data || [];
   } catch (error) {
     console.error("Error in getGameProgress:", error);
@@ -61,12 +67,16 @@ export const saveGameProgress = async (
   timeTaken?: number
 ): Promise<string> => {
   try {
+    console.log("Starting saveGameProgress with:", { gameType, category, score, maxScore, level, timeTaken });
+    
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       console.error("User not authenticated");
       toast.error("Please log in to save your game progress");
       throw new Error("User not authenticated");
     }
+    
+    console.log("Authenticated user for save:", user.id);
     
     const gameData = {
       user_id: user.id,
@@ -88,10 +98,11 @@ export const saveGameProgress = async (
     if (error) {
       console.error("Error saving game progress:", error);
       toast.error("Failed to save game progress");
-      throw new Error("Failed to save game progress");
+      throw new Error(`Failed to save game progress: ${error.message}`);
     }
     
     console.log("Game progress saved successfully:", data);
+    toast.success("Game progress saved successfully!");
     return data?.[0]?.id || "";
   } catch (error) {
     console.error("Error in saveGameProgress:", error);
@@ -101,10 +112,15 @@ export const saveGameProgress = async (
 
 export const getMostImprovedGame = async (category: string): Promise<{ game: string; improvement: number } | null> => {
   try {
+    console.log("Getting most improved game for category:", category);
+    
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
+      console.log("No authenticated user for most improved calculation");
       return null;
     }
+    
+    console.log("Authenticated user for most improved:", user.id);
     
     const { data, error } = await supabase
       .from('game_progress')
@@ -121,7 +137,10 @@ export const getMostImprovedGame = async (category: string): Promise<{ game: str
     // Ensure data is treated as an array of GameProgressEntry
     const progressEntries = data as GameProgressEntry[];
     
+    console.log(`Found ${progressEntries.length} entries for most improved calculation`);
+    
     if (progressEntries.length < 2) {
+      console.log("Not enough entries to calculate improvement");
       return null;
     }
     
@@ -147,6 +166,7 @@ export const getMostImprovedGame = async (category: string): Promise<{ game: str
         
         // Calculate improvement
         const improvement = newest.score - oldest.score;
+        console.log(`Improvement for ${gameType}: ${improvement} points`);
         
         if (improvement > mostImproved.improvement) {
           mostImproved = {
@@ -157,9 +177,31 @@ export const getMostImprovedGame = async (category: string): Promise<{ game: str
       }
     });
     
+    console.log("Most improved game calculation result:", mostImproved);
     return mostImproved.game ? mostImproved : null;
   } catch (error) {
     console.error("Error in getMostImprovedGame:", error);
     return null;
+  }
+};
+
+// Add a test function to manually verify data saving
+export const testSaveGameProgress = async (): Promise<boolean> => {
+  try {
+    const result = await saveGameProgress(
+      'test-game', 
+      'memory', 
+      100,
+      100,
+      1,
+      60
+    );
+    console.log("Test save result:", result);
+    toast.success("Test save completed successfully");
+    return !!result;
+  } catch (error) {
+    console.error("Test save failed:", error);
+    toast.error("Test save failed");
+    return false;
   }
 };
