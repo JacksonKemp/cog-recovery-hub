@@ -9,16 +9,12 @@ export const getPractitionerViewGameProgress = async (patientId: string): Promis
     throw new Error("Practitioner access code not provided");
   }
   
-  const headers = {
-    'x-practitioner-access-code': accessCode
-  };
-
+  // Headers are now handled globally in the supabase client
   const { data, error } = await supabase
     .from('game_progress')
     .select('*')
     .eq('user_id', patientId)
-    .order('created_at', { ascending: false })
-    .headers(headers);
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error("Error fetching game progress:", error);
@@ -42,16 +38,12 @@ export const getPractitionerViewSymptoms = async (patientId: string): Promise<Sy
     throw new Error("Practitioner access code not provided");
   }
   
-  const headers = {
-    'x-practitioner-access-code': accessCode
-  };
-
+  // Headers are now handled globally in the supabase client
   const { data, error } = await supabase
     .from('symptom_entries')
     .select('*')
     .eq('user_id', patientId)
-    .order('created_at', { ascending: false })
-    .headers(headers);
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error("Error fetching symptoms:", error);

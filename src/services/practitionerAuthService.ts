@@ -12,19 +12,13 @@ export const verifyPractitionerAccess = async (accessCode: string): Promise<Pati
     // Store the access code in the local storage for subsequent requests
     localStorage.setItem('practitioner_access_code', accessCode);
     
-    // Set the custom header for this request
-    const customHeaders = {
-      'x-practitioner-access-code': accessCode
-    };
-
     // First, try to access user_practitioners to verify the code is valid
     const { data: accessData, error: accessError } = await supabase
       .from('user_practitioners')
       .select('user_id, is_active, access_expires_at')
       .eq('access_code', accessCode)
       .eq('is_active', true)
-      .maybeSingle()
-      .headers(customHeaders);
+      .maybeSingle();
 
     if (accessError || !accessData) {
       console.error("Access verification failed:", accessError);
@@ -44,8 +38,7 @@ export const verifyPractitionerAccess = async (accessCode: string): Promise<Pati
       .from('profiles')
       .select('id, full_name')
       .eq('id', accessData.user_id)
-      .maybeSingle()
-      .headers(customHeaders);
+      .maybeSingle();
 
     if (userError) {
       console.error("Error fetching user data:", userError);
