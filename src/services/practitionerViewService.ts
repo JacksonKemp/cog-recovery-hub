@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { GameProgressEntry } from "@/services/gameService";
 import { getPractitionerAccessCode } from "@/services/practitionerAuthService";
@@ -8,8 +7,7 @@ export const getPractitionerViewGameProgress = async (patientId: string): Promis
   if (!accessCode) {
     throw new Error("Practitioner access code not provided");
   }
-  
-  // Headers are now handled globally in the supabase client
+
   const { data, error } = await supabase
     .from('game_progress')
     .select('*')
@@ -37,8 +35,7 @@ export const getPractitionerViewSymptoms = async (patientId: string): Promise<Sy
   if (!accessCode) {
     throw new Error("Practitioner access code not provided");
   }
-  
-  // Headers are now handled globally in the supabase client
+
   const { data, error } = await supabase
     .from('symptom_entries')
     .select('*')
@@ -50,5 +47,8 @@ export const getPractitionerViewSymptoms = async (patientId: string): Promise<Sy
     throw new Error("Failed to fetch symptoms");
   }
 
-  return data || [];
+  return (data || []).map(entry => ({
+    ...entry,
+    symptoms: entry.symptoms as Record<string, number>,
+  }));
 };
