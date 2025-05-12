@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Link, Navigate } from "react-router-dom";
-import { Brain, Activity, CheckCircle, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 const Index = () => {
@@ -13,84 +12,61 @@ const Index = () => {
   }
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Hero section */}
-      <section className="py-12 md:py-24 lg:py-32 flex flex-col items-center text-center">
-        <div className="mb-4">
-          <Brain className="h-16 w-16 text-cog-purple mx-auto" />
+    <div className="flex flex-col min-h-screen">
+      {/* Header */}
+      <header className="p-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-teal-400 rounded-full"></div>
+          <span className="font-bold text-2xl">Rewire</span>
         </div>
-        <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl mb-6">
-          CogniCare
+        <button className="border border-blue-500 rounded-lg p-3">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+      </header>
+
+      {/* Hero section */}
+      <section className="flex-grow bg-green-50 px-6 py-12 flex flex-col">
+        <h1 className="text-5xl font-bold mb-2">
+          Recovery at <span className="text-teal-400">your pace</span>
         </h1>
-        <p className="max-w-[700px] text-lg text-muted-foreground mb-8">
-          Cognitive rehabilitation and tracking designed for TBI recovery.
-          Play games, track symptoms, and manage daily tasks with ease.
+        <p className="text-gray-600 text-xl mb-12">
+          Customized cognitive rehabilitation for traumatic brain injury recovery with games, task management, and symptom tracking.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Button asChild size="lg">
+        <div className="flex flex-col gap-4 w-full max-w-md">
+          <Button asChild className="bg-teal-400 hover:bg-teal-500 text-xl py-6 w-full">
             <Link to="/auth">Get Started</Link>
           </Button>
-        </div>
-      </section>
-
-      {/* Features section */}
-      <section className="py-12 md:py-24">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight">Features</h2>
-          <p className="text-muted-foreground mt-4">
-            Tools designed specifically for cognitive rehabilitation
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="flex flex-col items-center text-center p-4">
-            <div className="rounded-full bg-primary/10 p-4 mb-4">
-              <Brain className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Cognitive Games</h3>
-            <p className="text-muted-foreground">
-              Engage with memory, attention, and processing speed games
-              designed to help with cognitive rehabilitation.
-            </p>
-          </div>
-          <div className="flex flex-col items-center text-center p-4">
-            <div className="rounded-full bg-primary/10 p-4 mb-4">
-              <Activity className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Symptom Tracking</h3>
-            <p className="text-muted-foreground">
-              Monitor your symptoms over time to better understand patterns
-              and communicate with healthcare providers.
-            </p>
-          </div>
-          <div className="flex flex-col items-center text-center p-4">
-            <div className="rounded-full bg-primary/10 p-4 mb-4">
-              <CheckCircle className="h-8 w-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Task Management</h3>
-            <p className="text-muted-foreground">
-              Keep track of daily tasks with reminders designed for those
-              with memory challenges.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA section */}
-      <section className="py-12 md:py-24 text-center">
-        <div className="max-w-[800px] mx-auto">
-          <h2 className="text-3xl font-bold tracking-tight mb-4">
-            Start Your Recovery Journey Today
-          </h2>
-          <p className="text-muted-foreground mb-8">
-            Sign up for free and gain access to all features designed to assist with your
-            cognitive rehabilitation journey.
-          </p>
-          <Button asChild size="lg">
-            <Link to="/auth">Sign Up Now</Link>
+          <Button asChild variant="outline" className="bg-white text-black border border-gray-300 text-xl py-6 w-full">
+            <Link to="#">Learn More</Link>
           </Button>
         </div>
+
+        <div className="mt-12 flex justify-center">
+          <div className="relative w-64 h-64">
+            <div className="absolute inset-0 rounded-full border-16 border-teal-400"></div>
+            <div className="absolute top-0 right-0 w-16 h-16 bg-blue-100 rounded-full"></div>
+          </div>
+        </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-white py-12 px-6">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-6 h-6 bg-teal-400 rounded-full"></div>
+          <span className="font-bold text-xl">Rewire</span>
+        </div>
+        <p className="text-gray-600 mb-8">
+          Supporting brain injury recovery through cognitive exercises and tracking
+        </p>
+        <div className="flex justify-center gap-8 mb-6">
+          <Link to="#" className="text-gray-600">About</Link>
+          <Link to="#" className="text-gray-600">Contact</Link>
+          <Link to="#" className="text-gray-600">Privacy</Link>
+        </div>
+        <p className="text-center text-gray-500 text-sm">
+          © 2025 Rewire. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 };
