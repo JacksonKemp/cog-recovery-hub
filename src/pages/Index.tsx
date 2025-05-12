@@ -16,7 +16,11 @@ const Index = () => {
       {/* Header */}
       <header className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-teal-400 rounded-full"></div>
+          <img 
+            src="/lovable-uploads/501f50c1-99db-4a88-9997-b16406b1397b.png" 
+            alt="Rewire Logo" 
+            className="h-8" 
+          />
           <span className="font-bold text-2xl">Rewire</span>
         </div>
         <button className="border border-blue-500 rounded-lg p-3">
@@ -52,7 +56,11 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-white py-12 px-6">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-6 h-6 bg-teal-400 rounded-full"></div>
+          <img 
+            src="/lovable-uploads/501f50c1-99db-4a88-9997-b16406b1397b.png" 
+            alt="Rewire Logo" 
+            className="h-6" 
+          />
           <span className="font-bold text-xl">Rewire</span>
         </div>
         <p className="text-gray-600 mb-8">

@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Brain, Menu, User } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,8 +32,12 @@ export const Header = () => {
       <div className="container flex h-14 items-center justify-between">
         <div className="flex items-center gap-2 font-semibold">
           <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2">
-            <Brain className="h-6 w-6 text-cog-purple" />
-            <span className="hidden md:block">CogniCare</span>
+            <img 
+              src="/lovable-uploads/501f50c1-99db-4a88-9997-b16406b1397b.png" 
+              alt="Rewire Logo" 
+              className="h-6" 
+            />
+            <span className="hidden md:block">Rewire</span>
           </Link>
         </div>
 
@@ -79,8 +83,12 @@ export const Header = () => {
           <SheetContent side="left">
             <div className="grid gap-4 py-4">
               <Link to="/" className="flex items-center gap-2 font-semibold px-2">
-                <Brain className="h-6 w-6 text-cog-purple" />
-                <span>CogniCare</span>
+                <img 
+                  src="/lovable-uploads/501f50c1-99db-4a88-9997-b16406b1397b.png" 
+                  alt="Rewire Logo" 
+                  className="h-6" 
+                />
+                <span>Rewire</span>
               </Link>
               <div className="flex flex-col space-y-2">
                 {user ? (
