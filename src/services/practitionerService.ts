@@ -13,7 +13,7 @@ export interface PractitionerAccess {
   id: string;
   user_id: string;
   practitioner_id: string;
-  practitioner: Practitioner;
+  practitioner: Practitioner | null; // Make practitioner nullable to handle potential null values
   access_code: string;
   access_granted_at: string;
   access_expires_at: string | null;

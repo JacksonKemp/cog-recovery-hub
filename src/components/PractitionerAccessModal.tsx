@@ -8,7 +8,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { PractitionerAccess, addPractitioner, revokePractitionerAccess, regenerateAccessCode } from "@/services/practitionerService";
 import { Clipboard, Check, X, RotateCw } from "lucide-react";
 import { toast } from "sonner";
-import { format } from "date-fns";
 
 interface PractitionerAccessModalProps {
   isOpen: boolean;
@@ -131,10 +130,17 @@ export const PractitionerAccessModal = ({
                     <TableRow key={access.id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{access.practitioner.name}</div>
-                          <div className="text-xs text-muted-foreground">{access.practitioner.email}</div>
-                          {access.practitioner.specialty && (
-                            <div className="text-xs text-muted-foreground">{access.practitioner.specialty}</div>
+                          {/* Add null check for practitioner */}
+                          {access.practitioner ? (
+                            <>
+                              <div className="font-medium">{access.practitioner.name}</div>
+                              <div className="text-xs text-muted-foreground">{access.practitioner.email}</div>
+                              {access.practitioner.specialty && (
+                                <div className="text-xs text-muted-foreground">{access.practitioner.specialty}</div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="text-xs text-muted-foreground">Practitioner data unavailable</div>
                           )}
                         </div>
                       </TableCell>
