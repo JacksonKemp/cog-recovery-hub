@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Activity, Brain, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,14 +10,39 @@ import { getGameProgress, getMostImprovedGame, GameProgressEntry } from "@/servi
 import { format, parseISO } from "date-fns";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 const GameProgress = () => {
   const [selectedCategory, setSelectedCategory] = useState("memory");
+  const { user } = useAuth();
   
-  const { data: progressData = [], isLoading } = useQuery({
+  useEffect(() => {
+    if (!user) {
+      console.warn("User not authenticated in GameProgress component");
+    } else {
+      console.log("Authenticated user in GameProgress:", user.id);
+    }
+  }, [user]);
+  
+  const { data: progressData = [], isLoading, error } = useQuery({
     queryKey: ['gameProgress', selectedCategory],
-    queryFn: () => getGameProgress(selectedCategory)
+    queryFn: () => getGameProgress(selectedCategory),
+    enabled: !!user
   });
+  
+  useEffect(() => {
+    if (error) {
+      console.error("Error in game progress query:", error);
+      toast.error("Failed to load game progress");
+    }
+  }, [error]);
+  
+  useEffect(() => {
+    if (progressData && progressData.length > 0) {
+      console.log("Loaded game progress data:", progressData.length, "entries");
+    }
+  }, [progressData]);
   
   const { data: mostImproved } = useQuery({
     queryKey: ['mostImproved', selectedCategory],

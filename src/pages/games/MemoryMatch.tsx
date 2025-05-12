@@ -6,6 +6,7 @@ import { Trophy, ArrowLeft, Timer, Brain } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { saveGameProgress } from "@/services/gameService";
+import { useAuth } from "@/hooks/use-auth";
 
 type Card = {
   id: number;
@@ -18,6 +19,7 @@ const GAME_ICONS = ["🍎", "🍌", "🍇", "🍓", "🍊", "🍋", "🍒", "�
 
 const MemoryMatch = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedPairs, setMatchedPairs] = useState<number>(0);
@@ -144,9 +146,15 @@ const MemoryMatch = () => {
     setScore(finalScore);
     toast.success(`Game completed! Final Score: ${finalScore}`);
     
+    if (!user) {
+      toast.error("You need to be logged in to save your progress");
+      return;
+    }
+    
     try {
+      console.log("Attempting to save game progress...");
       // Save game progress to the database using the gameService
-      await saveGameProgress(
+      const progressId = await saveGameProgress(
         "memory-match", // game_type
         "memory",       // category
         finalScore,     // score
@@ -155,6 +163,7 @@ const MemoryMatch = () => {
         timeElapsed     // timeTaken
       );
       
+      console.log("Game progress saved with ID:", progressId);
       toast.success("Game progress saved!");
     } catch (error) {
       console.error('Error saving game progress:', error);
