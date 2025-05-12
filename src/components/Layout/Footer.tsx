@@ -9,7 +9,7 @@ export const Footer = () => {
           <div>
             <Link to="/" className="flex items-center gap-2">
               <img 
-                src="/lovable-uploads/501f50c1-99db-4a88-9997-b16406b1397b.png" 
+                src="/lovable-uploads/de82e189-2f36-4299-aaa1-717b3e0d662e.png" 
                 alt="Rewire Logo" 
                 className="h-6" 
               />
