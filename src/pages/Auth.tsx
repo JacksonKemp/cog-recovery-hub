@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,21 +16,22 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const timeout = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+    console.log("[DEBUG] Attempting sign in with:", { email, password });
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
+      const { error, data } = await Promise.race([
+        supabase.auth.signInWithPassword({ email, password }),
+        timeout(5000)
+      ]);
+      console.log("[DEBUG] Sign in result:", { error, data });
       if (error) throw error;
-      
       toast.success("Signed in successfully!");
       navigate("/dashboard");
     } catch (error: any) {
+      console.error("[DEBUG] Sign in error:", error);
       toast.error(error.message || "Error signing in");
     } finally {
       setLoading(false);

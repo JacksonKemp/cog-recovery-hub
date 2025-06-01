@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Practitioner {
@@ -47,9 +46,10 @@ export const getUserPractitioners = async (): Promise<PractitionerAccess[]> => {
 export const addPractitioner = async (name: string, email: string, specialty?: string): Promise<string> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
+    console.error("[DEBUG] No authenticated user found when adding practitioner");
     throw new Error("User not authenticated");
   }
-
+  console.log("[DEBUG] Adding practitioner with:", { userId: user.id, name, email, specialty });
   const { data, error } = await supabase.rpc('add_practitioner_for_user', {
     _user_id: user.id,
     _practitioner_name: name,
@@ -57,12 +57,11 @@ export const addPractitioner = async (name: string, email: string, specialty?: s
     _practitioner_specialty: specialty || null,
     _expires_in_days: null // No expiration by default
   });
-
+  console.log("[DEBUG] addPractitioner result:", { data, error });
   if (error) {
-    console.error("Error adding practitioner:", error);
+    console.error("[DEBUG] Error adding practitioner:", error);
     throw new Error("Failed to add practitioner");
   }
-
   return data || "";
 };
 
