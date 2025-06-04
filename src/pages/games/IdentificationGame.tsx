@@ -22,7 +22,7 @@ const IdentificationGame = () => {
   } = useIdentificationGame();
   
   return (
-    <GameLayout title="Identification Game">
+    <GameLayout title="Identification Exercise">
       {gameState === "intro" && (
         <IntroScreen 
           difficulty={difficulty}

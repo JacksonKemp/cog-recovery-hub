@@ -23,7 +23,7 @@ const WordSearchesGame = () => {
   } = useWordSearchesGame();
   
   return (
-    <GameLayout title="Word Searches Game">
+    <GameLayout title="Word Searches Exercise">
       {gameState === "intro" && (
         <IntroScreen 
           difficulty={difficulty}

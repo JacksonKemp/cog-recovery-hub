@@ -1,3 +1,4 @@
+
 import GameLayout from "@/components/games/GameLayout";
 import IntroScreen from "@/components/games/names/IntroScreen";
 import MemorizeScreen from "@/components/games/names/MemorizeScreen";
@@ -21,7 +22,7 @@ const NamesGame = () => {
   } = useNamesGame();
 
   return (
-    <GameLayout title="Names Memory Game">
+    <GameLayout title="Names Memory Exercise">
       {gameState === "intro" && (
         <IntroScreen
           difficulty={difficulty}

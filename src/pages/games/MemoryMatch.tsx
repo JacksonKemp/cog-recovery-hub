@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ const MemoryMatch = () => {
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
   const [score, setScore] = useState<number>(0);
   
-  // Configure game based on difficulty
+  // Configure exercise based on difficulty
   const getDifficultyConfig = () => {
     switch(difficulty) {
       case "easy": 
@@ -46,7 +47,7 @@ const MemoryMatch = () => {
 
   const config = getDifficultyConfig();
   
-  // Initialize game cards
+  // Initialize exercise cards
   const initializeGame = () => {
     // Select icons based on difficulty
     const selectedIcons = GAME_ICONS.slice(0, config.pairs);
@@ -69,11 +70,11 @@ const MemoryMatch = () => {
     setScore(0);
   };
 
-  // Start the game
+  // Start the exercise
   const startGame = () => {
     initializeGame();
     setGameStarted(true);
-    toast.success("Game started! Find all the matching pairs!");
+    toast.success("Exercise started! Find all the matching pairs!");
   };
 
   // Handle card flipping
@@ -116,7 +117,7 @@ const MemoryMatch = () => {
           
           toast.success("Match found! +"+newPoints+" points");
           
-          // Check if game is completed
+          // Check if exercise is completed
           if (matchedPairs + 1 === config.pairs) {
             handleGameCompletion();
           }
@@ -133,7 +134,7 @@ const MemoryMatch = () => {
     }
   };
 
-  // Handle game completion
+  // Handle exercise completion
   const handleGameCompletion = async () => {
     setGameCompleted(true);
     
@@ -144,7 +145,7 @@ const MemoryMatch = () => {
     const finalScore = Math.round((score + (timeBonus * 5) + (movesEfficiency * 10)) * difficultyMultiplier);
     
     setScore(finalScore);
-    toast.success(`Game completed! Final Score: ${finalScore}`);
+    toast.success(`Exercise completed! Final Score: ${finalScore}`);
     
     if (!user) {
       toast.error("You need to be logged in to save your progress");
@@ -152,22 +153,22 @@ const MemoryMatch = () => {
     }
     
     try {
-      console.log("Attempting to save game progress...");
-      // Save game progress to the database using the gameService
+      console.log("Attempting to save exercise progress...");
+      // Save exercise progress to the database using the gameService
       const progressId = await saveGameProgress(
         "memory-match", // game_type
         "memory",       // category
         finalScore,     // score
-        undefined,      // maxScore - not applicable for this game
-        undefined,      // level - not applicable for this game
+        undefined,      // maxScore - not applicable for this exercise
+        undefined,      // level - not applicable for this exercise
         timeElapsed     // timeTaken
       );
       
-      console.log("Game progress saved with ID:", progressId);
-      toast.success("Game progress saved!");
+      console.log("Exercise progress saved with ID:", progressId);
+      toast.success("Exercise progress saved!");
     } catch (error) {
-      console.error('Error saving game progress:', error);
-      toast.error("Failed to save game progress");
+      console.error('Error saving exercise progress:', error);
+      toast.error("Failed to save exercise progress");
     }
   };
 
@@ -208,11 +209,11 @@ const MemoryMatch = () => {
       <div className="flex items-center mb-6">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/games')}
+          onClick={() => navigate('/exercises')}
           className="mr-2"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Games
+          Back to Exercises
         </Button>
         <h1 className="text-3xl font-bold">Memory Match</h1>
       </div>
@@ -251,7 +252,7 @@ const MemoryMatch = () => {
             </div>
           </div>
           
-          <Button className="w-full" onClick={startGame}>Start Game</Button>
+          <Button className="w-full" onClick={startGame}>Start Exercise</Button>
         </div>
       ) : (
         <div className="mb-12">
@@ -284,7 +285,7 @@ const MemoryMatch = () => {
           {gameCompleted ? (
             <div className="text-center p-8 bg-cog-light-teal rounded-lg shadow-md">
               <Trophy className="h-16 w-16 text-cog-teal mx-auto mb-4" />
-              <h2 className="text-2xl font-bold mb-2">Game Completed!</h2>
+              <h2 className="text-2xl font-bold mb-2">Exercise Completed!</h2>
               <p className="text-lg mb-4">Final Score: {score}</p>
               <div className="flex flex-col md:flex-row gap-4 justify-center mt-6">
                 <Button onClick={() => {
@@ -292,8 +293,8 @@ const MemoryMatch = () => {
                 }}>
                   Play Again
                 </Button>
-                <Button variant="outline" onClick={() => navigate('/games')}>
-                  Back to Games
+                <Button variant="outline" onClick={() => navigate('/exercises')}>
+                  Back to Exercises
                 </Button>
               </div>
             </div>

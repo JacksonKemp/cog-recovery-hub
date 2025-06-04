@@ -21,7 +21,7 @@ const FacesGame = () => {
   } = useFacesGame();
 
   return (
-    <GameLayout title="Faces Emotion Game">
+    <GameLayout title="Faces Emotion Exercise">
       {gameState === "intro" && (
         <IntroScreen 
           difficulty={difficulty}

@@ -23,7 +23,7 @@ const ThenWhatGame = () => {
   } = useThenWhatGame();
 
   return (
-    <GameLayout title="Then What">
+    <GameLayout title="Then What Exercise">
       {gameState === "intro" && (
         <IntroScreen
           difficulty={difficulty}
