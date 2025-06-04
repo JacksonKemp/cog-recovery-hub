@@ -57,12 +57,9 @@ export const addPractitioner = async (name: string, email: string, specialty?: s
     _practitioner_specialty: specialty || null,
     _expires_in_days: null // No expiration by default
   });
-  console.log("[DEBUG] addPractitioner result:", { data, error });
-  if (error) {
-    console.error("[DEBUG] Error adding practitioner:", error);
-    throw new Error("Failed to add practitioner");
-  }
-  return data || "";
+  console.log("[DEBUG] RPC returned:", { data, error });
+  if (error) throw error;
+  return data ?? "ok";
 };
 
 export const revokePractitionerAccess = async (practitionerAccessId: string): Promise<void> => {

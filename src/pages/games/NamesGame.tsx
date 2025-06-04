@@ -1,4 +1,3 @@
-
 import GameLayout from "@/components/games/GameLayout";
 import IntroScreen from "@/components/games/names/IntroScreen";
 import MemorizeScreen from "@/components/games/names/MemorizeScreen";
@@ -20,27 +19,27 @@ const NamesGame = () => {
     checkAnswers,
     resetGame
   } = useNamesGame();
-  
+
   return (
     <GameLayout title="Names Memory Game">
       {gameState === "intro" && (
-        <IntroScreen 
+        <IntroScreen
           difficulty={difficulty}
           onDifficultyChange={handleDifficultyChange}
           onStartGame={startGame}
         />
       )}
-      
+
       {gameState === "memorize" && (
         <MemorizeScreen people={people} />
       )}
-      
+
       {gameState === "wait" && (
         <WaitScreen />
       )}
-      
+
       {gameState === "recall" && (
-        <RecallScreen 
+        <RecallScreen
           people={people}
           userAnswers={userAnswers}
           onInputChange={handleInputChange}
@@ -48,9 +47,9 @@ const NamesGame = () => {
           onCancel={resetGame}
         />
       )}
-      
+
       {gameState === "result" && (
-        <ResultScreen 
+        <ResultScreen
           people={people}
           userAnswers={userAnswers}
           score={score}

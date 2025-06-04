@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 const games = {
   memory: [
     {
-      id: "numbers",
-      title: "Numbers",
-      description: "Memorize a sequence of numbers, then recall them in order",
-      difficulty: "Medium",
-      timeToComplete: "5 min",
+      id: "memory-match",
+      title: "Memory Match",
+      description: "Find matching pairs of cards in the shortest time",
+      difficulty: "Easy",
+      timeToComplete: "3 min",
       category: "Memory",
-      icon: <Brain className="h-5 w-5" />,
-      path: "/games/numbers"
+      icon: <Puzzle className="h-5 w-5" />,
+      path: "/games/memory-match"
     },
     {
       id: "names",
@@ -26,16 +26,6 @@ const games = {
       category: "Memory",
       icon: <BookOpen className="h-5 w-5" />,
       path: "/games/names"
-    },
-    {
-      id: "memory-match",
-      title: "Memory Match",
-      description: "Find matching pairs of cards in the shortest time",
-      difficulty: "Easy",
-      timeToComplete: "3 min",
-      category: "Memory",
-      icon: <Puzzle className="h-5 w-5" />,
-      path: "/games/memory-match"
     }
   ],
   attention: [
@@ -58,7 +48,9 @@ const games = {
       category: "Attention",
       icon: <Square className="h-5 w-5" />,
       path: "/games/rgb"
-    },
+    }
+  ],
+  processing: [
     {
       id: "word-finder",
       title: "Word Finder",
@@ -80,7 +72,7 @@ const games = {
       path: "/games/identification"
     }
   ],
-  processing: [
+  processingSpeed: [
     {
       id: "then-what",
       title: "Then What",

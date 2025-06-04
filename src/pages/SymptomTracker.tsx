@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, LineChart } from "lucide-react";
@@ -29,16 +28,18 @@ const SymptomTracker = () => {
     try {
       // Check if the user has already recorded symptoms today
       const hasEntry = await hasEntryForToday();
+      console.log("[DEBUG] loadData ▸ hasEntry =", hasEntry);
       setHasRecordedToday(hasEntry);
       
       // Get recent entries
       const entries = await getRecentEntries();
+      console.log("[DEBUG] loadData ▸ entries =", entries);
       setRecentEntries(entries);
     } catch (error) {
       console.error("Error loading data:", error);
       toast({
-        title: "Error",
-        description: "Failed to load your symptom data",
+        title: "Failed to load symptoms",
+        description: error instanceof Error ? error.message : String(error),
         variant: "destructive"
       });
     } finally {
@@ -83,7 +84,16 @@ const SymptomTracker = () => {
         <TabsContent value="history" className="mt-0">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <SymptomChart isLoading={isLoading} />
-            <RecentEntries isLoading={isLoading} entries={recentEntries} />
+            {isLoading ? (
+              <RecentEntries isLoading={isLoading} entries={recentEntries} />
+            ) : recentEntries.length === 0 ? (
+              <div className="flex flex-col items-center py-8 text-muted-foreground col-span-1">
+                <p>No symptom entries yet</p>
+                <p className="text-sm">Tap "Track Symptoms" above to add the first one.</p>
+              </div>
+            ) : (
+              <RecentEntries isLoading={isLoading} entries={recentEntries} />
+            )}
           </div>
           
           <InsightPanel />

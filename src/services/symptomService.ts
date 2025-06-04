@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from 'uuid';
 import { format } from "date-fns";
@@ -39,6 +38,11 @@ export async function saveSymptomEntry(symptoms: SymptomRatings, notes: string):
 }
 
 export async function hasEntryForToday(): Promise<boolean> {
+  const { data: { user } } = await supabase.auth.getUser();
+  console.log("[DEBUG] hasEntry user:", user);
+
+  if (!user) throw new Error("User not authenticated");
+
   const today = new Date();
   const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
   const endOfDay = new Date(new Date().setHours(23, 59, 59, 999)).toISOString();
@@ -46,31 +50,32 @@ export async function hasEntryForToday(): Promise<boolean> {
   const { data, error } = await supabase
     .from('symptom_entries')
     .select('id')
-    .eq('user_id', TEMP_USER_ID)
+    .eq('user_id', user.id)
     .gte('created_at', startOfDay)
     .lte('created_at', endOfDay)
     .limit(1);
     
-  if (error) {
-    console.error("Error checking today's entries:", error);
-    return false;
-  }
+  console.log("[DEBUG] hasEntry query:", { data, error });
+  if (error) throw error;
   
-  return data && data.length > 0;
+  return (data?.length ?? 0) > 0;
 }
 
 export async function getRecentEntries(limit = 3): Promise<SymptomEntry[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+  console.log("[DEBUG] getRecent user:", user);
+
+  if (!user) throw new Error("User not authenticated");
+
   const { data, error } = await supabase
     .from('symptom_entries')
     .select('*')
-    .eq('user_id', TEMP_USER_ID)
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(limit);
-    
-  if (error) {
-    console.error("Error fetching recent entries:", error);
-    return [];
-  }
+  
+  console.log("[DEBUG] getRecent query:", { data, error });
+  if (error) throw error;
   
   return data?.map(entry => ({
     id: entry.id,

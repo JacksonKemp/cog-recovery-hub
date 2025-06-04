@@ -1,4 +1,3 @@
-
 import { Outlet } from "react-router-dom";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
@@ -21,7 +20,7 @@ export const MainLayout = () => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen max-h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen max-h-screen overflow-hidden pt-safe">
       <Header />
       <main className="flex-1 overflow-y-auto">
         <Outlet />

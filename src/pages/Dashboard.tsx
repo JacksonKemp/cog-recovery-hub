@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Brain, CheckSquare, Clock, ArrowRight, Calendar, MessageSquare, Plus, Dumbbell } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -6,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { PractitionerAccessButton } from "@/components/PractitionerAccessButton";
 
 const Dashboard = () => {
   // Mock data
@@ -204,7 +202,6 @@ const Dashboard = () => {
               <MessageSquare className="h-5 w-5 text-cog-teal" />
               <CardTitle>Message from Dr. Johnson</CardTitle>
             </div>
-            <PractitionerAccessButton />
           </CardHeader>
           <CardContent>
             <div className="p-3 bg-muted/30 rounded-lg">

@@ -10,59 +10,65 @@ import { toast } from "sonner";
 import { Brain } from "lucide-react";
 
 const Auth = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [signInEmail, setSignInEmail] = useState("");
+  const [signInPassword, setSignInPassword] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const timeout = (ms: number) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms));
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    console.log("[DEBUG] Attempting sign in with:", { email, password });
+    console.log("[DEBUG] Sign-in attempt:", signInEmail);
+
     try {
-      const { error, data } = await Promise.race([
-        supabase.auth.signInWithPassword({ email, password }),
-        timeout(5000)
-      ]);
-      console.log("[DEBUG] Sign in result:", { error, data });
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email: signInEmail,
+        password: signInPassword,
+      });
+
+      console.log("[DEBUG] Sign-in result:", { error, data });
+
       if (error) throw error;
+
       toast.success("Signed in successfully!");
       navigate("/dashboard");
     } catch (error: any) {
-      console.error("[DEBUG] Sign in error:", error);
+      console.error("[DEBUG] Sign-in error:", error);
       toast.error(error.message || "Error signing in");
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     if (!fullName.trim()) {
       toast.error("Please enter your full name");
       setLoading(false);
       return;
     }
-    
+
     try {
       const { error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: signUpEmail,
+        password: signUpPassword,
         options: {
           data: {
             full_name: fullName,
           },
         },
       });
-      
+
       if (error) throw error;
-      
-      toast.success("Sign up successful! Please check your email for verification.");
+
+      toast.success("Sign-up successful! Check your email for verification.");
     } catch (error: any) {
+      console.error("[DEBUG] Sign-up error:", error);
       toast.error(error.message || "Error signing up");
     } finally {
       setLoading(false);
@@ -71,14 +77,13 @@ const Auth = () => {
 
   return (
     <div className="container py-8 flex flex-col items-center justify-center min-h-screen">
-      <div className="mb-8 text-center">
+      <div className="mb-8 text-center mt-8 sm:mt-30" style={{ marginTop: '20px' }}>
         <div className="flex items-center justify-center mb-4">
-          <Brain className="h-10 w-10 text-cog-purple" />
+          <img src="/logo/Rewire-Logo.png" alt="Rewire Logo" className="h-12 w-auto" />
         </div>
-        <h1 className="text-3xl font-bold">CogniCare</h1>
-        <p className="text-muted-foreground">Cognitive health tracking and rehabilitation</p>
+        <p className="text-muted-foreground">Cognitive rehab you can keep up with.</p>
       </div>
-      
+
       <Card className="w-full max-w-md">
         <Tabs defaultValue="signin">
           <CardHeader>
@@ -87,39 +92,40 @@ const Auth = () => {
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
           </CardHeader>
-          
+
           <CardContent>
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="signInEmail">Email</Label>
                   <Input
-                    id="email"
+                    id="signInEmail"
                     type="email"
-                    placeholder="your.email@example.com"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your.email@example.com"
+                    value={signInEmail}
+                    onChange={(e) => setSignInEmail(e.target.value)}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="signInPassword">Password</Label>
                   <Input
-                    id="password"
+                    id="signInPassword"
                     type="password"
                     required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Your password"
+                    value={signInPassword}
+                    onChange={(e) => setSignInPassword(e.target.value)}
                   />
                 </div>
-                
+
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
               </form>
             </TabsContent>
-            
+
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
@@ -127,44 +133,44 @@ const Auth = () => {
                   <Input
                     id="fullName"
                     type="text"
-                    placeholder="Jane Doe"
                     required
+                    placeholder="Jane Doe"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="emailSignup">Email</Label>
+                  <Label htmlFor="signUpEmail">Email</Label>
                   <Input
-                    id="emailSignup"
+                    id="signUpEmail"
                     type="email"
-                    placeholder="your.email@example.com"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your.email@example.com"
+                    value={signUpEmail}
+                    onChange={(e) => setSignUpEmail(e.target.value)}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="passwordSignup">Password</Label>
+                  <Label htmlFor="signUpPassword">Password</Label>
                   <Input
-                    id="passwordSignup"
+                    id="signUpPassword"
                     type="password"
                     required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="6+ characters"
+                    value={signUpPassword}
+                    onChange={(e) => setSignUpPassword(e.target.value)}
                   />
                 </div>
-                
+
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Signing up..." : "Sign Up"}
                 </Button>
               </form>
             </TabsContent>
           </CardContent>
-          
+
           <CardFooter className="flex justify-center text-sm text-muted-foreground">
             Protected with Supabase Authentication
           </CardFooter>

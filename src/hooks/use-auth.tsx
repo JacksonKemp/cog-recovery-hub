@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,32 +17,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-        console.log("Auth state changed:", event);
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-        setIsLoading(false);
-      }
-    );
+    const initAuth = async () => {
+      // 1️⃣ Fetch any saved session
+      const { data: { session: currentSession } } =
+        await supabase.auth.getSession();
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
-      setIsLoading(false);
-    });
 
-    return () => {
-      subscription.unsubscribe();
+      // 2️⃣ Inject the session into Supabase's in-memory store
+      if (currentSession) {
+        const { access_token, refresh_token } = currentSession;
+        await supabase.auth.setSession({ access_token, refresh_token });
+        console.log("[DEBUG] Session injected into memory");
+      }
+
+      setIsLoading(false);
     };
+
+    // Real-time listener
+    const { data: { subscription } } =
+      supabase.auth.onAuthStateChange((_event, newSession) => {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+
+        if (newSession) {
+          const { access_token, refresh_token } = newSession;
+          supabase.auth.setSession({ access_token, refresh_token });
+        }
+      });
+
+    initAuth();
+    return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
+    try {
+      // Clear Supabase's in-memory session
+      await supabase.auth.setSession(null);
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      // Clear local state
+      setUser(null);
+      setSession(null);
+      console.log("[DEBUG] Signed out and cleared session");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      throw error;
+    }
   };
 
   const value = {

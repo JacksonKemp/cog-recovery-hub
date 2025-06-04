@@ -8,7 +8,11 @@ export const supabase = createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      storage: localStorage
+      storage: {
+        getItem: async () => null,
+        setItem: async () => {},
+        removeItem: async () => {}
+      }
     },
     global: {
       headers: {
