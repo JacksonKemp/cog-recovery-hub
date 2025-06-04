@@ -10,7 +10,7 @@ interface GameLayoutProps {
   backLink?: string;
 }
 
-const GameLayout = ({ title, children, backLink = "/exercises" }: GameLayoutProps) => {
+const GameLayout = ({ title, children, backLink = "/games" }: GameLayoutProps) => {
   const [showHelp, setShowHelp] = useState(false);
   
   return (
