@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -80,7 +81,7 @@ const Auth = () => {
     <div className="container py-8 flex flex-col items-center justify-center min-h-screen">
       <div className="mb-8 text-center mt-8 sm:mt-30" style={{ marginTop: '20px' }}>
         <div className="flex items-center justify-center mb-4">
-          <img src="/lovable-uploads/0bee206b-18bb-4f6e-9636-9dbc594c691e.png" alt="Rewire Logo" className="h-32 w-auto" />
+          <img src="/lovable-uploads/9dfd93a6-e697-4f78-b7a7-24f947e3df9d.png" alt="Rewire Logo" className="h-32 w-auto" />
         </div>
         <p className="text-muted-foreground">Cognitive rehab you can keep up with.</p>
       </div>
@@ -182,3 +183,4 @@ const Auth = () => {
 };
 
 export default Auth;
+
