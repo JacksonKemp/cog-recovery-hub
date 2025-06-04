@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,34 +19,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      // 1️⃣ Fetch any saved session
-      const { data: { session: currentSession } } =
-        await supabase.auth.getSession();
+      try {
+        console.log("[DEBUG] Initializing auth...");
+        
+        // Get current session
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("[DEBUG] Error getting session:", error);
+        } else {
+          console.log("[DEBUG] Current session:", currentSession ? "Found" : "None");
+        }
 
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-
-      // 2️⃣ Inject the session into Supabase's in-memory store
-      if (currentSession) {
-        const { access_token, refresh_token } = currentSession;
-        await supabase.auth.setSession({ access_token, refresh_token });
-        console.log("[DEBUG] Session injected into memory");
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        
+        console.log("[DEBUG] Auth initialized, user:", currentSession?.user?.id || "None");
+      } catch (error) {
+        console.error("[DEBUG] Exception in initAuth:", error);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
     // Real-time listener
-    const { data: { subscription } } =
-      supabase.auth.onAuthStateChange((_event, newSession) => {
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-
-        if (newSession) {
-          const { access_token, refresh_token } = newSession;
-          supabase.auth.setSession({ access_token, refresh_token });
-        }
-      });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      console.log("[DEBUG] Auth state change:", event, newSession ? "Session exists" : "No session");
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
+    });
 
     initAuth();
     return () => subscription.unsubscribe();
@@ -53,14 +55,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
-      // Clear Supabase's in-memory session
-      await supabase.auth.setSession(null);
-      // Sign out from Supabase
+      console.log("[DEBUG] Signing out...");
       await supabase.auth.signOut();
-      // Clear local state
       setUser(null);
       setSession(null);
-      console.log("[DEBUG] Signed out and cleared session");
+      console.log("[DEBUG] Signed out successfully");
     } catch (error) {
       console.error("Error signing out:", error);
       throw error;
