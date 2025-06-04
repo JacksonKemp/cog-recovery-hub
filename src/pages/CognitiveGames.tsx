@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Star, Clock, Timer, Text, Circle, Square, BookOpen, Puzzle, Grid3X3, FileText, Search } from "lucide-react";
+import { Brain, Star, Clock, Timer, Text, Circle, Square, BookOpen, Puzzle, Grid3X3, FileText, Search, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const games = {
@@ -16,6 +16,16 @@ const games = {
       category: "Memory",
       icon: <Puzzle className="h-5 w-5" />,
       path: "/games/memory-match"
+    },
+    {
+      id: "numbers",
+      title: "Numbers Memory",
+      description: "Remember and recall sequences of numbers",
+      difficulty: "Medium",
+      timeToComplete: "5 min",
+      category: "Memory",
+      icon: <Hash className="h-5 w-5" />,
+      path: "/games/numbers"
     },
     {
       id: "names",
