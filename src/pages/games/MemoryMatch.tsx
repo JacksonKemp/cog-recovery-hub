@@ -186,7 +186,7 @@ const MemoryMatch = () => {
       <div className="flex items-center mb-6">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/exercises')}
+          onClick={() => navigate('/games')}
           className="mr-2"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
