@@ -22,9 +22,13 @@ const SymptomTracker = () => {
 
   // Load data on component mount
   useEffect(() => {
+    console.log("[DEBUG] SymptomTracker useEffect triggered", { user: user?.id, authLoading });
+    
     if (!authLoading && user) {
+      console.log("[DEBUG] Calling loadData for user:", user.id);
       loadData();
     } else if (!authLoading && !user) {
+      console.log("[DEBUG] No user, setting loading to false");
       setIsLoading(false);
     }
   }, [user, authLoading]);
@@ -38,9 +42,9 @@ const SymptomTracker = () => {
     }
 
     setIsLoading(true);
+    console.log("[DEBUG] Starting data load for user:", user.id);
+    
     try {
-      console.log("[DEBUG] Starting data load for user:", user.id);
-      
       // Check if the user has already recorded symptoms today
       const hasEntry = await hasEntryForToday();
       console.log("[DEBUG] loadData ▸ hasEntry =", hasEntry);
@@ -59,16 +63,19 @@ const SymptomTracker = () => {
       });
     } finally {
       setIsLoading(false);
+      console.log("[DEBUG] Data loading completed");
     }
   };
   
   // Handle entry added - refresh data
   const handleEntryAdded = async () => {
+    console.log("[DEBUG] Entry added, refreshing data");
     await loadData();
   };
 
   // Show loading while auth is loading
   if (authLoading) {
+    console.log("[DEBUG] Showing auth loading state");
     return (
       <div className="container py-8">
         <div className="flex items-center justify-center py-8">
@@ -82,6 +89,7 @@ const SymptomTracker = () => {
 
   // Show auth required message if not authenticated
   if (!user) {
+    console.log("[DEBUG] Showing auth required state");
     return (
       <div className="container py-8">
         <div className="flex items-center justify-center py-8">
@@ -93,6 +101,8 @@ const SymptomTracker = () => {
       </div>
     );
   }
+
+  console.log("[DEBUG] Rendering main component", { isLoading, hasRecordedToday, entriesCount: recentEntries.length });
 
   return (
     <div className="container py-8">

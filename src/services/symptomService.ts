@@ -18,13 +18,18 @@ export type SymptomEntry = {
 };
 
 export async function saveSymptomEntry(symptoms: SymptomRatings, notes: string): Promise<string> {
+  console.log("[DEBUG] saveSymptomEntry called with:", { symptoms, notes });
+  
   const { data: { user }, error: userError } = await supabase.auth.getUser();
+  console.log("[DEBUG] saveSymptomEntry user check:", user ? "User found" : "No user", userError);
   
   if (userError || !user) {
     console.error("User not authenticated:", userError);
     throw new Error("User not authenticated");
   }
 
+  console.log("[DEBUG] Attempting to insert symptom entry for user:", user.id);
+  
   const { data, error } = await supabase
     .from('symptom_entries')
     .insert({
@@ -33,6 +38,8 @@ export async function saveSymptomEntry(symptoms: SymptomRatings, notes: string):
       notes
     })
     .select();
+
+  console.log("[DEBUG] Insert result:", { data, error });
 
   if (error) {
     console.error("Error saving symptom entry:", error);
@@ -44,6 +51,8 @@ export async function saveSymptomEntry(symptoms: SymptomRatings, notes: string):
 
 export async function hasEntryForToday(): Promise<boolean> {
   try {
+    console.log("[DEBUG] hasEntryForToday called");
+    
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     console.log("[DEBUG] hasEntry user check:", user ? "User found" : "No user", userError);
 
@@ -55,6 +64,8 @@ export async function hasEntryForToday(): Promise<boolean> {
     const today = new Date();
     const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
     const endOfDay = new Date(new Date().setHours(23, 59, 59, 999)).toISOString();
+    
+    console.log("[DEBUG] Checking entries between:", { startOfDay, endOfDay, userId: user.id });
     
     const { data, error } = await supabase
       .from('symptom_entries')
@@ -71,7 +82,9 @@ export async function hasEntryForToday(): Promise<boolean> {
       return false;
     }
     
-    return (data?.length ?? 0) > 0;
+    const hasEntry = (data?.length ?? 0) > 0;
+    console.log("[DEBUG] hasEntry final result:", hasEntry);
+    return hasEntry;
   } catch (error) {
     console.error("Exception in hasEntryForToday:", error);
     return false;
@@ -80,6 +93,8 @@ export async function hasEntryForToday(): Promise<boolean> {
 
 export async function getRecentEntries(limit = 3): Promise<SymptomEntry[]> {
   try {
+    console.log("[DEBUG] getRecentEntries called with limit:", limit);
+    
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     console.log("[DEBUG] getRecent user check:", user ? "User found" : "No user", userError);
 
@@ -87,6 +102,8 @@ export async function getRecentEntries(limit = 3): Promise<SymptomEntry[]> {
       console.error("User not authenticated in getRecentEntries:", userError);
       return [];
     }
+
+    console.log("[DEBUG] Fetching recent entries for user:", user.id);
 
     const { data, error } = await supabase
       .from('symptom_entries')
@@ -102,12 +119,15 @@ export async function getRecentEntries(limit = 3): Promise<SymptomEntry[]> {
       return [];
     }
     
-    return data?.map(entry => ({
+    const entries = data?.map(entry => ({
       id: entry.id,
       date: formatEntryDate(entry.created_at),
       symptoms: entry.symptoms as SymptomRatings,
       notes: entry.notes || ""
     })) || [];
+    
+    console.log("[DEBUG] getRecent formatted entries:", entries);
+    return entries;
   } catch (error) {
     console.error("Exception in getRecentEntries:", error);
     return [];
