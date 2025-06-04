@@ -219,8 +219,8 @@ const MemoryMatch = () => {
       
       {!gameStarted ? (
         <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-md">
-          <div className="w-16 h-16 rounded-full bg-cog-light-purple flex items-center justify-center mb-6 mx-auto">
-            <Brain className="h-8 w-8 text-cog-purple" />
+          <div className="w-16 h-16 rounded-full bg-cog-light-teal flex items-center justify-center mb-6 mx-auto">
+            <Brain className="h-8 w-8 text-cog-teal" />
           </div>
           <h2 className="text-2xl font-bold mb-4 text-center">Memory Match Challenge</h2>
           <p className="text-muted-foreground mb-6">
@@ -282,8 +282,8 @@ const MemoryMatch = () => {
           </div>
           
           {gameCompleted ? (
-            <div className="text-center p-8 bg-cog-light-purple rounded-lg shadow-md">
-              <Trophy className="h-16 w-16 text-cog-purple mx-auto mb-4" />
+            <div className="text-center p-8 bg-cog-light-teal rounded-lg shadow-md">
+              <Trophy className="h-16 w-16 text-cog-teal mx-auto mb-4" />
               <h2 className="text-2xl font-bold mb-2">Game Completed!</h2>
               <p className="text-lg mb-4">Final Score: {score}</p>
               <div className="flex flex-col md:flex-row gap-4 justify-center mt-6">
@@ -317,7 +317,7 @@ const MemoryMatch = () => {
                     <div 
                       className={`absolute w-full h-full backface-hidden rounded-lg ${
                         card.flipped ? 'hidden' : 'flex'
-                      } items-center justify-center bg-cog-purple text-white font-bold text-xl`}
+                      } items-center justify-center bg-cog-teal text-white font-bold text-xl`}
                     >
                       <span>?</span>
                     </div>
@@ -327,7 +327,7 @@ const MemoryMatch = () => {
                       className={`absolute w-full h-full backface-hidden rounded-lg ${
                         card.flipped ? 'flex' : 'hidden'
                       } rotate-y-180 items-center justify-center bg-white border-2 ${
-                        card.matched ? 'border-cog-purple' : 'border-gray-200'
+                        card.matched ? 'border-cog-teal' : 'border-gray-200'
                       } text-4xl`}
                     >
                       {card.icon}

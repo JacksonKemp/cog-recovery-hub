@@ -99,8 +99,8 @@ const Dashboard = () => {
             </Link>
             <Link to="/tasks" className="block">
               <div className="flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-t">
-                <div className="bg-cog-light-purple p-2 rounded-full">
-                  <CheckSquare className="h-5 w-5 text-cog-purple" />
+                <div className="bg-cog-light-teal p-2 rounded-full">
+                  <CheckSquare className="h-5 w-5 text-cog-teal" />
                 </div>
                 <div>
                   <p className="font-medium">Task Manager</p>

@@ -64,14 +64,14 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				cog: {
-					purple: '#9b87f5',
-					'light-purple': '#e5deff',
-					'dark-purple': '#7E69AB',
+					teal: '#4FBDB9',
+					'light-teal': '#D6EFEE',
+					'dark-teal': '#3E9E9A',
 					'soft-blue': '#D3E4FD',
 					'soft-gray': '#F1F0FB',
-					teal: '#4FBDB9',
-					'dark-teal': '#3E9E9A',
-					'light-teal': '#D6EFEE',
+					purple: '#4FBDB9', // Changed to teal
+					'light-purple': '#D6EFEE', // Changed to light teal
+					'dark-purple': '#3E9E9A', // Changed to dark teal
 				}
 			},
 			borderRadius: {

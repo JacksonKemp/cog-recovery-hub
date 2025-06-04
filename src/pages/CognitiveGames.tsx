@@ -111,12 +111,12 @@ const GameCard = ({ game }: { game: any }) => {
     <Card className="h-full">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div className="w-10 h-10 rounded-full bg-cog-light-purple flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-cog-light-teal flex items-center justify-center">
             {game.icon}
           </div>
           <div className="flex items-center">
             <div className="bg-cog-soft-gray px-2 py-1 rounded text-xs font-medium flex items-center">
-              <Star className="h-3 w-3 mr-1 text-cog-purple" />
+              <Star className="h-3 w-3 mr-1 text-cog-teal" />
               <span>{game.difficulty}</span>
             </div>
           </div>
@@ -194,7 +194,7 @@ const CognitiveGames = () => {
         </TabsContent>
       </Tabs>
 
-      <div className="mt-12 p-6 rounded-lg bg-cog-light-purple">
+      <div className="mt-12 p-6 rounded-lg bg-cog-light-teal">
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div>
             <h3 className="text-xl font-semibold mb-2">Track Your Progress</h3>
