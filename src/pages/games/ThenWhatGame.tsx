@@ -54,7 +54,7 @@ const ThenWhatGame = () => {
       {gameState === "result" && (
         <ResultScreen 
           score={score}
-          questionsCount={instructions.length}
+          totalQuestions={instructions.length}
           onPlayAgain={startGame}
           onBackToIntro={resetGame}
         />
