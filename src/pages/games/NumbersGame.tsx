@@ -1,4 +1,4 @@
-me
+
 import GameLayout from "@/components/games/GameLayout";
 import IntroScreen from "@/components/games/numbers/IntroScreen";
 import MemorizeScreen from "@/components/games/numbers/MemorizeScreen";
@@ -23,7 +23,7 @@ const NumbersGame = () => {
   } = useNumbersGame();
   
   return (
-    <GameLayout title="Numbers Memory Exercise" backLink="/games">
+    <GameLayout title="Numbers Memory Exercise" backLink="/exercises">
       {gameState === "intro" && (
         <IntroScreen 
           difficulty={difficulty}

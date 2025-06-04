@@ -10,13 +10,15 @@ const ThenWhatGame = () => {
   const {
     gameState,
     difficulty,
-    steps,
-    currentStepIndex,
-    userAnswers,
+    instructions,
+    currentInstructionIndex,
+    selectedAnswer,
     score,
     handleDifficultyChange,
     startGame,
-    handleAnswerSubmit,
+    nextInstruction,
+    handleAnswerSelect,
+    submitAnswer,
     resetGame
   } = useThenWhatGame();
 
@@ -32,25 +34,27 @@ const ThenWhatGame = () => {
       
       {gameState === "instruction" && (
         <InstructionScreen 
-          steps={steps}
-          onContinue={startGame}
+          instructions={instructions}
+          currentInstructionIndex={currentInstructionIndex}
+          onNextInstruction={nextInstruction}
         />
       )}
       
-      {gameState === "playing" && (
+      {gameState === "recall" && (
         <RecallScreen 
-          steps={steps}
-          currentStepIndex={currentStepIndex}
-          userAnswers={userAnswers}
-          onAnswerSubmit={handleAnswerSubmit}
-          onResetGame={resetGame}
+          instructions={instructions}
+          currentInstructionIndex={currentInstructionIndex}
+          selectedAnswer={selectedAnswer}
+          onAnswerSelect={handleAnswerSelect}
+          onSubmitAnswer={submitAnswer}
+          onCancel={resetGame}
         />
       )}
       
       {gameState === "result" && (
         <ResultScreen 
           score={score}
-          totalSteps={steps.length}
+          questionsCount={instructions.length}
           onPlayAgain={startGame}
           onBackToIntro={resetGame}
         />
