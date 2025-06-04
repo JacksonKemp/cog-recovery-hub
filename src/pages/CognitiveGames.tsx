@@ -144,7 +144,7 @@ const GameCard = ({ game }: { game: any }) => {
       <CardFooter>
         <Button className="w-full" asChild={!!game.path}>
           {game.path ? (
-            <Link to={game.path}>Play Game</Link>
+            <Link to={game.path}>Play Exercise</Link>
           ) : (
             "Coming Soon"
           )}
