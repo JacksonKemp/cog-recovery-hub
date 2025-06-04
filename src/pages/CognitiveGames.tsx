@@ -3,10 +3,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Star, Clock, Timer, Text, Circle, Square, BookOpen, Puzzle, Grid3X3, FileText, Search, Hash } from "lucide-react";
+import { Brain, Star, Clock, Timer, Text, Circle, Square, BookOpen, Puzzle, Grid3X3, FileText, Search, Hash, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const games = {
+const exercises = {
   memory: [
     {
       id: "memory-match",
@@ -117,37 +117,53 @@ const games = {
   ]
 };
 
-const GameCard = ({ game }: { game: any }) => {
+const ExerciseCard = ({ exercise, categoryKey }: { exercise: any; categoryKey: string }) => {
+  const getCategoryForProgress = (categoryKey: string) => {
+    switch(categoryKey) {
+      case "memory": return "memory";
+      case "attention": return "attention";
+      case "processing":
+      case "processingSpeed": return "processing";
+      default: return "memory";
+    }
+  };
+
   return (
     <Card className="h-full">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="w-10 h-10 rounded-full bg-cog-light-teal flex items-center justify-center">
-            {game.icon}
+            {exercise.icon}
           </div>
           <div className="flex items-center">
             <div className="bg-cog-soft-gray px-2 py-1 rounded text-xs font-medium flex items-center">
               <Star className="h-3 w-3 mr-1 text-cog-teal" />
-              <span>{game.difficulty}</span>
+              <span>{exercise.difficulty}</span>
             </div>
           </div>
         </div>
-        <CardTitle className="text-lg">{game.title}</CardTitle>
-        <CardDescription>{game.description}</CardDescription>
+        <CardTitle className="text-lg">{exercise.title}</CardTitle>
+        <CardDescription>{exercise.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-center text-sm text-muted-foreground">
           <Clock className="h-4 w-4 mr-1" />
-          <span>{game.timeToComplete}</span>
+          <span>{exercise.timeToComplete}</span>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button className="w-full" asChild={!!game.path}>
-          {game.path ? (
-            <Link to={game.path}>Launch</Link>
+      <CardFooter className="flex flex-col gap-2">
+        <Button className="w-full" asChild={!!exercise.path}>
+          {exercise.path ? (
+            <Link to={exercise.path}>Launch</Link>
           ) : (
             "Coming Soon"
           )}
+        </Button>
+        <Button variant="outline" className="w-full" asChild>
+          <Link to={`/games/progress?category=${getCategoryForProgress(categoryKey)}`} className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            See Scores
+          </Link>
         </Button>
       </CardFooter>
     </Card>
@@ -182,24 +198,27 @@ const CognitiveGames = () => {
 
         <TabsContent value="memory" className="mt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {games.memory.map((game) => (
-              <GameCard key={game.id} game={game} />
+            {exercises.memory.map((exercise) => (
+              <ExerciseCard key={exercise.id} exercise={exercise} categoryKey="memory" />
             ))}
           </div>
         </TabsContent>
 
         <TabsContent value="attention" className="mt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {games.attention.map((game) => (
-              <GameCard key={game.id} game={game} />
+            {exercises.attention.map((exercise) => (
+              <ExerciseCard key={exercise.id} exercise={exercise} categoryKey="attention" />
             ))}
           </div>
         </TabsContent>
 
         <TabsContent value="processing" className="mt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {games.processing.map((game) => (
-              <GameCard key={game.id} game={game} />
+            {exercises.processing.map((exercise) => (
+              <ExerciseCard key={exercise.id} exercise={exercise} categoryKey="processing" />
+            ))}
+            {exercises.processingSpeed.map((exercise) => (
+              <ExerciseCard key={exercise.id} exercise={exercise} categoryKey="processing" />
             ))}
           </div>
         </TabsContent>
