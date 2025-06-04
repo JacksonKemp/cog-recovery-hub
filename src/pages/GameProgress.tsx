@@ -21,7 +21,7 @@ const GameProgress = () => {
   useEffect(() => {
     if (!user) {
       console.warn("User not authenticated in GameProgress component");
-      toast.error("You must be signed in to view game progress");
+      toast.error("You must be signed in to view exercise progress");
     } else {
       console.log("Authenticated user in GameProgress:", user.id);
     }
@@ -37,15 +37,15 @@ const GameProgress = () => {
   useEffect(() => {
     if (error) {
       console.error("Error in game progress query:", error);
-      toast.error("Failed to load game progress");
+      toast.error("Failed to load exercise progress");
     }
   }, [error]);
   
   useEffect(() => {
     if (progressData && progressData.length > 0) {
-      console.log("Loaded game progress data:", progressData.length, "entries");
+      console.log("Loaded exercise progress data:", progressData.length, "entries");
     } else {
-      console.log("No game progress data found");
+      console.log("No exercise progress data found");
     }
   }, [progressData]);
   
@@ -67,15 +67,15 @@ const GameProgress = () => {
     <div className="container py-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Game Progress</h1>
-          <p className="text-muted-foreground">Track your improvement across cognitive games</p>
+          <h1 className="text-3xl font-bold">Exercise Progress</h1>
+          <p className="text-muted-foreground">Track your improvement across cognitive exercises</p>
         </div>
         
         <div className="mt-4 md:mt-0 flex gap-2">
           <Button asChild variant="outline">
             <Link to="/games" className="flex items-center gap-2">
               <Brain className="h-4 w-4" />
-              Back to Games
+              Back to Exercises
             </Link>
           </Button>
           

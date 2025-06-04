@@ -1,60 +1,56 @@
 
 import GameLayout from "@/components/games/GameLayout";
+import { useThenWhatGame } from "@/hooks/games/useThenWhatGame";
 import IntroScreen from "@/components/games/then-what/IntroScreen";
 import InstructionScreen from "@/components/games/then-what/InstructionScreen";
 import RecallScreen from "@/components/games/then-what/RecallScreen";
 import ResultScreen from "@/components/games/then-what/ResultScreen";
-import { useThenWhatGame } from "@/hooks/games/useThenWhatGame";
 
 const ThenWhatGame = () => {
   const {
     gameState,
     difficulty,
-    instructions,
-    currentInstructionIndex,
-    selectedAnswer,
+    steps,
+    currentStepIndex,
+    userAnswers,
     score,
     handleDifficultyChange,
     startGame,
-    nextInstruction,
-    handleAnswerSelect,
-    submitAnswer,
+    handleAnswerSubmit,
     resetGame
   } = useThenWhatGame();
 
   return (
     <GameLayout title="Then What Exercise" backLink="/exercises">
       {gameState === "intro" && (
-        <InstructionScreen
+        <IntroScreen 
           difficulty={difficulty}
           onDifficultyChange={handleDifficultyChange}
           onStartGame={startGame}
         />
       )}
       
-      {gameState === "instruction" && instructions.length > 0 && (
-        <InstructionScreen
-          instructions={instructions}
-          currentInstructionIndex={currentInstructionIndex}
-          onNextInstruction={nextInstruction}
+      {gameState === "instruction" && (
+        <InstructionScreen 
+          steps={steps}
+          onContinue={startGame}
         />
       )}
       
-      {gameState === "recall" && instructions.length > 0 && (
-        <RecallScreen
-          instructions={instructions}
-          currentInstructionIndex={currentInstructionIndex}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={handleAnswerSelect}
-          onSubmitAnswer={submitAnswer}
-          onCancel={resetGame}
+      {gameState === "playing" && (
+        <RecallScreen 
+          steps={steps}
+          currentStepIndex={currentStepIndex}
+          userAnswers={userAnswers}
+          onAnswerSubmit={handleAnswerSubmit}
+          onResetGame={resetGame}
         />
       )}
       
       {gameState === "result" && (
-        <ResultScreen
+        <ResultScreen 
           score={score}
-          totalQuestions={instructions.length}
+          totalSteps={steps.length}
           onPlayAgain={startGame}
           onBackToIntro={resetGame}
         />
