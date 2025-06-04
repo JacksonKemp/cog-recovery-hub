@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -160,14 +161,14 @@ const CognitiveGames = () => {
     <div className="container py-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Cognitive Games</h1>
+          <h1 className="text-3xl font-bold">Cognitive Exercises</h1>
           <p className="text-muted-foreground">Fun exercises to strengthen your cognitive abilities</p>
         </div>
         
         <div className="mt-4 md:mt-0">
           <Button variant="outline" className="flex items-center gap-2">
             <Timer className="h-4 w-4" />
-            Today's Recommended Games
+            Today's Recommended Exercises
           </Button>
         </div>
       </div>
@@ -209,7 +210,7 @@ const CognitiveGames = () => {
           <div>
             <h3 className="text-xl font-semibold mb-2">Track Your Progress</h3>
             <p className="text-muted-foreground">
-              Keep playing games regularly to see improvement in your cognitive abilities.
+              Keep playing exercises regularly to see improvement in your cognitive abilities.
             </p>
           </div>
           <Button className="mt-4 md:mt-0" asChild>
