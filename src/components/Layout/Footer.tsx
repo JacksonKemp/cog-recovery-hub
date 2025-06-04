@@ -1,4 +1,5 @@
 
+
 import { Link } from "react-router-dom";
 
 export const Footer = () => {
@@ -9,7 +10,7 @@ export const Footer = () => {
           <div>
             <Link to="/" className="flex items-center gap-2">
               <img 
-                src="/lovable-uploads/de82e189-2f36-4299-aaa1-717b3e0d662e.png" 
+                src="/lovable-uploads/403ab9f4-a260-4b4d-a0f7-00c88a7f3500.png" 
                 alt="Rewire Logo" 
                 className="h-6" 
               />
@@ -41,3 +42,4 @@ export const Footer = () => {
     </footer>
   );
 };
+
