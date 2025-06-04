@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,6 @@ const MemoryMatch = () => {
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
   const [score, setScore] = useState<number>(0);
   
-  // Configure exercise based on difficulty
   const getDifficultyConfig = () => {
     switch(difficulty) {
       case "easy": 
@@ -47,18 +45,14 @@ const MemoryMatch = () => {
 
   const config = getDifficultyConfig();
   
-  // Initialize exercise cards
   const initializeGame = () => {
-    // Select icons based on difficulty
     const selectedIcons = GAME_ICONS.slice(0, config.pairs);
     
-    // Create pairs of cards
     let initialCards = selectedIcons.flatMap((icon, index) => [
       { id: index * 2, icon, flipped: false, matched: false },
       { id: index * 2 + 1, icon, flipped: false, matched: false }
     ]);
     
-    // Shuffle cards
     initialCards = initialCards.sort(() => Math.random() - 0.5);
     
     setCards(initialCards);
@@ -70,31 +64,24 @@ const MemoryMatch = () => {
     setScore(0);
   };
 
-  // Start the exercise
   const startGame = () => {
     initializeGame();
     setGameStarted(true);
     toast.success("Exercise started! Find all the matching pairs!");
   };
 
-  // Handle card flipping
   const handleCardFlip = (id: number) => {
-    // Prevent flipping if two cards are already flipped or card is already matched
     if (flippedCards.length === 2 || cards.find(card => card.id === id)?.matched) return;
     
-    // Prevent flipping already flipped card
     if (flippedCards.includes(id)) return;
     
-    // Update flipped cards
     const newFlippedCards = [...flippedCards, id];
     setFlippedCards(newFlippedCards);
     
-    // Update card state
     setCards(cards.map(card => 
       card.id === id ? { ...card, flipped: true } : card
     ));
     
-    // Check for match if two cards are flipped
     if (newFlippedCards.length === 2) {
       setMoves(moves + 1);
       
@@ -102,7 +89,6 @@ const MemoryMatch = () => {
       const secondCard = cards.find(card => card.id === newFlippedCards[1]);
       
       if (firstCard?.icon === secondCard?.icon) {
-        // Cards match
         setTimeout(() => {
           setCards(cards.map(card => 
             newFlippedCards.includes(card.id) ? { ...card, matched: true } : card
@@ -110,20 +96,17 @@ const MemoryMatch = () => {
           setFlippedCards([]);
           setMatchedPairs(matchedPairs + 1);
           
-          // Calculate points (faster matches = more points)
           const timeBonus = Math.max(1, Math.floor((config.timeLimit - timeElapsed) / 10));
           const newPoints = 100 + (timeBonus * 10);
           setScore(score + newPoints);
           
           toast.success("Match found! +"+newPoints+" points");
           
-          // Check if exercise is completed
           if (matchedPairs + 1 === config.pairs) {
             handleGameCompletion();
           }
         }, 500);
       } else {
-        // No match, flip cards back
         setTimeout(() => {
           setCards(cards.map(card => 
             newFlippedCards.includes(card.id) ? { ...card, flipped: false } : card
@@ -134,11 +117,9 @@ const MemoryMatch = () => {
     }
   };
 
-  // Handle exercise completion
   const handleGameCompletion = async () => {
     setGameCompleted(true);
     
-    // Calculate final score based on time, moves and difficulty multiplier
     const difficultyMultiplier = difficulty === "easy" ? 1 : difficulty === "medium" ? 1.5 : 2;
     const timeBonus = Math.max(0, config.timeLimit - timeElapsed);
     const movesEfficiency = Math.max(0, config.pairs * 4 - moves);
@@ -154,14 +135,13 @@ const MemoryMatch = () => {
     
     try {
       console.log("Attempting to save exercise progress...");
-      // Save exercise progress to the database using the gameService
       const progressId = await saveGameProgress(
-        "memory-match", // game_type
-        "memory",       // category
-        finalScore,     // score
-        undefined,      // maxScore - not applicable for this exercise
-        undefined,      // level - not applicable for this exercise
-        timeElapsed     // timeTaken
+        "memory-match",
+        "memory",
+        finalScore,
+        undefined,
+        undefined,
+        timeElapsed
       );
       
       console.log("Exercise progress saved with ID:", progressId);
@@ -172,7 +152,6 @@ const MemoryMatch = () => {
     }
   };
 
-  // Timer effect
   useEffect(() => {
     let interval: number | undefined;
     
@@ -181,7 +160,6 @@ const MemoryMatch = () => {
         setTimeElapsed(prevTime => {
           const newTime = prevTime + 1;
           
-          // Check if time limit reached
           if (newTime >= config.timeLimit) {
             clearInterval(interval);
             toast.error("Time's up!");
@@ -197,7 +175,6 @@ const MemoryMatch = () => {
     };
   }, [gameStarted, gameCompleted, config.timeLimit]);
 
-  // Format time display
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -314,7 +291,6 @@ const MemoryMatch = () => {
                       card.flipped ? 'rotate-y-180' : ''
                     }`}
                   >
-                    {/* Card Back */}
                     <div 
                       className={`absolute w-full h-full backface-hidden rounded-lg ${
                         card.flipped ? 'hidden' : 'flex'
@@ -323,7 +299,6 @@ const MemoryMatch = () => {
                       <span>?</span>
                     </div>
                     
-                    {/* Card Front */}
                     <div 
                       className={`absolute w-full h-full backface-hidden rounded-lg ${
                         card.flipped ? 'flex' : 'hidden'

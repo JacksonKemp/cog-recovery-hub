@@ -23,9 +23,9 @@ const ThenWhatGame = () => {
   } = useThenWhatGame();
 
   return (
-    <GameLayout title="Then What Exercise">
+    <GameLayout title="Then What Exercise" backLink="/exercises">
       {gameState === "intro" && (
-        <IntroScreen
+        <InstructionScreen
           difficulty={difficulty}
           onDifficultyChange={handleDifficultyChange}
           onStartGame={startGame}
