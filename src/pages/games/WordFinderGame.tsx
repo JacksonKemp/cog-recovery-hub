@@ -22,7 +22,11 @@ const WordFinderGame = () => {
   } = useWordFinderGame();
   
   return (
-    <GameLayout title="Word Finder Exercise" backLink="/games">
+    <GameLayout 
+      title="Word Finder Exercise" 
+      backLink="/games"
+      showTitle={gameState === "intro"}
+    >
       {gameState === "intro" && (
         <IntroScreen 
           difficulty={difficulty}

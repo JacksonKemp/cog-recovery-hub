@@ -23,7 +23,11 @@ const SudokuGame = () => {
   } = useSudokuGame();
 
   return (
-    <GameLayout title="Sudoku Exercise" backLink="/games">
+    <GameLayout 
+      title="Sudoku Exercise" 
+      backLink="/games"
+      showTitle={gameState === "intro"}
+    >
       {gameState === "intro" && (
         <IntroScreen 
           difficulty={difficulty}

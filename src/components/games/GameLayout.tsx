@@ -8,9 +8,10 @@ interface GameLayoutProps {
   title: string;
   children: ReactNode;
   backLink?: string;
+  showTitle?: boolean;
 }
 
-const GameLayout = ({ title, children, backLink = "/games" }: GameLayoutProps) => {
+const GameLayout = ({ title, children, backLink = "/games", showTitle = true }: GameLayoutProps) => {
   const [showHelp, setShowHelp] = useState(false);
   
   return (
@@ -24,7 +25,9 @@ const GameLayout = ({ title, children, backLink = "/games" }: GameLayoutProps) =
                 Back
               </Link>
             </Button>
-            <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
+            {showTitle && (
+              <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
+            )}
           </div>
           
           <div className="flex items-center gap-2">
