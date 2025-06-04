@@ -1,9 +1,15 @@
-import { Outlet } from "react-router-dom";
+
+import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { useEffect } from "react";
 
 export const MainLayout = () => {
+  const location = useLocation();
+  
+  // Check if current route is a game/exercise route
+  const isGameRoute = location.pathname.startsWith('/games/') && location.pathname !== '/games' && location.pathname !== '/games/progress';
+
   // Prevent bounce/overscroll effect on iOS
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -19,6 +25,18 @@ export const MainLayout = () => {
     };
   }, []);
 
+  if (isGameRoute) {
+    // Full screen layout for games/exercises
+    return (
+      <div className="min-h-screen max-h-screen overflow-hidden">
+        <main className="h-screen overflow-y-auto">
+          <Outlet />
+        </main>
+      </div>
+    );
+  }
+
+  // Normal layout with header and footer
   return (
     <div className="flex flex-col min-h-screen max-h-screen overflow-hidden pt-safe">
       <Header />
