@@ -53,7 +53,7 @@ const Dashboard = () => {
   
   return (
     <div className="container py-8">
-      {/* Streak and Games - Small Stats at Top */}
+      {/* Streak and Exercises - Small Stats at Top */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Hello, Sam</h1>
         <div className="flex gap-6">
@@ -67,7 +67,7 @@ const Dashboard = () => {
           <div className="flex items-center">
             <Brain className="h-5 w-5 text-cog-teal mr-2" />
             <div>
-              <span className="text-sm text-muted-foreground">Games</span>
+              <span className="text-sm text-muted-foreground">Exercises</span>
               <p className="font-semibold">{completedGames} completed</p>
             </div>
           </div>
