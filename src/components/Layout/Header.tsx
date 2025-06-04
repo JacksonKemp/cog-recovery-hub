@@ -1,4 +1,5 @@
 
+
 import { Link } from "react-router-dom";
 import { Menu, User } from "lucide-react";
 import {
@@ -35,7 +36,7 @@ export const Header = () => {
         <div className="flex items-center gap-2 font-semibold">
           <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2">
             <img 
-              src="/lovable-uploads/de82e189-2f36-4299-aaa1-717b3e0d662e.png" 
+              src="/lovable-uploads/9fa257d5-63a4-4f24-b177-a668bc3379fd.png" 
               alt="Rewire Logo" 
               className="h-6" 
             />
@@ -86,7 +87,7 @@ export const Header = () => {
             <div className="grid gap-4 py-4">
               <Link to="/" className="flex items-center gap-2 font-semibold px-2">
                 <img 
-                  src="/lovable-uploads/de82e189-2f36-4299-aaa1-717b3e0d662e.png" 
+                  src="/lovable-uploads/9fa257d5-63a4-4f24-b177-a668bc3379fd.png" 
                   alt="Rewire Logo" 
                   className="h-6" 
                 />
@@ -121,3 +122,4 @@ export const Header = () => {
     </header>
   );
 };
+
