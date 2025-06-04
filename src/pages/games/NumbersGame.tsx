@@ -23,7 +23,7 @@ const NumbersGame = () => {
   } = useNumbersGame();
   
   return (
-    <GameLayout title="Numbers Memory Exercise" backLink="/exercises">
+    <GameLayout title="Numbers Memory Exercise" backLink="/games">
       {gameState === "intro" && (
         <IntroScreen 
           difficulty={difficulty}

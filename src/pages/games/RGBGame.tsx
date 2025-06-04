@@ -21,7 +21,7 @@ const RGBGame = () => {
   } = useRGBGame();
   
   return (
-    <GameLayout title="Red, Green, Blue Exercise" backLink="/exercises">
+    <GameLayout title="Red, Green, Blue Exercise" backLink="/games">
       {gameState === "intro" && (
         <IntroScreen 
           difficulty={difficulty}
