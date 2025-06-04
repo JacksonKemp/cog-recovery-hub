@@ -1,5 +1,4 @@
 
-
 import { Link } from "react-router-dom";
 import { Menu, User } from "lucide-react";
 import {
@@ -49,7 +48,7 @@ export const Header = () => {
           {user ? (
             <>
               <Link to="/dashboard" className="text-sm font-medium transition-colors hover:text-foreground/80">Dashboard</Link>
-              <Link to="/games" className="text-sm font-medium transition-colors hover:text-foreground/80">Games</Link>
+              <Link to="/games" className="text-sm font-medium transition-colors hover:text-foreground/80">Exercises</Link>
               <Link to="/tasks" className="text-sm font-medium transition-colors hover:text-foreground/80">Tasks</Link>
               <Link to="/symptoms" className="text-sm font-medium transition-colors hover:text-foreground/80">Symptoms</Link>
               
@@ -97,7 +96,7 @@ export const Header = () => {
                 {user ? (
                   <>
                     <Link to="/dashboard" className="px-2 py-1 hover:bg-accent rounded-md">Dashboard</Link>
-                    <Link to="/games" className="px-2 py-1 hover:bg-accent rounded-md">Games</Link>
+                    <Link to="/games" className="px-2 py-1 hover:bg-accent rounded-md">Exercises</Link>
                     <Link to="/tasks" className="px-2 py-1 hover:bg-accent rounded-md">Tasks</Link>
                     <Link to="/symptoms" className="px-2 py-1 hover:bg-accent rounded-md">Symptoms</Link>
                     <div className="border-t my-2"></div>
@@ -122,4 +121,3 @@ export const Header = () => {
     </header>
   );
 };
-
