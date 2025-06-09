@@ -192,7 +192,6 @@ const MemoryMatch = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Exercises
         </Button>
-        <h1 className="text-3xl font-bold">Memory Match</h1>
       </div>
       
       {!gameStarted ? (
@@ -200,29 +199,32 @@ const MemoryMatch = () => {
           <div className="w-16 h-16 rounded-full bg-cog-light-teal flex items-center justify-center mb-6 mx-auto">
             <Brain className="h-8 w-8 text-cog-teal" />
           </div>
-          <h2 className="text-2xl font-bold mb-4 text-center">Memory Match Challenge</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center">Memory Match</h2>
           <p className="text-muted-foreground mb-6">
             Test your visual memory by finding matching pairs of cards. The faster you match, the more points you earn!
           </p>
           
           <div className="mb-6">
             <h3 className="font-semibold mb-2">Select Difficulty:</h3>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button 
                 variant={difficulty === "easy" ? "default" : "outline"} 
                 onClick={() => setDifficulty("easy")}
+                className="flex-1 text-sm"
               >
                 Easy (6 pairs)
               </Button>
               <Button 
                 variant={difficulty === "medium" ? "default" : "outline"} 
                 onClick={() => setDifficulty("medium")}
+                className="flex-1 text-sm"
               >
                 Medium (8 pairs)
               </Button>
               <Button 
                 variant={difficulty === "hard" ? "default" : "outline"} 
                 onClick={() => setDifficulty("hard")}
+                className="flex-1 text-sm"
               >
                 Hard (12 pairs)
               </Button>
