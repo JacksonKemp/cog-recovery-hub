@@ -99,8 +99,6 @@ const MemoryMatch = () => {
           const newPoints = 100 + (timeBonus * 10);
           setScore(score + newPoints);
           
-          toast.success("Match found! +"+newPoints+" points");
-          
           if (matchedPairs + 1 === config.pairs) {
             handleGameCompletion();
           }
@@ -281,35 +279,35 @@ const MemoryMatch = () => {
               {cards.map((card) => (
                 <div
                   key={card.id}
-                  onClick={() => !card.flipped && !gameCompleted && handleCardFlip(card.id)}
-                  className={`aspect-square rounded-lg cursor-pointer transition-all duration-300 transform ${
-                    card.flipped ? 'rotate-y-180' : ''
-                  } ${card.matched ? 'opacity-70' : ''}`}
+                  onClick={() => !card.flipped && !gameCompleted && !card.matched && handleCardFlip(card.id)}
+                  className={`aspect-square rounded-lg transition-all duration-300 transform ${
+                    card.matched ? 'opacity-0 pointer-events-none' : 'cursor-pointer'
+                  } ${card.flipped ? 'rotate-y-180' : ''}`}
                   style={{ perspective: '1000px' }}
                 >
-                  <div 
-                    className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
-                      card.flipped ? 'rotate-y-180' : ''
-                    }`}
-                  >
+                  {!card.matched && (
                     <div 
-                      className={`absolute w-full h-full backface-hidden rounded-lg ${
-                        card.flipped ? 'hidden' : 'flex'
-                      } items-center justify-center bg-cog-teal text-white font-bold text-xl`}
+                      className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
+                        card.flipped ? 'rotate-y-180' : ''
+                      }`}
                     >
-                      <span>?</span>
+                      <div 
+                        className={`absolute w-full h-full backface-hidden rounded-lg ${
+                          card.flipped ? 'hidden' : 'flex'
+                        } items-center justify-center bg-cog-teal text-white font-bold text-xl`}
+                      >
+                        <span>?</span>
+                      </div>
+                      
+                      <div 
+                        className={`absolute w-full h-full backface-hidden rounded-lg ${
+                          card.flipped ? 'flex' : 'hidden'
+                        } rotate-y-180 items-center justify-center bg-white border-2 border-gray-200 text-4xl`}
+                      >
+                        {card.icon}
+                      </div>
                     </div>
-                    
-                    <div 
-                      className={`absolute w-full h-full backface-hidden rounded-lg ${
-                        card.flipped ? 'flex' : 'hidden'
-                      } rotate-y-180 items-center justify-center bg-white border-2 ${
-                        card.matched ? 'border-cog-teal' : 'border-gray-200'
-                      } text-4xl`}
-                    >
-                      {card.icon}
-                    </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>
