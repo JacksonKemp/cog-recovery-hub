@@ -67,7 +67,6 @@ const MemoryMatch = () => {
   const startGame = () => {
     initializeGame();
     setGameStarted(true);
-    toast.success("Exercise started! Find all the matching pairs!");
   };
 
   const handleCardFlip = (id: number) => {
