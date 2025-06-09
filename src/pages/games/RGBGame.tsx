@@ -4,8 +4,13 @@ import IntroScreen from "@/components/games/rgb/IntroScreen";
 import PlayingScreen from "@/components/games/rgb/PlayingScreen";
 import ResultScreen from "@/components/games/rgb/ResultScreen";
 import { useRGBGame } from "@/hooks/games/useRGBGame";
+import { saveGameProgress } from "@/services/game";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const RGBGame = () => {
+  const { user } = useAuth();
   const {
     gameState,
     difficulty,
@@ -19,6 +24,34 @@ const RGBGame = () => {
     handleSquareClick,
     resetGame
   } = useRGBGame();
+
+  // Save progress when game is completed
+  useEffect(() => {
+    const saveProgress = async () => {
+      if (gameState === "result" && user) {
+        try {
+          const score = roundsCorrect;
+          const maxScore = gameConfig.rounds;
+          const difficultyLevel = difficulty === "easy" ? 1 : difficulty === "medium" ? 2 : 3;
+          
+          await saveGameProgress(
+            "rgb-game",
+            "attention",
+            score,
+            maxScore,
+            difficultyLevel
+          );
+          
+          console.log("RGB game progress saved successfully");
+        } catch (error) {
+          console.error("Failed to save RGB game progress:", error);
+          toast.error("Failed to save game progress");
+        }
+      }
+    };
+
+    saveProgress();
+  }, [gameState, roundsCorrect, gameConfig.rounds, difficulty, user]);
   
   return (
     <GameLayout 

@@ -4,8 +4,13 @@ import { useSudokuGame } from "@/hooks/games/useSudokuGame";
 import IntroScreen from "@/components/games/sudoku/IntroScreen";
 import PlayingScreen from "@/components/games/sudoku/PlayingScreen";
 import ResultScreen from "@/components/games/sudoku/ResultScreen";
+import { saveGameProgress } from "@/services/game";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const SudokuGame = () => {
+  const { user } = useAuth();
   const {
     gameState,
     difficulty,
@@ -21,6 +26,34 @@ const SudokuGame = () => {
     resetPuzzle,
     resetGame
   } = useSudokuGame();
+
+  // Save progress when game is completed
+  useEffect(() => {
+    const saveProgress = async () => {
+      if (gameState === "result" && user) {
+        try {
+          const score = isValid ? 1 : 0;
+          const maxScore = 1;
+          const difficultyLevel = difficulty === "easy" ? 1 : difficulty === "medium" ? 2 : 3;
+          
+          await saveGameProgress(
+            "sudoku",
+            "processing",
+            score,
+            maxScore,
+            difficultyLevel
+          );
+          
+          console.log("Sudoku game progress saved successfully");
+        } catch (error) {
+          console.error("Failed to save Sudoku game progress:", error);
+          toast.error("Failed to save game progress");
+        }
+      }
+    };
+
+    saveProgress();
+  }, [gameState, isValid, difficulty, user]);
 
   return (
     <GameLayout 

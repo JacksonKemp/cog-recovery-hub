@@ -6,8 +6,13 @@ import WaitScreen from "@/components/games/names/WaitScreen";
 import RecallScreen from "@/components/games/names/RecallScreen";
 import ResultScreen from "@/components/games/names/ResultScreen";
 import { useNamesGame } from "@/hooks/games/useNamesGame";
+import { saveGameProgress } from "@/services/game";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const NamesGame = () => {
+  const { user } = useAuth();
   const {
     gameState,
     difficulty,
@@ -20,6 +25,33 @@ const NamesGame = () => {
     checkAnswers,
     resetGame
   } = useNamesGame();
+
+  // Save progress when game is completed
+  useEffect(() => {
+    const saveProgress = async () => {
+      if (gameState === "result" && user) {
+        try {
+          const maxScore = people.length;
+          const difficultyLevel = difficulty === "easy" ? 1 : difficulty === "medium" ? 2 : 3;
+          
+          await saveGameProgress(
+            "names-memory",
+            "memory",
+            score,
+            maxScore,
+            difficultyLevel
+          );
+          
+          console.log("Names Memory game progress saved successfully");
+        } catch (error) {
+          console.error("Failed to save Names Memory game progress:", error);
+          toast.error("Failed to save game progress");
+        }
+      }
+    };
+
+    saveProgress();
+  }, [gameState, score, people.length, difficulty, user]);
 
   return (
     <GameLayout 
