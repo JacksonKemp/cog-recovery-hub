@@ -10,6 +10,12 @@ interface RecentPerformanceProps {
 }
 
 export const RecentPerformance = ({ progressData }: RecentPerformanceProps) => {
+  const calculatePercentage = (score: number, maxScore: number | null): string => {
+    if (!maxScore || maxScore === 0) return `${score}`;
+    const percentage = Math.round((score / maxScore) * 100);
+    return `${percentage}%`;
+  };
+
   return (
     <div className="mb-8">
       <Card>
@@ -32,8 +38,7 @@ export const RecentPerformance = ({ progressData }: RecentPerformanceProps) => {
                     </div>
                   </div>
                   <div className="font-bold text-lg">
-                    {entry.score}
-                    {entry.max_score && <span className="text-sm text-muted-foreground">/{entry.max_score}</span>}
+                    {calculatePercentage(entry.score, entry.max_score)}
                   </div>
                 </div>
               ))
