@@ -37,7 +37,7 @@ const NamesGame = () => {
           await saveGameProgress(
             "names-memory",
             "memory",
-            score,
+            score.correct,
             maxScore,
             difficultyLevel
           );
@@ -51,7 +51,7 @@ const NamesGame = () => {
     };
 
     saveProgress();
-  }, [gameState, score, people.length, difficulty, user]);
+  }, [gameState, score.correct, people.length, difficulty, user]);
 
   return (
     <GameLayout 

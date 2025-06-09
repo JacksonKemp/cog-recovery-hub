@@ -1,113 +1,125 @@
 
 import { useState, useEffect } from "react";
-import { Brain } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getGameProgress, getMostImprovedGame, GameProgressEntry } from "@/services/game";
-import { useAuth } from "@/hooks/use-auth";
-import { toast } from "sonner";
-import { DebugPanel } from "@/components/game-progress/DebugPanel";
-import { ProgressChart, processChartData } from "@/components/game-progress/ProgressChart";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 import { RecentPerformance } from "@/components/game-progress/RecentPerformance";
 import { InsightsPanel } from "@/components/game-progress/InsightsPanel";
+import { WeeklyStatsCard } from "@/components/game-progress/WeeklyStatsCard";
+import { getGameProgress, getMostImprovedGame } from "@/services/game";
+import { getWeeklyStats, WeeklyStats } from "@/services/game/weeklyStatsService";
+import { GameProgressEntry } from "@/services/game";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 const GameProgress = () => {
-  const [selectedCategory, setSelectedCategory] = useState("memory");
   const { user } = useAuth();
-  const [isDebugVisible, setIsDebugVisible] = useState(false);
-  
-  useEffect(() => {
-    if (!user) {
-      console.warn("User not authenticated in GameProgress component");
-      toast.error("You must be signed in to view exercise progress");
-    } else {
-      console.log("Authenticated user in GameProgress:", user.id);
-    }
-  }, [user]);
-  
-  const { data: progressData = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['gameProgress', selectedCategory],
-    queryFn: () => getGameProgress(selectedCategory),
-    enabled: !!user,
-    retry: 1
-  });
-  
-  useEffect(() => {
-    if (error) {
-      console.error("Error in game progress query:", error);
-      toast.error("Failed to load exercise progress");
-    }
-  }, [error]);
-  
-  useEffect(() => {
-    if (progressData && progressData.length > 0) {
-      console.log("Loaded exercise progress data:", progressData.length, "entries");
-    } else {
-      console.log("No exercise progress data found");
-    }
-  }, [progressData]);
-  
-  const { data: mostImproved } = useQuery({
-    queryKey: ['mostImproved', selectedCategory],
-    queryFn: () => getMostImprovedGame(selectedCategory),
-    enabled: progressData.length > 0
-  });
+  const [activeTab, setActiveTab] = useState("all");
+  const [progressData, setProgressData] = useState<GameProgressEntry[]>([]);
+  const [weeklyStats, setWeeklyStats] = useState<WeeklyStats[]>([]);
+  const [mostImproved, setMostImproved] = useState<{ game: string; improvement: number } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Toggle debug panel
-  const toggleDebugPanel = () => {
-    setIsDebugVisible(!isDebugVisible);
-  };
-  
-  // Process data for chart
-  const chartData = processChartData(progressData);
-  
-  return (
-    <div className="container py-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Exercise Progress</h1>
-          <p className="text-muted-foreground">Track your improvement across cognitive exercises</p>
-        </div>
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
         
-        <div className="mt-4 md:mt-0 flex gap-2">
-          <Button asChild variant="outline">
-            <Link to="/games" className="flex items-center gap-2">
-              <Brain className="h-4 w-4" />
-              Back to Exercises
-            </Link>
-          </Button>
-          
-          <DebugPanel 
-            isDebugVisible={isDebugVisible}
-            toggleDebugPanel={toggleDebugPanel}
-            user={user}
-            progressData={progressData}
-            refetch={refetch}
-          />
-        </div>
+        // Fetch progress data for the selected category
+        const category = activeTab === "all" ? undefined : activeTab;
+        const [progress, stats, improved] = await Promise.all([
+          getGameProgress(category),
+          getWeeklyStats(category),
+          getMostImprovedGame(category || "all")
+        ]);
+        
+        setProgressData(progress);
+        setWeeklyStats(stats);
+        setMostImproved(improved);
+      } catch (error) {
+        console.error("Error fetching game progress data:", error);
+        toast.error("Failed to load game progress data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [activeTab, user]);
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold mb-2">Please Log In</h2>
+              <p className="text-muted-foreground">
+                You need to be logged in to view your game progress.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-      
-      <Tabs defaultValue="memory" value={selectedCategory} onValueChange={setSelectedCategory}>
-        <TabsList className="grid w-full grid-cols-3 mb-8">
-          <TabsTrigger value="memory">Memory</TabsTrigger>
-          <TabsTrigger value="attention">Attention</TabsTrigger>
-          <TabsTrigger value="processing">Processing Speed</TabsTrigger>
+    );
+  }
+
+  const categories = ["all", "memory", "attention", "processing"];
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Game Progress</h1>
+        <p className="text-muted-foreground">
+          Track your cognitive exercise performance over time
+        </p>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          {categories.map((category) => (
+            <TabsTrigger key={category} value={category} className="capitalize">
+              {category}
+            </TabsTrigger>
+          ))}
         </TabsList>
-        
-        {["memory", "attention", "processing"].map((category) => (
-          <TabsContent key={category} value={category} className="mt-0">
+
+        {categories.map((category) => (
+          <TabsContent key={category} value={category} className="space-y-6">
             {isLoading ? (
-              <div className="text-center py-10">Loading your progress data...</div>
+              <div className="flex justify-center items-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
             ) : (
               <>
-                <ProgressChart chartData={chartData} />
-                <RecentPerformance progressData={progressData} />
-                <InsightsPanel 
-                  mostImproved={mostImproved} 
-                  progressData={progressData} 
-                />
+                {/* Weekly Stats Grid */}
+                {category === "all" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <WeeklyStatsCard stats={weeklyStats} category="memory" />
+                    <WeeklyStatsCard stats={weeklyStats} category="attention" />
+                    <WeeklyStatsCard stats={weeklyStats} category="processing" />
+                  </div>
+                ) : (
+                  <WeeklyStatsCard stats={weeklyStats} category={category} />
+                )}
+
+                {/* Recent Performance and Insights */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <RecentPerformance progressData={progressData} />
+                  </div>
+                  <div>
+                    <InsightsPanel 
+                      mostImproved={mostImproved} 
+                      progressData={progressData} 
+                    />
+                  </div>
+                </div>
               </>
             )}
           </TabsContent>
