@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -232,31 +231,33 @@ const MemoryMatch = () => {
         </div>
       ) : (
         <div className="mb-12">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <div className="flex gap-4 mb-4 md:mb-0">
-              <div className="bg-cog-soft-gray p-3 rounded-lg">
-                <div className="text-sm font-medium text-muted-foreground">Time</div>
-                <div className="text-xl font-bold flex items-center">
-                  <Timer className="h-4 w-4 mr-1" />
-                  {formatTime(timeElapsed)} / {formatTime(config.timeLimit)}
+          {gameCompleted && (
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+              <div className="flex gap-4 mb-4 md:mb-0">
+                <div className="bg-cog-soft-gray p-3 rounded-lg">
+                  <div className="text-sm font-medium text-muted-foreground">Time</div>
+                  <div className="text-xl font-bold flex items-center">
+                    <Timer className="h-4 w-4 mr-1" />
+                    {formatTime(timeElapsed)} / {formatTime(config.timeLimit)}
+                  </div>
+                </div>
+                
+                <div className="bg-cog-soft-gray p-3 rounded-lg">
+                  <div className="text-sm font-medium text-muted-foreground">Moves</div>
+                  <div className="text-xl font-bold">{moves}</div>
+                </div>
+                
+                <div className="bg-cog-soft-gray p-3 rounded-lg">
+                  <div className="text-sm font-medium text-muted-foreground">Score</div>
+                  <div className="text-xl font-bold">{score}</div>
                 </div>
               </div>
               
-              <div className="bg-cog-soft-gray p-3 rounded-lg">
-                <div className="text-sm font-medium text-muted-foreground">Moves</div>
-                <div className="text-xl font-bold">{moves}</div>
-              </div>
-              
-              <div className="bg-cog-soft-gray p-3 rounded-lg">
-                <div className="text-sm font-medium text-muted-foreground">Score</div>
-                <div className="text-xl font-bold">{score}</div>
-              </div>
+              <Badge variant="outline" className="text-lg px-3 py-1">
+                {difficulty === "easy" ? "Easy" : difficulty === "medium" ? "Medium" : "Hard"}
+              </Badge>
             </div>
-            
-            <Badge variant="outline" className="text-lg px-3 py-1">
-              {difficulty === "easy" ? "Easy" : difficulty === "medium" ? "Medium" : "Hard"}
-            </Badge>
-          </div>
+          )}
           
           {gameCompleted ? (
             <div className="text-center p-8 bg-cog-light-teal rounded-lg shadow-md">
