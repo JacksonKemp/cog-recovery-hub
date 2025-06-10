@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect, useRef } from "react";
 
 type Difficulty = "easy" | "medium" | "hard";
@@ -32,6 +33,7 @@ export const useRGBGame = () => {
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [currentTargetColor, setCurrentTargetColor] = useState<ColorType | null>(null);
   const [score, setScore] = useState<number>(0);
+  const [missedCount, setMissedCount] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [gameConfig, setGameConfig] = useState<GameConfig>(difficultySettings.medium);
   const [showColorPrompt, setShowColorPrompt] = useState<boolean>(false);
@@ -79,6 +81,12 @@ export const useRGBGame = () => {
     
     colorCycleRef.current = setTimeout(() => {
       console.log("Color cycle timeout, starting next color");
+      // If no click happened during this cycle, count it as missed
+      if (showColorPrompt && currentTargetColor) {
+        console.log("Color timed out without click - counting as missed");
+        setMissedCount(prev => prev + 1);
+      }
+      
       // Check if game is still running before starting next cycle
       setTimeLeft(currentTime => {
         if (currentTime > 0) {
@@ -94,6 +102,7 @@ export const useRGBGame = () => {
   const startGame = () => {
     console.log("Starting RGB game");
     setScore(0);
+    setMissedCount(0);
     setTimeLeft(gameConfig.gameDuration);
     setGameState("playing");
     setShowColorPrompt(false);
@@ -143,9 +152,23 @@ export const useRGBGame = () => {
     
     if (isCorrect) {
       setScore(prevScore => prevScore + 1);
+    } else {
+      setMissedCount(prevMissed => prevMissed + 1);
     }
     
-    // DO NOT start new color cycle here - colors only change on timer
+    // Clear the current color cycle to prevent counting as missed
+    if (colorCycleRef.current) {
+      clearTimeout(colorCycleRef.current);
+    }
+    
+    // Start next color cycle immediately
+    setTimeLeft(currentTime => {
+      if (currentTime > 0) {
+        console.log("Starting next color after click");
+        startColorCycle();
+      }
+      return currentTime;
+    });
   };
   
   // Reset the game
@@ -153,6 +176,7 @@ export const useRGBGame = () => {
     console.log("Resetting game");
     setGameState("intro");
     setScore(0);
+    setMissedCount(0);
     setTimeLeft(0);
     setCurrentTargetColor(null);
     setShowColorPrompt(false);
@@ -199,6 +223,7 @@ export const useRGBGame = () => {
     currentTargetColor,
     showColorPrompt,
     score,
+    missedCount,
     timeLeft,
     gameConfig,
     isColorChanging,
@@ -208,3 +233,4 @@ export const useRGBGame = () => {
     resetGame
   };
 };
+

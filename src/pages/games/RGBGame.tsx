@@ -1,4 +1,5 @@
 
+
 import GameLayout from "@/components/games/GameLayout";
 import IntroScreen from "@/components/games/rgb/IntroScreen";
 import PlayingScreen from "@/components/games/rgb/PlayingScreen";
@@ -18,6 +19,7 @@ const RGBGame = () => {
     currentTargetColor,
     showColorPrompt,
     score,
+    missedCount,
     timeLeft,
     gameConfig,
     isColorChanging,
@@ -84,6 +86,7 @@ const RGBGame = () => {
       {gameState === "result" && (
         <ResultScreen 
           score={score}
+          missedCount={missedCount}
           gameDuration={gameConfig.gameDuration}
           onPlayAgain={startGame}
           onBackToIntro={resetGame}
@@ -94,3 +97,4 @@ const RGBGame = () => {
 };
 
 export default RGBGame;
+

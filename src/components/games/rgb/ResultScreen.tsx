@@ -1,9 +1,11 @@
 
+
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 
 interface ResultScreenProps {
   score: number;
+  missedCount: number;
   gameDuration: number;
   onPlayAgain: () => void;
   onBackToIntro: () => void;
@@ -11,11 +13,14 @@ interface ResultScreenProps {
 
 const ResultScreen = ({ 
   score, 
+  missedCount,
   gameDuration,
   onPlayAgain, 
   onBackToIntro 
 }: ResultScreenProps) => {
-  const reactionRate = (score / (gameDuration / 60)).toFixed(1); // reactions per minute
+  const totalAttempts = score + missedCount;
+  const accuracy = totalAttempts > 0 ? ((score / totalAttempts) * 100).toFixed(1) : "0";
+  const reactionRate = (totalAttempts / (gameDuration / 60)).toFixed(1); // total reactions per minute
   
   return (
     <div className="text-center">
@@ -33,9 +38,20 @@ const ResultScreen = ({
         )}
       </div>
       
-      <div className="mb-6 space-y-2">
-        <p className="text-xl font-medium">
-          Final Score: {score} correct taps
+      <div className="mb-6 space-y-3">
+        <div className="flex justify-center gap-8 mb-4">
+          <div className="flex items-center gap-2">
+            <Check className="h-5 w-5 text-green-500" />
+            <span className="text-lg font-medium">{score} correct</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <X className="h-5 w-5 text-red-500" />
+            <span className="text-lg font-medium">{missedCount} missed</span>
+          </div>
+        </div>
+        
+        <p className="text-lg font-medium">
+          Accuracy: {accuracy}%
         </p>
         <p className="text-muted-foreground">
           Reaction Rate: {reactionRate} per minute
@@ -55,3 +71,4 @@ const ResultScreen = ({
 };
 
 export default ResultScreen;
+
