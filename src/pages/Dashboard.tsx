@@ -1,3 +1,5 @@
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Brain, CheckSquare, Clock, ArrowRight, Calendar, MessageSquare, Plus, Dumbbell } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -5,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getDashboardStats, DashboardStats } from "@/services/dashboardService";
+import { useAuth } from "@/hooks/use-auth";
 
 const Dashboard = () => {
-  // Mock data
-  const streakDays = 7;
-  const completedGames = 12;
+  const [stats, setStats] = useState<DashboardStats>({ streakDays: 0, completedGames: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
   
   const upcomingTasks = [
     { id: 1, name: "Take Medication", time: "Today, 8:00 PM" },
@@ -25,6 +29,25 @@ const Dashboard = () => {
     { id: 2, name: "Number Recall", description: "Improve number retention", path: "/games/numbers", icon: Brain },
     { id: 3, name: "Word Finder", description: "Enhance vocabulary skills", path: "/games/word-finder", icon: Brain }
   ];
+
+  // Load dashboard stats when user is available
+  useEffect(() => {
+    if (user) {
+      loadDashboardStats();
+    }
+  }, [user]);
+
+  const loadDashboardStats = async () => {
+    try {
+      setIsLoading(true);
+      const dashboardStats = await getDashboardStats();
+      setStats(dashboardStats);
+    } catch (error) {
+      console.error('Error loading dashboard stats:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   // Function to render task items with optional links for games
   const renderTaskItem = (task) => {
@@ -61,14 +84,18 @@ const Dashboard = () => {
             <Clock className="h-5 w-5 text-cog-teal mr-2" />
             <div>
               <span className="text-sm text-muted-foreground">Streak</span>
-              <p className="font-semibold">{streakDays} days</p>
+              <p className="font-semibold">
+                {isLoading ? "..." : `${stats.streakDays} days`}
+              </p>
             </div>
           </div>
           <div className="flex items-center">
             <Brain className="h-5 w-5 text-cog-teal mr-2" />
             <div>
               <span className="text-sm text-muted-foreground">Exercises</span>
-              <p className="font-semibold">{completedGames} completed</p>
+              <p className="font-semibold">
+                {isLoading ? "..." : `${stats.completedGames} completed`}
+              </p>
             </div>
           </div>
         </div>
