@@ -7,7 +7,7 @@ interface WaitScreenProps {
   totalRounds: number;
 }
 
-const WaitScreen = ({ timeRemaining, currentRound, totalRounds }: WaitScreenProps) => {
+const WaitScreen = ({ currentRound, totalRounds }: WaitScreenProps) => {
   return (
     <div className="text-center">
       <h2 className="text-xl mb-4">
@@ -19,9 +19,6 @@ const WaitScreen = ({ timeRemaining, currentRound, totalRounds }: WaitScreenProp
           <p className="text-lg mb-4">
             Remember the instructions.
           </p>
-          <div className="text-6xl font-bold text-primary mb-4">
-            {timeRemaining}
-          </div>
         </CardContent>
       </Card>
     </div>
