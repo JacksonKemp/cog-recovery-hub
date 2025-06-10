@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Brain, CheckSquare, Clock, ArrowRight, Calendar, MessageSquare, Plus, Dumbbell } from "lucide-react";
@@ -7,10 +8,12 @@ import { Link } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getDashboardStats, DashboardStats } from "@/services/dashboardService";
+import { getPractitionerMessage, PractitionerMessage } from "@/services/practitionerMessageService";
 import { useAuth } from "@/hooks/use-auth";
 
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats>({ streakDays: 0, completedGames: 0 });
+  const [practitionerMessage, setPractitionerMessage] = useState<PractitionerMessage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   
@@ -31,8 +34,6 @@ const Dashboard = () => {
     { id: 3, name: "Memory Match Game", time: "Today, 3:00 PM", type: "exercise", path: "/games/memory-match" }
   ];
   
-  const hasLoggedSymptomsToday = false;
-  
   // Recommended exercises
   const recommendedExercises = [
     { id: 1, name: "Memory Match", description: "Train your visual memory", path: "/games/memory-match", icon: Brain },
@@ -40,20 +41,24 @@ const Dashboard = () => {
     { id: 3, name: "Word Finder", description: "Enhance vocabulary skills", path: "/games/word-finder", icon: Brain }
   ];
 
-  // Load dashboard stats when user is available
+  // Load dashboard stats and practitioner message when user is available
   useEffect(() => {
     if (user) {
-      loadDashboardStats();
+      loadDashboardData();
     }
   }, [user]);
 
-  const loadDashboardStats = async () => {
+  const loadDashboardData = async () => {
     try {
       setIsLoading(true);
       const dashboardStats = await getDashboardStats();
       setStats(dashboardStats);
+      
+      // Generate a practitioner message
+      const message = getPractitionerMessage();
+      setPractitionerMessage(message);
     } catch (error) {
-      console.error('Error loading dashboard stats:', error);
+      console.error('Error loading dashboard data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -194,7 +199,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        {/* Daily Exercises Widget - ADDED HERE */}
+        {/* Daily Exercises Widget */}
         <Card className="hover:border-cog-teal transition-all duration-300 h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -232,24 +237,33 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        {/* Message from Practitioner */}
+        {/* AI-Generated Message from Practitioner */}
         <Card className="hover:border-cog-teal transition-all duration-300 md:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-cog-teal" />
-              <CardTitle>Message from Dr. Johnson</CardTitle>
+              <CardTitle>{practitionerMessage?.title || "Message from your Occupational Therapist"}</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
             <div className="p-3 bg-muted/30 rounded-lg">
               <p className="text-sm mb-2">
-                "Great progress with your memory exercises this week! Let's review your symptom trends in our next appointment."
+                {practitionerMessage?.message || "Loading personalized guidance..."}
               </p>
-              <p className="text-xs text-muted-foreground">Received yesterday</p>
+              <p className="text-xs text-muted-foreground">
+                {practitionerMessage?.timestamp ? 
+                  `Generated ${practitionerMessage.timestamp.toLocaleDateString()}` : 
+                  "Loading..."
+                }
+              </p>
             </div>
             <div className="mt-4 flex justify-end">
-              <Button size="sm" variant="outline">
-                Reply
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={loadDashboardData}
+              >
+                Get New Tip
               </Button>
             </div>
           </CardContent>
