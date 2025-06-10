@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, ArrowLeft, Timer, Brain } from "lucide-react";
@@ -20,6 +20,7 @@ const GAME_ICONS = ["🍎", "🍌", "🍇", "🍓", "🍊", "🍋", "🍒", "�
 const MemoryMatch = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedPairs, setMatchedPairs] = useState<number>(0);
@@ -29,6 +30,14 @@ const MemoryMatch = () => {
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
   const [score, setScore] = useState<number>(0);
+
+  // Set difficulty from URL parameters on component mount
+  useEffect(() => {
+    const urlDifficulty = searchParams.get('difficulty');
+    if (urlDifficulty && ['easy', 'medium', 'hard'].includes(urlDifficulty)) {
+      setDifficulty(urlDifficulty as "easy" | "medium" | "hard");
+    }
+  }, [searchParams]);
   
   const getDifficultyConfig = () => {
     switch(difficulty) {

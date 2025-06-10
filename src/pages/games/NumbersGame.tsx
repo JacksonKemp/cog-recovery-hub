@@ -1,4 +1,3 @@
-
 import GameLayout from "@/components/games/GameLayout";
 import IntroScreen from "@/components/games/numbers/IntroScreen";
 import MemorizeScreen from "@/components/games/numbers/MemorizeScreen";
@@ -10,9 +9,11 @@ import { saveGameProgress } from "@/services/game";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const NumbersGame = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const {
     gameState,
     difficulty,
@@ -26,6 +27,14 @@ const NumbersGame = () => {
     resetGame,
     handleUserInputChange
   } = useNumbersGame();
+
+  // Set difficulty from URL parameters on component mount
+  useEffect(() => {
+    const urlDifficulty = searchParams.get('difficulty');
+    if (urlDifficulty && ['easy', 'medium', 'hard'].includes(urlDifficulty)) {
+      handleDifficultyChange(urlDifficulty);
+    }
+  }, [searchParams, handleDifficultyChange]);
 
   // Save progress when game is completed
   useEffect(() => {

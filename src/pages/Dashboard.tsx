@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Brain, CheckSquare, Clock, ArrowRight, Calendar, MessageSquare, Plus, Dumbbell } from "lucide-react";
@@ -31,6 +30,38 @@ const Dashboard = () => {
     return 'User';
   };
 
+  // Helper function to extract exercise info from task title
+  const getExerciseInfo = (title: string) => {
+    const lowerTitle = title.toLowerCase();
+    
+    // Extract difficulty
+    let difficulty = "easy"; // default
+    if (lowerTitle.includes("medium")) difficulty = "medium";
+    if (lowerTitle.includes("hard")) difficulty = "hard";
+    
+    // Map exercise types to routes
+    const exerciseMap = {
+      "memory match": "/games/memory-match",
+      "number recall": "/games/numbers",
+      "numbers game": "/games/numbers", 
+      "numbers": "/games/numbers",
+      "word finder": "/games/word-finder",
+      "rgb": "/games/rgb",
+      "faces": "/games/faces",
+      "identification": "/games/identification", 
+      "names": "/games/names",
+      "then what": "/games/then-what"
+    };
+    
+    for (const [exercise, path] of Object.entries(exerciseMap)) {
+      if (lowerTitle.includes(exercise)) {
+        return { path: `${path}?difficulty=${difficulty}`, difficulty };
+      }
+    }
+    
+    return null;
+  };
+
   // Get today's and tomorrow's tasks for the schedule
   const getUpcomingTasks = () => {
     const today = new Date();
@@ -41,15 +72,20 @@ const Dashboard = () => {
       .filter(task => !task.completed && (isToday(task.date) || isTomorrow(task.date)))
       .sort((a, b) => a.date.getTime() - b.date.getTime())
       .slice(0, 5) // Limit to 5 items for display
-      .map(task => ({
-        id: task.id,
-        name: task.title,
-        time: isToday(task.date) 
-          ? `Today, ${format(task.date, 'h:mm a')}`
-          : `Tomorrow, ${format(task.date, 'h:mm a')}`,
-        type: task.title.toLowerCase().includes('game') || task.title.toLowerCase().includes('exercise') || task.title.toLowerCase().includes('memory') ? "exercise" : "task",
-        path: task.title.toLowerCase().includes('memory match') ? "/games/memory-match" : undefined
-      }));
+      .map(task => {
+        const exerciseInfo = getExerciseInfo(task.title);
+        
+        return {
+          id: task.id,
+          name: task.title,
+          time: isToday(task.date) 
+            ? `Today, ${format(task.date, 'h:mm a')}`
+            : `Tomorrow, ${format(task.date, 'h:mm a')}`,
+          type: exerciseInfo ? "exercise" : "task",
+          path: exerciseInfo?.path,
+          difficulty: exerciseInfo?.difficulty
+        };
+      });
   };
 
   const upcomingTasks = getUpcomingTasks();
@@ -87,7 +123,14 @@ const Dashboard = () => {
           ) : (
             <CheckSquare className="h-4 w-4 text-cog-teal mr-3" />
           )}
-          <p className="font-medium">{task.name}</p>
+          <div>
+            <p className="font-medium">{task.name}</p>
+            {task.difficulty && (
+              <p className="text-xs text-muted-foreground capitalize">
+                Difficulty: {task.difficulty}
+              </p>
+            )}
+          </div>
         </div>
         <span className="text-xs text-muted-foreground">{task.time}</span>
       </div>
