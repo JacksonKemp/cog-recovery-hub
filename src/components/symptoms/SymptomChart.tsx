@@ -120,13 +120,13 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
   const isLoading = parentLoading || isLoadingData;
 
   return (
-    <Card className="lg:col-span-2">
-      <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <Card className="col-span-1">
+      <CardHeader className="flex flex-col gap-4">
         <div>
           <CardTitle>Symptom Trends</CardTitle>
           <CardDescription>Track how your symptoms have changed over time</CardDescription>
         </div>
-        <div className="w-full md:w-40">
+        <div className="w-full">
           <Select value={timeFrame} onValueChange={handleTimeFrameChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select timeframe" />
@@ -160,7 +160,7 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsLineChart 
                     data={chartData}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
+                    margin={{ top: 20, right: 10, left: 10, bottom: 30 }}
                     onClick={(data) => {
                       if (data.activeTooltipIndex !== undefined) {
                         handleDataPointClick(data, data.activeTooltipIndex);
@@ -170,23 +170,23 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
                       dataKey="date"
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 11 }}
                       label={{ 
                         value: getTimeframeLabel(), 
                         position: 'insideBottom', 
                         offset: -15,
-                        fontSize: 12
+                        fontSize: 11
                       }}
                     />
                     <YAxis 
                       domain={[0, 5]}
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 11 }}
                       label={{ 
                         value: getYAxisLabel(), 
                         angle: -90, 
                         position: 'insideLeft',
                         style: { textAnchor: 'middle' },
-                        fontSize: 12
+                        fontSize: 11
                       }}
                     />
                     <Tooltip 
@@ -206,9 +206,9 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                       name="Headache"
                       stroke={chartConfig.headache.color} 
                       strokeWidth={2}
-                      dot={{ r: 4 }}
+                      dot={{ r: 3 }}
                       activeDot={{ 
-                        r: 6, 
+                        r: 5, 
                         onClick: (_, index) => {
                           if (typeof index === 'number') {
                             setSelectedDataPoint(index);
@@ -223,9 +223,9 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                       name="Fatigue"
                       stroke={chartConfig.fatigue.color} 
                       strokeWidth={2}
-                      dot={{ r: 4 }}
+                      dot={{ r: 3 }}
                       activeDot={{ 
-                        r: 6, 
+                        r: 5, 
                         onClick: (_, index) => {
                           if (typeof index === 'number') {
                             setSelectedDataPoint(index);
@@ -240,9 +240,9 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                       name="Anxiety"
                       stroke={chartConfig.anxiety.color} 
                       strokeWidth={2}
-                      dot={{ r: 4 }}
+                      dot={{ r: 3 }}
                       activeDot={{ 
-                        r: 6, 
+                        r: 5, 
                         onClick: (_, index) => {
                           if (typeof index === 'number') {
                             setSelectedDataPoint(index);
@@ -257,9 +257,9 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                       name="Focus"
                       stroke={chartConfig.focus.color} 
                       strokeWidth={2}
-                      dot={{ r: 4 }}
+                      dot={{ r: 3 }}
                       activeDot={{ 
-                        r: 6, 
+                        r: 5, 
                         onClick: (_, index) => {
                           if (typeof index === 'number') {
                             setSelectedDataPoint(index);
@@ -281,7 +281,7 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                   <span className="text-xs text-muted-foreground">{getTimeframeLabel()}</span>
                 </div>
                 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col p-2 bg-muted/30 rounded border">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{backgroundColor: chartConfig.headache.color}}></div>
