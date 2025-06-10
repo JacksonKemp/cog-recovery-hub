@@ -53,7 +53,7 @@ export const WeeklyStatsCard = ({ stats, category }: WeeklyStatsCardProps) => {
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-2xl font-bold">
-                  {weekStat.averagePercentage}%
+                  avg: {weekStat.averagePercentage}%
                 </div>
                 <div className="text-sm text-muted-foreground">
                   avg difficulty: <span className="font-medium">{weekStat.averageDifficulty}</span>
