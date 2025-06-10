@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Brain, CheckSquare, Clock, ArrowRight, Calendar, MessageSquare, Plus, Dumbbell } from "lucide-react";
@@ -14,6 +13,17 @@ const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats>({ streakDays: 0, completedGames: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  
+  // Get user's first name from full_name or email
+  const getUserDisplayName = () => {
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name.split(' ')[0];
+    }
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    return 'User';
+  };
   
   const upcomingTasks = [
     { id: 1, name: "Take Medication", time: "Today, 8:00 PM" },
@@ -78,7 +88,7 @@ const Dashboard = () => {
     <div className="container py-8">
       {/* Streak and Exercises - Small Stats at Top */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold">Hello, Sam</h1>
+        <h1 className="text-2xl font-bold">Hello, {getUserDisplayName()}</h1>
         <div className="flex gap-6">
           <div className="flex items-center">
             <Clock className="h-5 w-5 text-cog-teal mr-2" />
