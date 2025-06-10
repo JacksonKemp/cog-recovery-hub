@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 type Difficulty = "easy" | "medium" | "hard";
@@ -9,6 +8,13 @@ export interface EmotionQuestion {
   correctEmotion: string;
   options: string[];
   imagePath: string;
+}
+
+interface UserAnswer {
+  questionId: number;
+  selectedAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
 }
 
 interface GameConfig {
@@ -35,6 +41,7 @@ export const useFacesGame = () => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>("");
   const [score, setScore] = useState<number>(0);
   const [gameConfig, setGameConfig] = useState<GameConfig>(difficultySettings.medium);
+  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
   
   // Handle difficulty change
   const handleDifficultyChange = (value: string) => {
@@ -75,6 +82,7 @@ export const useFacesGame = () => {
     setCurrentQuestionIndex(0);
     setSelectedAnswer("");
     setScore(0);
+    setUserAnswers([]);
     setGameState("playing");
   };
   
@@ -88,7 +96,19 @@ export const useFacesGame = () => {
     if (!selectedAnswer) return;
     
     const currentQuestion = questions[currentQuestionIndex];
-    if (selectedAnswer === currentQuestion.correctEmotion) {
+    const isCorrect = selectedAnswer === currentQuestion.correctEmotion;
+    
+    // Record the user's answer
+    const newUserAnswer: UserAnswer = {
+      questionId: currentQuestion.id,
+      selectedAnswer,
+      correctAnswer: currentQuestion.correctEmotion,
+      isCorrect
+    };
+    
+    setUserAnswers(prev => [...prev, newUserAnswer]);
+    
+    if (isCorrect) {
       setScore(score + 1);
     }
     
@@ -108,6 +128,7 @@ export const useFacesGame = () => {
     setCurrentQuestionIndex(0);
     setSelectedAnswer("");
     setScore(0);
+    setUserAnswers([]);
   };
 
   return {
@@ -118,6 +139,7 @@ export const useFacesGame = () => {
     selectedAnswer,
     score,
     gameConfig,
+    userAnswers,
     handleDifficultyChange,
     startGame,
     handleAnswerSelect,

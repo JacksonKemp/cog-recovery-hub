@@ -18,6 +18,7 @@ const FacesGame = () => {
     currentQuestionIndex,
     selectedAnswer,
     score,
+    userAnswers,
     handleDifficultyChange,
     startGame,
     handleAnswerSelect,
@@ -82,6 +83,8 @@ const FacesGame = () => {
         <ResultScreen 
           score={score}
           questionsCount={questions.length}
+          questions={questions}
+          userAnswers={userAnswers}
           onPlayAgain={startGame}
           onBackToIntro={resetGame}
         />
