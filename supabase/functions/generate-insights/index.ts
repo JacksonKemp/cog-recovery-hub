@@ -98,16 +98,11 @@ serve(async (req) => {
       };
     }).filter(Boolean);
 
-    const prompt = `Based on this cognitive game performance data over the last 6 months, provide personalized insights in a friendly, encouraging tone. Focus on recent performance trends and specific actionable advice.
+    const prompt = `Based on this cognitive game performance data over the last 6 months, provide brief personalized insights in a friendly, encouraging tone.
 
 Data: ${JSON.stringify(analysisData)}
 
-Please provide 2-3 specific insights about:
-1. Recent performance trends and improvements
-2. Areas of strength and consistency
-3. Specific recommendations for continued growth
-
-Keep it concise (max 150 words) and encouraging. Use specific percentages and mention categories by name.`;
+Provide 1-2 specific insights about performance trends and one actionable recommendation. Keep it concise (max 75 words) and encouraging. Use specific percentages and mention categories by name.`;
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
@@ -127,10 +122,10 @@ Keep it concise (max 150 words) and encouraging. Use specific percentages and me
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are a cognitive health coach providing personalized insights based on game performance data.' },
+          { role: 'system', content: 'You are a cognitive health coach providing brief, personalized insights based on game performance data.' },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 200,
+        max_tokens: 100,
         temperature: 0.7,
       }),
     });
