@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Brain, CheckSquare, Clock, ArrowRight, Calendar, MessageSquare, Plus, Dumbbell } from "lucide-react";
@@ -83,12 +84,19 @@ const Dashboard = () => {
       .map(task => {
         const exerciseInfo = getExerciseInfo(task.title, task.difficulty);
         
+        // Check if task has a specific time (not just a date)
+        const hasSpecificTime = task.date.getHours() !== 0 || task.date.getMinutes() !== 0;
+        
         return {
           id: task.id,
           name: task.title,
           time: isToday(task.date) 
-            ? `Today, ${format(task.date, 'h:mm a')}`
-            : `Tomorrow, ${format(task.date, 'h:mm a')}`,
+            ? hasSpecificTime 
+              ? `Today, ${format(task.date, 'h:mm a')}`
+              : "Today"
+            : hasSpecificTime
+              ? `Tomorrow, ${format(task.date, 'h:mm a')}`
+              : "Tomorrow",
           type: exerciseInfo ? "exercise" : "task",
           path: exerciseInfo?.path,
           difficulty: exerciseInfo?.difficulty

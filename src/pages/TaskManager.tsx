@@ -175,7 +175,7 @@ const TaskManager = () => {
 
   const handleAddTask = async () => {
     if (newTaskTitle.trim() !== "") {
-      // Create task date (today by default)
+      // Create task date
       let taskDate = new Date();
       
       // If scheduling is enabled, set the custom date and time
@@ -197,11 +197,9 @@ const TaskManager = () => {
           });
           return;
         }
-      } else {
-        // If not scheduling, just use today's date without specific time
-        taskDate = new Date();
-        taskDate.setHours(0, 0, 0, 0); // Set to midnight to avoid showing specific time
       }
+      // If not scheduling, use today's date without setting specific time
+      // This will preserve the current time instead of forcing it to midnight
       
       await addTask(
         newTaskTitle,
@@ -976,3 +974,5 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
+
+</edits_to_apply>
