@@ -21,29 +21,41 @@ export const SymptomForm = ({ onEntryAdded, isLoading, hasRecordedToday }: Sympt
   const [currentStep, setCurrentStep] = useState<Step>("headache");
   const { toast } = useToast();
 
-  // Current symptom ratings
+  // Current symptom ratings - no default values
   const [symptoms, setSymptoms] = useState<SymptomRatings>({
-    headache: 0,
-    fatigue: 0,
-    anxiety: 0,
-    focus: 3
+    headache: -1, // -1 indicates no selection
+    fatigue: -1,
+    anxiety: -1,
+    focus: -1
   });
   
   const [notes, setNotes] = useState("");
 
+  // Haptic feedback function
+  const triggerHapticFeedback = () => {
+    if (navigator.vibrate) {
+      navigator.vibrate(50); // 50ms vibration
+    }
+  };
+
   const handleSymptomChange = (symptom: keyof SymptomRatings, value: number) => {
+    // Trigger haptic feedback
+    triggerHapticFeedback();
+    
     setSymptoms({ ...symptoms, [symptom]: value });
     
-    // Automatically advance to next step on selection
-    if (symptom === "headache") {
-      setCurrentStep("fatigue");
-    } else if (symptom === "fatigue") {
-      setCurrentStep("anxiety");
-    } else if (symptom === "anxiety") {
-      setCurrentStep("focus");
-    } else if (symptom === "focus") {
-      setCurrentStep("notes");
-    }
+    // Automatically advance to next step on selection after a short delay
+    setTimeout(() => {
+      if (symptom === "headache") {
+        setCurrentStep("fatigue");
+      } else if (symptom === "fatigue") {
+        setCurrentStep("anxiety");
+      } else if (symptom === "anxiety") {
+        setCurrentStep("focus");
+      } else if (symptom === "focus") {
+        setCurrentStep("notes");
+      }
+    }, 300);
   };
 
   const handleNextStep = () => {
@@ -77,7 +89,7 @@ export const SymptomForm = ({ onEntryAdded, isLoading, hasRecordedToday }: Sympt
   };
 
   const resetForm = () => {
-    setSymptoms({ headache: 0, fatigue: 0, anxiety: 0, focus: 3 });
+    setSymptoms({ headache: -1, fatigue: -1, anxiety: -1, focus: -1 });
     setNotes("");
     setCurrentStep("headache");
   };
@@ -89,7 +101,15 @@ export const SymptomForm = ({ onEntryAdded, isLoading, hasRecordedToday }: Sympt
 
   const handleSaveEntry = async () => {
     try {
-      await saveSymptomEntry(symptoms, notes);
+      // Convert -1 values to 0 for saving
+      const ratingsToSave = {
+        headache: symptoms.headache === -1 ? 0 : symptoms.headache,
+        fatigue: symptoms.fatigue === -1 ? 0 : symptoms.fatigue,
+        anxiety: symptoms.anxiety === -1 ? 0 : symptoms.anxiety,
+        focus: symptoms.focus === -1 ? 3 : symptoms.focus // Default focus to 3 if not selected
+      };
+      
+      await saveSymptomEntry(ratingsToSave, notes);
       
       // Refresh data after adding an entry
       await onEntryAdded();
@@ -119,6 +139,49 @@ export const SymptomForm = ({ onEntryAdded, isLoading, hasRecordedToday }: Sympt
       if (value <= 3) return "Moderate";
       return "Severe";
     }
+  };
+
+  const renderSymptomButtons = (symptomType: keyof SymptomRatings, title: string) => {
+    const currentValue = symptoms[symptomType];
+    
+    return (
+      <div className="py-4 space-y-4">
+        <h3 className="mb-4 font-medium text-center">{title}</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => handleSymptomChange(symptomType, i)}
+              className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-all duration-200 active:scale-95 ${
+                currentValue === i 
+                  ? 'border-primary bg-primary/10 shadow-md' 
+                  : 'border-gray-200 hover:border-primary/50 active:border-primary/70'
+              }`}
+            >
+              <span className="text-2xl font-bold mb-2">{i}</span>
+              {symptomType === "focus" ? (
+                <>
+                  {i === 0 && <span className="text-sm text-muted-foreground">Poor</span>}
+                  {i === 5 && <span className="text-sm text-muted-foreground">Excellent</span>}
+                  {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
+                </>
+              ) : (
+                <>
+                  {i === 0 && <span className="text-sm text-muted-foreground">None</span>}
+                  {i === 5 && <span className="text-sm text-muted-foreground">Severe</span>}
+                  {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
+                </>
+              )}
+            </button>
+          ))}
+        </div>
+        {currentValue >= 0 && (
+          <p className="text-center mt-4">
+            Selected: <span className="font-medium">{currentValue}</span> - {getRatingLabel(currentValue, symptomType)}
+          </p>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -165,113 +228,10 @@ export const SymptomForm = ({ onEntryAdded, isLoading, hasRecordedToday }: Sympt
             </DialogTitle>
           </DialogHeader>
 
-          {currentStep === "headache" && (
-            <div className="py-4 space-y-4">
-              <h3 className="mb-4 font-medium text-center">Headache Intensity</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSymptomChange("headache", i)}
-                    className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors ${
-                      symptoms.headache === i ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-primary/50'
-                    }`}
-                  >
-                    <span className="text-2xl font-bold mb-2">{i}</span>
-                    {i === 0 && <span className="text-sm text-muted-foreground">None</span>}
-                    {i === 5 && <span className="text-sm text-muted-foreground">Severe</span>}
-                    {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
-                  </button>
-                ))}
-              </div>
-              {symptoms.headache > 0 && (
-                <p className="text-center mt-4">
-                  Selected: <span className="font-medium">{symptoms.headache}</span> - {getRatingLabel(symptoms.headache, "headache")}
-                </p>
-              )}
-            </div>
-          )}
-
-          {currentStep === "fatigue" && (
-            <div className="py-4 space-y-4">
-              <h3 className="mb-4 font-medium text-center">Fatigue Level</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSymptomChange("fatigue", i)}
-                    className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors ${
-                      symptoms.fatigue === i ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-primary/50'
-                    }`}
-                  >
-                    <span className="text-2xl font-bold mb-2">{i}</span>
-                    {i === 0 && <span className="text-sm text-muted-foreground">None</span>}
-                    {i === 5 && <span className="text-sm text-muted-foreground">Severe</span>}
-                    {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
-                  </button>
-                ))}
-              </div>
-              {symptoms.fatigue > 0 && (
-                <p className="text-center mt-4">
-                  Selected: <span className="font-medium">{symptoms.fatigue}</span> - {getRatingLabel(symptoms.fatigue, "fatigue")}
-                </p>
-              )}
-            </div>
-          )}
-
-          {currentStep === "anxiety" && (
-            <div className="py-4 space-y-4">
-              <h3 className="mb-4 font-medium text-center">Anxiety Level</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSymptomChange("anxiety", i)}
-                    className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors ${
-                      symptoms.anxiety === i ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-primary/50'
-                    }`}
-                  >
-                    <span className="text-2xl font-bold mb-2">{i}</span>
-                    {i === 0 && <span className="text-sm text-muted-foreground">None</span>}
-                    {i === 5 && <span className="text-sm text-muted-foreground">Severe</span>}
-                    {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
-                  </button>
-                ))}
-              </div>
-              {symptoms.anxiety > 0 && (
-                <p className="text-center mt-4">
-                  Selected: <span className="font-medium">{symptoms.anxiety}</span> - {getRatingLabel(symptoms.anxiety, "anxiety")}
-                </p>
-              )}
-            </div>
-          )}
-
-          {currentStep === "focus" && (
-            <div className="py-4 space-y-4">
-              <h3 className="mb-4 font-medium text-center">Focus & Concentration</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSymptomChange("focus", i)}
-                    className={`flex flex-col items-center justify-center p-6 rounded-lg border-2 transition-colors ${
-                      symptoms.focus === i ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-primary/50'
-                    }`}
-                  >
-                    <span className="text-2xl font-bold mb-2">{i}</span>
-                    {i === 0 && <span className="text-sm text-muted-foreground">Poor</span>}
-                    {i === 5 && <span className="text-sm text-muted-foreground">Excellent</span>}
-                    {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
-                  </button>
-                ))}
-              </div>
-              {symptoms.focus > 0 && (
-                <p className="text-center mt-4">
-                  Selected: <span className="font-medium">{symptoms.focus}</span> - {getRatingLabel(symptoms.focus, "focus")}
-                </p>
-              )}
-            </div>
-          )}
+          {currentStep === "headache" && renderSymptomButtons("headache", "Headache Intensity")}
+          {currentStep === "fatigue" && renderSymptomButtons("fatigue", "Fatigue Level")}
+          {currentStep === "anxiety" && renderSymptomButtons("anxiety", "Anxiety Level")}
+          {currentStep === "focus" && renderSymptomButtons("focus", "Focus & Concentration")}
 
           {currentStep === "notes" && (
             <div className="py-4">
