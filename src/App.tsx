@@ -28,8 +28,6 @@ import RGBGame from "./pages/games/RGBGame";
 import WordFinderGame from "./pages/games/WordFinderGame";
 import IdentificationGame from "./pages/games/IdentificationGame";
 import ThenWhatGame from "./pages/games/ThenWhatGame";
-import WordSearchesGame from "./pages/games/WordSearchesGame";
-import SudokuGame from "./pages/games/SudokuGame";
 import MemoryMatchGame from "./pages/games/MemoryMatch";
 
 function App() {
@@ -81,8 +79,6 @@ function App() {
                   <Route path="/games/word-finder" element={<WordFinderGame />} />
                   <Route path="/games/identification" element={<IdentificationGame />} />
                   <Route path="/games/then-what" element={<ThenWhatGame />} />
-                  <Route path="/games/word-searches" element={<WordSearchesGame />} />
-                  <Route path="/games/sudoku" element={<SudokuGame />} />
                   <Route path="/games/memory-match" element={<MemoryMatchGame />} />
                 </Route>
               </Route>
