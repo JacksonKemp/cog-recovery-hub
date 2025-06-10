@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Star, Clock, Timer, Text, Circle, Square, BookOpen, Puzzle, Grid3X3, FileText, Search, Hash, BarChart3 } from "lucide-react";
+import { Brain, Star, Clock, BarChart3, Text, Circle, Square, BookOpen, Puzzle, Grid3X3, FileText, Search, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const exercises = {
@@ -182,9 +182,11 @@ const CognitiveGames = () => {
         </div>
         
         <div className="mt-4 md:mt-0">
-          <Button variant="outline" className="flex items-center gap-2">
-            <Timer className="h-4 w-4" />
-            Today's Recommended Exercises
+          <Button variant="outline" className="flex items-center gap-2" asChild>
+            <Link to="/games/progress">
+              <BarChart3 className="h-4 w-4" />
+              View Progress
+            </Link>
           </Button>
         </div>
       </div>
