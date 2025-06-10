@@ -17,7 +17,8 @@ import {
   BellOff,
   Clock,
   MoreVertical,
-  Check
+  Check,
+  Brain
 } from "lucide-react";
 import { format, startOfWeek, addDays, isSameDay, parse, isEqual } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -44,6 +45,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useTasks } from "@/hooks/use-tasks";
 import { useAuth } from "@/hooks/use-auth";
 import type { Task } from "@/utils/taskUtils";
+import { getExerciseRecommendation, isExerciseTask } from "@/utils/exerciseRecommendations";
 
 // Reminder time options
 const reminderOptions = [
@@ -113,6 +115,19 @@ const TaskManager = () => {
     deleteTask, 
     updateTaskDate 
   } = useTasks();
+
+  // Get exercise recommendation when task title changes
+  const exerciseRecommendation = getExerciseRecommendation(newTaskTitle);
+  
+  // Update difficulty when exercise is detected
+  const handleTaskTitleChange = (value: string) => {
+    setNewTaskTitle(value);
+    
+    const recommendation = getExerciseRecommendation(value);
+    if (recommendation) {
+      setTaskDifficulty(recommendation.difficulty);
+    }
+  };
 
   const handleAddTask = async () => {
     if (newTaskTitle.trim() !== "") {
@@ -542,16 +557,30 @@ const TaskManager = () => {
               <Input
                 id="task"
                 value={newTaskTitle}
-                onChange={(e) => setNewTaskTitle(e.target.value)}
+                onChange={(e) => handleTaskTitleChange(e.target.value)}
                 placeholder="Enter task name..."
                 className={cn("col-span-3", isMobile && "h-12 text-base")}
               />
+              {exerciseRecommendation && (
+                <div className="flex items-center gap-2 p-2 bg-cog-light-teal rounded-md">
+                  <Brain className="h-4 w-4 text-cog-teal" />
+                  <div className="text-sm">
+                    <span className="font-medium text-cog-teal">Exercise detected:</span>
+                    <span className="text-muted-foreground ml-1">{exerciseRecommendation.description}</span>
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Difficulty Level */}
             <div className="grid gap-2">
               <label className="text-sm font-medium">
                 Difficulty Level (1-10)
+                {exerciseRecommendation && (
+                  <span className="ml-2 text-xs text-cog-teal font-normal">
+                    (Recommended: {exerciseRecommendation.difficulty})
+                  </span>
+                )}
               </label>
               <Select 
                 value={taskDifficulty.toString()} 
@@ -563,7 +592,12 @@ const TaskManager = () => {
                 <SelectContent>
                   {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
                     <SelectItem key={level} value={level.toString()}>
-                      {level}
+                      <div className="flex items-center justify-between w-full">
+                        <span>{level}</span>
+                        {exerciseRecommendation && level === exerciseRecommendation.difficulty && (
+                          <span className="ml-2 text-xs text-cog-teal">(Recommended)</span>
+                        )}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
