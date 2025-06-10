@@ -1,51 +1,136 @@
 
-import { Task } from "./reminderUtils";
+import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
 
-// Save tasks to localStorage for persistence
-export const saveTasks = (tasks: Task[]): void => {
-  // Convert Date objects to ISO strings before saving
-  const serializedTasks = tasks.map(task => ({
-    ...task,
-    date: task.date.toISOString()
-  }));
-  
-  localStorage.setItem('tasks', JSON.stringify(serializedTasks));
+export type Task = {
+  id: string;
+  title: string;
+  completed: boolean;
+  date: Date;
+  hasReminder: boolean;
+  difficulty: number;
+  reminderTimes: string[];
+  user_id?: string;
 };
 
-// Load tasks from localStorage
-export const loadTasks = (): Task[] => {
+// Save tasks to Supabase
+export const saveTasks = async (tasks: Task[]): Promise<void> => {
+  // This function is no longer needed as we'll use individual operations
+  console.log('saveTasks called but not implemented for Supabase');
+};
+
+// Load tasks from Supabase
+export const loadTasks = async (): Promise<Task[]> => {
   try {
-    const storedTasks = localStorage.getItem('tasks');
-    if (!storedTasks) return [];
-    
-    // Parse the JSON and convert ISO strings back to Date objects
-    const parsedTasks = JSON.parse(storedTasks);
-    return parsedTasks.map((task: any) => ({
-      ...task,
-      date: new Date(task.date)
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .order('date', { ascending: true });
+
+    if (error) {
+      console.error('Error loading tasks:', error);
+      return [];
+    }
+
+    return (data || []).map(task => ({
+      id: task.id,
+      title: task.title,
+      completed: task.completed,
+      date: new Date(task.date),
+      hasReminder: task.has_reminder,
+      difficulty: task.difficulty,
+      reminderTimes: task.reminder_times || [],
+      user_id: task.user_id
     }));
   } catch (error) {
-    console.error('Error loading tasks from localStorage:', error);
+    console.error('Error loading tasks:', error);
     return [];
   }
 };
 
-// Create a new task
-export const createTask = (
+// Create a new task in Supabase
+export const createTask = async (
   title: string,
   date: Date,
   hasReminder: boolean,
   reminderTimes: string[],
   difficulty: number
-): Task => {
-  return {
-    id: uuidv4(),
-    title,
-    completed: false,
-    date,
-    hasReminder,
-    difficulty,
-    reminderTimes,
-  };
+): Promise<Task | null> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert({
+        title,
+        date: date.toISOString(),
+        has_reminder: hasReminder,
+        reminder_times: reminderTimes,
+        difficulty,
+        user_id: user.id
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return {
+      id: data.id,
+      title: data.title,
+      completed: data.completed,
+      date: new Date(data.date),
+      hasReminder: data.has_reminder,
+      difficulty: data.difficulty,
+      reminderTimes: data.reminder_times || [],
+      user_id: data.user_id
+    };
+  } catch (error) {
+    console.error('Error creating task:', error);
+    return null;
+  }
+};
+
+// Update a task in Supabase
+export const updateTask = async (taskId: string, updates: Partial<Task>): Promise<boolean> => {
+  try {
+    const dbUpdates: any = {};
+    
+    if (updates.title !== undefined) dbUpdates.title = updates.title;
+    if (updates.completed !== undefined) dbUpdates.completed = updates.completed;
+    if (updates.date !== undefined) dbUpdates.date = updates.date.toISOString();
+    if (updates.hasReminder !== undefined) dbUpdates.has_reminder = updates.hasReminder;
+    if (updates.difficulty !== undefined) dbUpdates.difficulty = updates.difficulty;
+    if (updates.reminderTimes !== undefined) dbUpdates.reminder_times = updates.reminderTimes;
+
+    const { error } = await supabase
+      .from('tasks')
+      .update(dbUpdates)
+      .eq('id', taskId);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error updating task:', error);
+    return false;
+  }
+};
+
+// Delete a task from Supabase
+export const deleteTask = async (taskId: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('id', taskId);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    return false;
+  }
 };

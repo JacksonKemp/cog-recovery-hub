@@ -120,6 +120,45 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          completed: boolean
+          created_at: string
+          date: string
+          difficulty: number
+          has_reminder: boolean
+          id: string
+          reminder_times: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          date: string
+          difficulty?: number
+          has_reminder?: boolean
+          id?: string
+          reminder_times?: Json
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          date?: string
+          difficulty?: number
+          has_reminder?: boolean
+          id?: string
+          reminder_times?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_practitioners: {
         Row: {
           access_code: string

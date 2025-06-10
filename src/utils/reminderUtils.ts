@@ -2,16 +2,8 @@
 import { format, addMinutes, addHours, addDays, addWeeks, isAfter } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 
-// Type defining a task 
-export type Task = {
-  id: string;
-  title: string;
-  completed: boolean;
-  date: Date;
-  hasReminder: boolean;
-  difficulty: number;
-  reminderTimes: string[];
-};
+// Import the Task type from taskUtils
+export type { Task } from "./taskUtils";
 
 // Calculate reminder time based on task date and reminder option
 export const calculateReminderTime = (taskDate: Date, reminderOption: string): Date => {
@@ -49,7 +41,7 @@ export const calculateReminderTime = (taskDate: Date, reminderOption: string): D
 };
 
 // Schedule reminders for a task
-export const scheduleReminders = (task: Task): void => {
+export const scheduleReminders = (task: any): void => {
   if (!task.hasReminder || !task.reminderTimes.length || task.completed) {
     return;
   }
@@ -58,7 +50,7 @@ export const scheduleReminders = (task: Task): void => {
   clearRemindersForTask(task.id);
 
   // Schedule new reminders
-  task.reminderTimes.forEach(reminderOption => {
+  task.reminderTimes.forEach((reminderOption: string) => {
     const reminderTime = calculateReminderTime(task.date, reminderOption);
     const now = new Date();
     
@@ -85,7 +77,7 @@ export const scheduleReminders = (task: Task): void => {
 };
 
 // Show a notification for a task
-export const showNotification = (task: Task): void => {
+export const showNotification = (task: any): void => {
   // Show toast notification
   toast({
     title: "Task Reminder",

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -41,17 +40,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-// Task type definition
-type Task = {
-  id: string;
-  title: string;
-  completed: boolean;
-  date: Date;
-  hasReminder: boolean;
-  difficulty: number;
-  reminderTimes: string[];
-};
+import { useTasks } from "@/hooks/use-tasks";
+import { useAuth } from "@/hooks/use-auth";
+import type { Task } from "@/utils/taskUtils";
 
 // Reminder time options
 const reminderOptions = [
@@ -101,48 +92,19 @@ const TaskManager = () => {
   const [conflictNewTime, setConflictNewTime] = useState<string>("12:00");
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   
-  // Sample tasks with dates as Date objects
-  const [tasks, setTasks] = useState<Task[]>([
-    { 
-      id: "1", 
-      title: "Take medication", 
-      completed: false, 
-      date: new Date(), 
-      hasReminder: true,
-      difficulty: 2,
-      reminderTimes: ["15min"]
-    },
-    { 
-      id: "2", 
-      title: "Doctor appointment", 
-      completed: false, 
-      date: addDays(new Date(), 1), 
-      hasReminder: true,
-      difficulty: 5,
-      reminderTimes: ["1day", "1hour"]
-    },
-    { 
-      id: "3", 
-      title: "Complete memory exercises", 
-      completed: true, 
-      date: new Date(), 
-      hasReminder: false,
-      difficulty: 4,
-      reminderTimes: []
-    },
-    { 
-      id: "4", 
-      title: "Call family member", 
-      completed: false, 
-      date: new Date(), 
-      hasReminder: false,
-      difficulty: 3,
-      reminderTimes: []
-    }
-  ]);
+  // Use the database-connected hook
+  const { 
+    tasks, 
+    isLoading, 
+    addTask, 
+    toggleTaskCompletion, 
+    deleteTask, 
+    updateTaskDate 
+  } = useTasks();
 
-  const handleAddTask = () => {
+  const handleAddTask = async () => {
     if (newTaskTitle.trim() !== "") {
       // Create task date (today by default)
       let taskDate = new Date();
@@ -168,17 +130,14 @@ const TaskManager = () => {
         }
       }
       
-      const task: Task = {
-        id: Date.now().toString(),
-        title: newTaskTitle,
-        completed: false,
-        date: taskDate,
+      await addTask(
+        newTaskTitle,
+        taskDate,
         hasReminder,
-        difficulty: taskDifficulty,
-        reminderTimes: hasReminder ? selectedReminders : [],
-      };
+        hasReminder ? selectedReminders : [],
+        taskDifficulty
+      );
       
-      setTasks([task, ...tasks]);
       setNewTaskTitle("");
       setShowSchedule(false);
       setHasReminder(false);
@@ -186,18 +145,6 @@ const TaskManager = () => {
       setTaskDifficulty(3);
       setDialogOpen(false);
     }
-  };
-
-  const toggleTaskCompletion = (id: string) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-
-  const deleteTask = (id: string) => {
-    setTasks(tasks.filter((task) => task.id !== id));
   };
 
   // Handle drag start
@@ -224,11 +171,7 @@ const TaskManager = () => {
         return;
       }
       
-      setTasks(tasks.map(task => 
-        task.id === draggingTask.id 
-          ? { ...task, date: newDate } 
-          : task
-      ));
+      updateTaskDate(draggingTask.id, newDate);
       setDraggingTask(null);
     }
   };
@@ -250,11 +193,7 @@ const TaskManager = () => {
         return;
       }
 
-      setTasks(tasks.map(task => 
-        task.id === draggingTask.id 
-          ? { ...task, date: finalDate } 
-          : task
-      ));
+      updateTaskDate(draggingTask.id, finalDate);
 
       // Reset conflict dialog state
       setConflictDialogOpen(false);
@@ -286,6 +225,27 @@ const TaskManager = () => {
         : [...prev, value]
     );
   };
+
+  // Show loading state if user is not authenticated or tasks are loading
+  if (!user) {
+    return (
+      <div className="container py-4 md:py-8">
+        <div className="text-center py-10 md:py-12 text-muted-foreground">
+          Please log in to view your tasks.
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="container py-4 md:py-8">
+        <div className="text-center py-10 md:py-12 text-muted-foreground">
+          Loading your tasks...
+        </div>
+      </div>
+    );
+  }
 
   const weekDates = getWeekDates();
   
@@ -532,7 +492,7 @@ const TaskManager = () => {
         )}
       </div>
 
-      {/* Add Task Button */}
+      {/* Add Task Button and Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
           <Button className="w-full" size={isMobile ? "mobile" : "default"}>
@@ -819,3 +779,5 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
+
+</edits_to_apply>
