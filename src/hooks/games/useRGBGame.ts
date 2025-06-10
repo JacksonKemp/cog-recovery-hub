@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 
 type Difficulty = "easy" | "medium" | "hard";
@@ -34,6 +35,7 @@ export const useRGBGame = () => {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [gameConfig, setGameConfig] = useState<GameConfig>(difficultySettings.medium);
   const [showColorPrompt, setShowColorPrompt] = useState<boolean>(false);
+  const [isColorChanging, setIsColorChanging] = useState<boolean>(false);
   
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
   const colorCycleRef = useRef<NodeJS.Timeout | null>(null);
@@ -58,16 +60,25 @@ export const useRGBGame = () => {
     const newColor = colors[Math.floor(Math.random() * colors.length)];
     
     console.log("Starting new color cycle with:", newColor);
-    setCurrentTargetColor(newColor);
-    setShowColorPrompt(true);
     
-    // Schedule the next color cycle
+    // Start fade out
+    setIsColorChanging(true);
+    setShowColorPrompt(false);
+    
+    // After fade out, set new color and fade in
+    setTimeout(() => {
+      setCurrentTargetColor(newColor);
+      setShowColorPrompt(true);
+      setIsColorChanging(false);
+    }, 150);
+    
+    // Schedule the next color cycle - this runs on a strict timer
     if (colorCycleRef.current) {
       clearTimeout(colorCycleRef.current);
     }
     
     colorCycleRef.current = setTimeout(() => {
-      console.log("Color cycle timeout, starting next color immediately");
+      console.log("Color cycle timeout, starting next color");
       // Check if game is still running before starting next cycle
       setTimeLeft(currentTime => {
         if (currentTime > 0) {
@@ -87,6 +98,7 @@ export const useRGBGame = () => {
     setGameState("playing");
     setShowColorPrompt(false);
     setCurrentTargetColor(null);
+    setIsColorChanging(false);
     
     // Clear any existing timers
     if (gameTimerRef.current) {
@@ -117,12 +129,12 @@ export const useRGBGame = () => {
     }, 1000);
   };
   
-  // Handle square click
+  // Handle square click - NO longer triggers new colors
   const handleSquareClick = (square: ColorSquare) => {
     console.log("Square clicked:", square.color, "Target:", currentTargetColor, "Show prompt:", showColorPrompt);
     
-    if (!showColorPrompt || !currentTargetColor) {
-      console.log("Click ignored - no active prompt");
+    if (!showColorPrompt || !currentTargetColor || isColorChanging) {
+      console.log("Click ignored - no active prompt or color is changing");
       return;
     }
     
@@ -133,19 +145,7 @@ export const useRGBGame = () => {
       setScore(prevScore => prevScore + 1);
     }
     
-    // Clear current color cycle and start new one immediately
-    if (colorCycleRef.current) {
-      clearTimeout(colorCycleRef.current);
-    }
-    
-    // Start next color immediately
-    setTimeLeft(currentTime => {
-      if (currentTime > 0) {
-        console.log("Starting next color after click");
-        startColorCycle();
-      }
-      return currentTime;
-    });
+    // DO NOT start new color cycle here - colors only change on timer
   };
   
   // Reset the game
@@ -156,6 +156,7 @@ export const useRGBGame = () => {
     setTimeLeft(0);
     setCurrentTargetColor(null);
     setShowColorPrompt(false);
+    setIsColorChanging(false);
     
     // Clear all timers
     if (gameTimerRef.current) {
@@ -200,6 +201,7 @@ export const useRGBGame = () => {
     score,
     timeLeft,
     gameConfig,
+    isColorChanging,
     handleDifficultyChange,
     startGame,
     handleSquareClick,

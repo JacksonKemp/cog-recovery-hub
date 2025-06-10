@@ -20,6 +20,7 @@ const RGBGame = () => {
     score,
     timeLeft,
     gameConfig,
+    isColorChanging,
     handleDifficultyChange,
     startGame,
     handleSquareClick,
@@ -74,6 +75,7 @@ const RGBGame = () => {
           showColorPrompt={showColorPrompt}
           score={score}
           timeLeft={timeLeft}
+          isColorChanging={isColorChanging}
           onSquareClick={handleSquareClick}
           onEndGame={resetGame}
         />

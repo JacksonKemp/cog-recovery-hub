@@ -12,6 +12,7 @@ interface PlayingScreenProps {
   showColorPrompt: boolean;
   score: number;
   timeLeft: number;
+  isColorChanging: boolean;
   onSquareClick: (square: ColorSquare) => void;
   onEndGame: () => void;
 }
@@ -22,6 +23,7 @@ const PlayingScreen = ({
   showColorPrompt,
   score,
   timeLeft,
+  isColorChanging,
   onSquareClick, 
   onEndGame 
 }: PlayingScreenProps) => {
@@ -37,15 +39,11 @@ const PlayingScreen = ({
       </div>
       
       <div className="mb-8">
-        {showColorPrompt && currentTargetColor ? (
+        <div className={`transition-opacity duration-150 ${(showColorPrompt && currentTargetColor && !isColorChanging) ? 'opacity-100' : 'opacity-0'}`}>
           <p className="text-3xl font-bold mb-4 capitalize">
-            {currentTargetColor}
+            {currentTargetColor || ""}
           </p>
-        ) : (
-          <p className="text-2xl font-bold mb-4 text-muted-foreground">
-            Get ready...
-          </p>
-        )}
+        </div>
       </div>
       
       <Card className="mb-8">
