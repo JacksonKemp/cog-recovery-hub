@@ -45,7 +45,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useTasks } from "@/hooks/use-tasks";
 import { useAuth } from "@/hooks/use-auth";
 import type { Task } from "@/utils/taskUtils";
-import { getExerciseRecommendation, isExerciseTask } from "@/utils/exerciseRecommendations";
+import { exerciseRecommendations, getExerciseRecommendation, isExerciseTask } from "@/utils/exerciseRecommendations";
 
 // Reminder time options
 const reminderOptions = [
@@ -102,6 +102,9 @@ const TaskManager = () => {
   const [conflictNewTime, setConflictNewTime] = useState<string>("12:00");
   const [reminderDropdownOpen, setReminderDropdownOpen] = useState(false);
   const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
+  const [exerciseDropdownOpen, setExerciseDropdownOpen] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
+  const [selectedDifficultyLevel, setSelectedDifficultyLevel] = useState<'easy' | 'medium' | 'hard' | null>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { user } = useAuth();
@@ -116,6 +119,41 @@ const TaskManager = () => {
     updateTaskDate 
   } = useTasks();
 
+  // Handle exercise selection
+  const handleExerciseSelect = (exerciseKey: string) => {
+    const exercise = exerciseRecommendations[exerciseKey as keyof typeof exerciseRecommendations];
+    if (exercise) {
+      setSelectedExercise(exerciseKey);
+      setNewTaskTitle(exercise.displayName);
+      setSelectedDifficultyLevel(null); // Reset difficulty level selection
+      setTaskDifficulty(exercise.difficulties.medium); // Default to medium
+      setExerciseDropdownOpen(false);
+    }
+  };
+
+  // Handle difficulty level selection for exercises
+  const handleDifficultyLevelSelect = (level: 'easy' | 'medium' | 'hard') => {
+    if (selectedExercise) {
+      const exercise = exerciseRecommendations[selectedExercise as keyof typeof exerciseRecommendations];
+      if (exercise) {
+        setSelectedDifficultyLevel(level);
+        setTaskDifficulty(exercise.difficulties[level]);
+      }
+    }
+  };
+
+  // Reset form when closing dialog
+  const resetForm = () => {
+    setNewTaskTitle("");
+    setSelectedExercise(null);
+    setSelectedDifficultyLevel(null);
+    setShowSchedule(false);
+    setHasReminder(false);
+    setSelectedReminders([]);
+    setSelectedNotificationMethods(["email"]);
+    setTaskDifficulty(3);
+  };
+
   // Get exercise recommendation when task title changes
   const exerciseRecommendation = getExerciseRecommendation(newTaskTitle);
   
@@ -123,8 +161,14 @@ const TaskManager = () => {
   const handleTaskTitleChange = (value: string) => {
     setNewTaskTitle(value);
     
+    // Reset exercise selection if user types manually
+    if (selectedExercise && value !== exerciseRecommendations[selectedExercise as keyof typeof exerciseRecommendations].displayName) {
+      setSelectedExercise(null);
+      setSelectedDifficultyLevel(null);
+    }
+    
     const recommendation = getExerciseRecommendation(value);
-    if (recommendation) {
+    if (recommendation && !selectedExercise) {
       setTaskDifficulty(recommendation.difficulty);
     }
   };
@@ -164,12 +208,7 @@ const TaskManager = () => {
         hasReminder ? selectedNotificationMethods : []
       );
       
-      setNewTaskTitle("");
-      setShowSchedule(false);
-      setHasReminder(false);
-      setSelectedReminders([]);
-      setSelectedNotificationMethods(["email"]);
-      setTaskDifficulty(3);
+      resetForm();
       setDialogOpen(false);
     }
   };
@@ -534,7 +573,10 @@ const TaskManager = () => {
       </div>
 
       {/* Add Task Button and Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => {
+        setDialogOpen(open);
+        if (!open) resetForm();
+      }}>
         <DialogTrigger asChild>
           <Button className="w-full" size={isMobile ? "mobile" : "default"}>
             <Plus className="mr-2 h-4 w-4" /> Add New Task
@@ -544,11 +586,72 @@ const TaskManager = () => {
           <DialogHeader>
             <DialogTitle>Add New Task</DialogTitle>
             <DialogDescription>
-              Create a new task for your schedule
+              Create a new task or exercise for your schedule
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
+            {/* Exercise Selection */}
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">
+                Quick Add Exercise
+              </label>
+              <DropdownMenu open={exerciseDropdownOpen} onOpenChange={setExerciseDropdownOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="justify-between"
+                    size={isMobile ? "mobile" : "default"}
+                  >
+                    <div className="flex items-center">
+                      <Brain className="h-4 w-4 mr-2 text-cog-teal" />
+                      {selectedExercise ? exerciseRecommendations[selectedExercise as keyof typeof exerciseRecommendations].displayName : "Select an exercise"}
+                    </div>
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-80" align="start">
+                  {Object.entries(exerciseRecommendations).map(([key, exercise]) => (
+                    <DropdownMenuItem
+                      key={key}
+                      onClick={() => handleExerciseSelect(key)}
+                      className="flex flex-col items-start p-3"
+                    >
+                      <div className="font-medium">{exercise.displayName}</div>
+                      <div className="text-xs text-muted-foreground">{exercise.description}</div>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Difficulty Level Selection for Exercises */}
+            {selectedExercise && (
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">
+                  Exercise Difficulty
+                </label>
+                <div className="flex gap-2">
+                  {(['easy', 'medium', 'hard'] as const).map((level) => {
+                    const difficulty = exerciseRecommendations[selectedExercise as keyof typeof exerciseRecommendations].difficulties[level];
+                    return (
+                      <Button
+                        key={level}
+                        type="button"
+                        variant={selectedDifficultyLevel === level ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handleDifficultyLevelSelect(level)}
+                        className="flex-1"
+                      >
+                        {level.charAt(0).toUpperCase() + level.slice(1)} ({difficulty})
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
             {/* Task Name */}
             <div className="grid gap-2">
               <label htmlFor="task" className="text-sm font-medium">
@@ -558,10 +661,10 @@ const TaskManager = () => {
                 id="task"
                 value={newTaskTitle}
                 onChange={(e) => handleTaskTitleChange(e.target.value)}
-                placeholder="Enter task name..."
+                placeholder="Enter task name or select an exercise above..."
                 className={cn("col-span-3", isMobile && "h-12 text-base")}
               />
-              {exerciseRecommendation && (
+              {exerciseRecommendation && !selectedExercise && (
                 <div className="flex items-center gap-2 p-2 bg-cog-light-teal rounded-md">
                   <Brain className="h-4 w-4 text-cog-teal" />
                   <div className="text-sm">
@@ -573,36 +676,38 @@ const TaskManager = () => {
             </div>
             
             {/* Difficulty Level */}
-            <div className="grid gap-2">
-              <label className="text-sm font-medium">
-                Difficulty Level (1-10)
-                {exerciseRecommendation && (
-                  <span className="ml-2 text-xs text-cog-teal font-normal">
-                    (Recommended: {exerciseRecommendation.difficulty})
-                  </span>
-                )}
-              </label>
-              <Select 
-                value={taskDifficulty.toString()} 
-                onValueChange={(value) => setTaskDifficulty(parseInt(value))}
-              >
-                <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
-                  <SelectValue placeholder="Select difficulty" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
-                    <SelectItem key={level} value={level.toString()}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{level}</span>
-                        {exerciseRecommendation && level === exerciseRecommendation.difficulty && (
-                          <span className="ml-2 text-xs text-cog-teal">(Recommended)</span>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {!selectedExercise && (
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">
+                  Difficulty Level (1-10)
+                  {exerciseRecommendation && (
+                    <span className="ml-2 text-xs text-cog-teal font-normal">
+                      (Recommended: {exerciseRecommendation.difficulty})
+                    </span>
+                  )}
+                </label>
+                <Select 
+                  value={taskDifficulty.toString()} 
+                  onValueChange={(value) => setTaskDifficulty(parseInt(value))}
+                >
+                  <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
+                      <SelectItem key={level} value={level.toString()}>
+                        <div className="flex items-center justify-between w-full">
+                          <span>{level}</span>
+                          {exerciseRecommendation && level === exerciseRecommendation.difficulty && (
+                            <span className="ml-2 text-xs text-cog-teal">(Recommended)</span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             
             {/* Schedule Option */}
             <div className="grid gap-2">
@@ -881,3 +986,5 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
+
+}
