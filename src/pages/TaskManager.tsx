@@ -1,5 +1,3 @@
-
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -95,6 +93,9 @@ const TaskManager = () => {
   const [selectedReminders, setSelectedReminders] = useState<string[]>([]);
   const [taskDifficulty, setTaskDifficulty] = useState<number>(3);
   const [selectedTime, setSelectedTime] = useState<string>("12:00");
+  const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
+  const [conflictTargetDate, setConflictTargetDate] = useState<Date | null>(null);
+  const [conflictNewTime, setConflictNewTime] = useState<string>("12:00");
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
@@ -213,12 +214,10 @@ const TaskManager = () => {
       
       // Check for time conflicts
       if (isTimeSlotTaken(tasks, newDate, draggingTask.id)) {
-        toast({
-          title: "Time Conflict",
-          description: "There's already a task scheduled at this time on the target day.",
-          variant: "destructive"
-        });
-        setDraggingTask(null);
+        // Instead of showing error toast, open conflict resolution dialog
+        setConflictTargetDate(newDate);
+        setConflictNewTime(format(draggingTask.date, 'HH:mm'));
+        setConflictDialogOpen(true);
         return;
       }
       
@@ -228,6 +227,41 @@ const TaskManager = () => {
           : task
       ));
       setDraggingTask(null);
+    }
+  };
+
+  // Handle conflict resolution
+  const handleConflictResolution = () => {
+    if (draggingTask && conflictTargetDate) {
+      const [hours, minutes] = conflictNewTime.split(':').map(Number);
+      const finalDate = new Date(conflictTargetDate);
+      finalDate.setHours(hours, minutes);
+
+      // Check if the new time is still conflicted
+      if (isTimeSlotTaken(tasks, finalDate, draggingTask.id)) {
+        toast({
+          title: "Time Still Conflicts",
+          description: "Please choose a different time.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setTasks(tasks.map(task => 
+        task.id === draggingTask.id 
+          ? { ...task, date: finalDate } 
+          : task
+      ));
+
+      // Reset conflict dialog state
+      setConflictDialogOpen(false);
+      setConflictTargetDate(null);
+      setDraggingTask(null);
+      
+      toast({
+        title: "Task Moved",
+        description: `Task moved to ${format(finalDate, 'MMM d')} at ${format(finalDate, 'h:mm a')}`,
+      });
     }
   };
 
@@ -497,6 +531,7 @@ const TaskManager = () => {
               Create a new task for your schedule
             </DialogDescription>
           </DialogHeader>
+          
           <div className="grid gap-4 py-4">
             {/* Task Name */}
             <div className="grid gap-2">
@@ -680,6 +715,7 @@ const TaskManager = () => {
               </div>
             )}
           </div>
+          
           <DialogFooter className={cn(isMobile && "mobile-buttons-grid")}>
             <Button 
               type="submit" 
@@ -688,6 +724,62 @@ const TaskManager = () => {
               className={cn(isMobile && "mobile-button")}
             >
               Add Task
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Time Conflict Resolution Dialog */}
+      <Dialog open={conflictDialogOpen} onOpenChange={setConflictDialogOpen}>
+        <DialogContent className={cn("sm:max-w-[425px]", isMobile && "mobile-dialog-content")}>
+          <DialogHeader>
+            <DialogTitle>Time Conflict</DialogTitle>
+            <DialogDescription>
+              There's already a task scheduled at this time. Please choose a different time for "{draggingTask?.title}".
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">
+                Choose New Time
+              </label>
+              <Select 
+                value={conflictNewTime}
+                onValueChange={setConflictNewTime}
+              >
+                <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
+                  <SelectValue placeholder="Select time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {times.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <DialogFooter className={cn(isMobile && "mobile-buttons-grid")}>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setConflictDialogOpen(false);
+                setConflictTargetDate(null);
+                setDraggingTask(null);
+              }}
+              size={isMobile ? "mobile" : "default"}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleConflictResolution}
+              size={isMobile ? "mobile" : "default"}
+              className={cn(isMobile && "mobile-button")}
+            >
+              Move Task
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -712,4 +804,3 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
-
