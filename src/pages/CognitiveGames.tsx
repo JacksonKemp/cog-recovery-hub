@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -118,16 +117,6 @@ const exercises = {
 };
 
 const ExerciseCard = ({ exercise, categoryKey }: { exercise: any; categoryKey: string }) => {
-  const getCategoryForProgress = (categoryKey: string) => {
-    switch(categoryKey) {
-      case "memory": return "memory";
-      case "attention": return "attention";
-      case "processing":
-      case "processingSpeed": return "processing";
-      default: return "memory";
-    }
-  };
-
   return (
     <Card className="h-full">
       <CardHeader>
@@ -151,19 +140,13 @@ const ExerciseCard = ({ exercise, categoryKey }: { exercise: any; categoryKey: s
           <span>{exercise.timeToComplete}</span>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col gap-2">
+      <CardFooter>
         <Button className="w-full" asChild={!!exercise.path}>
           {exercise.path ? (
             <Link to={exercise.path}>Launch</Link>
           ) : (
             "Coming Soon"
           )}
-        </Button>
-        <Button variant="outline" className="w-full" asChild>
-          <Link to={`/games/progress?category=${getCategoryForProgress(categoryKey)}`} className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            See Scores
-          </Link>
         </Button>
       </CardFooter>
     </Card>
