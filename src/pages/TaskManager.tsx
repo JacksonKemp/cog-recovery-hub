@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,9 @@ import {
   ChevronUp,
   Bell,
   BellOff,
-  Clock
+  Clock,
+  MoreVertical,
+  Check
 } from "lucide-react";
 import { format, startOfWeek, addDays, isSameDay, parse, isEqual } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -401,15 +404,31 @@ const TaskManager = () => {
                   isMobile && "p-3"
                 )}>
                   <div className="flex items-center">
-                    <button
-                      className={cn(
-                        "mr-3 text-muted-foreground hover:text-foreground",
-                        isMobile && "mr-2"
-                      )}
-                      onClick={() => toggleTaskCompletion(task.id)}
-                    >
-                      <Circle className={cn("h-5 w-5", isMobile && "h-6 w-6")} />
-                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className={cn(
+                            "mr-3 text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-muted",
+                            isMobile && "mr-2"
+                          )}
+                        >
+                          <Circle className={cn("h-5 w-5", isMobile && "h-6 w-6")} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start">
+                        <DropdownMenuItem onClick={() => toggleTaskCompletion(task.id)}>
+                          <Check className="h-4 w-4 mr-2" />
+                          Mark Complete
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => deleteTask(task.id)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     <div>
                       <div className="flex items-center gap-2">
                         <p className={cn("font-medium", isMobile && "text-base")}>{task.title}</p>
@@ -437,15 +456,6 @@ const TaskManager = () => {
                       </div>
                     </div>
                   </div>
-                  <button
-                    className={cn(
-                      "text-muted-foreground hover:text-destructive",
-                      isMobile && "p-2"
-                    )}
-                    onClick={() => deleteTask(task.id)}
-                  >
-                    <Trash2 className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
-                  </button>
                 </CardContent>
               </Card>
             ))}
@@ -478,12 +488,26 @@ const TaskManager = () => {
                         isMobile && "p-3"
                       )}>
                         <div className="flex items-center">
-                          <button
-                            className={cn("mr-3 text-cog-teal", isMobile && "mr-2")}
-                            onClick={() => toggleTaskCompletion(task.id)}
-                          >
-                            <CheckCircle className={cn("h-5 w-5", isMobile && "h-6 w-6")} fill="currentColor" />
-                          </button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className={cn("mr-3 text-cog-teal p-1 rounded-full hover:bg-muted", isMobile && "mr-2")}>
+                                <CheckCircle className={cn("h-5 w-5", isMobile && "h-6 w-6")} fill="currentColor" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start">
+                              <DropdownMenuItem onClick={() => toggleTaskCompletion(task.id)}>
+                                <Circle className="h-4 w-4 mr-2" />
+                                Mark Incomplete
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => deleteTask(task.id)}
+                                className="text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                           <div>
                             <div className="flex items-center gap-2">
                               <p className={cn(
@@ -498,15 +522,6 @@ const TaskManager = () => {
                             </div>
                           </div>
                         </div>
-                        <button
-                          className={cn(
-                            "text-muted-foreground hover:text-destructive",
-                            isMobile && "p-2"
-                          )}
-                          onClick={() => deleteTask(task.id)}
-                        >
-                          <Trash2 className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
-                        </button>
                       </CardContent>
                     </Card>
                   ))}
