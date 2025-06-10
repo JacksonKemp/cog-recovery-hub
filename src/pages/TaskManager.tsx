@@ -17,7 +17,8 @@ import {
   BellOff,
   Clock,
   MoreVertical,
-  Check
+  Check,
+  TestTube
 } from "lucide-react";
 import { format, startOfWeek, addDays, isSameDay, parse, isEqual } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -43,6 +44,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTasks } from "@/hooks/use-tasks";
 import { useAuth } from "@/hooks/use-auth";
+import { showNotification } from "@/utils/reminderUtils";
 import type { Task } from "@/utils/taskUtils";
 
 // Reminder time options
@@ -113,6 +115,11 @@ const TaskManager = () => {
     deleteTask, 
     updateTaskDate 
   } = useTasks();
+
+  // Test reminder function
+  const testReminder = (task: Task) => {
+    showNotification(task);
+  };
 
   const handleAddTask = async () => {
     if (newTaskTitle.trim() !== "") {
@@ -384,7 +391,7 @@ const TaskManager = () => {
                   "p-4 flex items-center justify-between",
                   isMobile && "p-3"
                 )}>
-                  <div className="flex items-center">
+                  <div className="flex items-center flex-1">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -410,7 +417,7 @@ const TaskManager = () => {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    <div>
+                    <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <p className={cn("font-medium", isMobile && "text-base")}>{task.title}</p>
                         <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
@@ -441,7 +448,19 @@ const TaskManager = () => {
                         )}
                       </div>
                     </div>
-                  </div>
+                  
+                    {/* Test Reminder Button */}
+                    {task.hasReminder && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => testReminder(task)}
+                        className="ml-2 flex items-center gap-1"
+                      >
+                        <TestTube className="h-3 w-3" />
+                        {isMobile ? "Test" : "Test Reminder"}
+                      </Button>
+                    )}
                 </CardContent>
               </Card>
             ))}
@@ -847,3 +866,5 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
+
+}
