@@ -133,7 +133,7 @@ export const useThenWhatGame = () => {
   
   // Timer effect
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: NodeJS.Timeout | undefined;
     
     if (timeRemaining > 0) {
       timer = setTimeout(() => {
@@ -146,7 +146,9 @@ export const useThenWhatGame = () => {
       setGameState("recall");
     }
     
-    return () => clearTimeout(timer);
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [timeRemaining, gameState, gameConfig.waitTime]);
   
   // Start the game

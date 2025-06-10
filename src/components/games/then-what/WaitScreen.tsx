@@ -17,14 +17,11 @@ const WaitScreen = ({ timeRemaining, currentRound, totalRounds }: WaitScreenProp
       <Card className="mb-8">
         <CardContent className="p-6">
           <p className="text-lg mb-4">
-            Remember the instruction...
+            Remember the instructions.
           </p>
           <div className="text-6xl font-bold text-primary mb-4">
             {timeRemaining}
           </div>
-          <p className="text-muted-foreground">
-            You'll be asked to recall it soon
-          </p>
         </CardContent>
       </Card>
     </div>
