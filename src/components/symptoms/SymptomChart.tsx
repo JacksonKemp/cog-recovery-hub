@@ -5,6 +5,8 @@ import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 import { Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChartContainer, ChartLegendContent, ChartTooltipContent } from "@/components/ui/chart";
+import { getSymptomChartData, ChartDataPoint } from "@/services/symptomChartService";
+import { useToast } from "@/hooks/use-toast";
 
 type TimeFrame = "week" | "month" | "year" | "all";
 
@@ -20,42 +22,12 @@ interface SymptomChartProps {
   isLoading: boolean;
 }
 
-// Sample data for charts
-const lastWeekData = [
-  { date: "Mon", headache: 4, fatigue: 3, anxiety: 2, focus: 1 },
-  { date: "Tue", headache: 3, fatigue: 3, anxiety: 1, focus: 2 },
-  { date: "Wed", headache: 2, fatigue: 2, anxiety: 1, focus: 3 },
-  { date: "Thu", headache: 3, fatigue: 2, anxiety: 1, focus: 3 },
-  { date: "Fri", headache: 2, fatigue: 3, anxiety: 1, focus: 3 },
-  { date: "Sat", headache: 1, fatigue: 1, anxiety: 0, focus: 4 },
-  { date: "Sun", headache: 1, fatigue: 2, anxiety: 1, focus: 4 },
-];
-
-const lastMonthData = [
-  { date: "Week 1", headache: 3, fatigue: 3, anxiety: 2, focus: 2 },
-  { date: "Week 2", headache: 2, fatigue: 2, anxiety: 1, focus: 3 },
-  { date: "Week 3", headache: 2, fatigue: 2, anxiety: 1, focus: 3 },
-  { date: "Week 4", headache: 1, fatigue: 1, anxiety: 1, focus: 4 },
-];
-
-const lastYearData = [
-  { date: "Jan", headache: 4, fatigue: 4, anxiety: 3, focus: 1 },
-  { date: "Feb", headache: 4, fatigue: 3, anxiety: 3, focus: 2 },
-  { date: "Mar", headache: 3, fatigue: 3, anxiety: 2, focus: 2 },
-  { date: "Apr", headache: 3, fatigue: 2, anxiety: 2, focus: 3 },
-  { date: "May", headache: 2, fatigue: 2, anxiety: 1, focus: 3 },
-  { date: "Jun", headache: 2, fatigue: 2, anxiety: 1, focus: 3 },
-  { date: "Jul", headache: 1, fatigue: 1, anxiety: 1, focus: 4 },
-  { date: "Aug", headache: 1, fatigue: 1, anxiety: 0, focus: 4 },
-  { date: "Sep", headache: 1, fatigue: 1, anxiety: 0, focus: 4 },
-  { date: "Oct", headache: 1, fatigue: 1, anxiety: 0, focus: 4 },
-  { date: "Nov", headache: 0, fatigue: 1, anxiety: 0, focus: 5 },
-  { date: "Dec", headache: 0, fatigue: 0, anxiety: 0, focus: 5 },
-];
-
-export const SymptomChart = ({ isLoading }: SymptomChartProps) => {
+export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) => {
   const [timeFrame, setTimeFrame] = useState<TimeFrame>("week");
   const [selectedDataPoint, setSelectedDataPoint] = useState<number | null>(null);
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const { toast } = useToast();
 
   // Configure chart colors and labels
   const chartConfig: ChartConfig = {
@@ -77,29 +49,39 @@ export const SymptomChart = ({ isLoading }: SymptomChartProps) => {
     },
   };
 
-  // Get chart data based on selected timeframe
-  const getChartData = () => {
-    switch (timeFrame) {
-      case "week":
-        return lastWeekData;
-      case "month":
-        return lastMonthData;
-      case "year":
-      case "all":
-        return lastYearData; // Using year data for 'all' as well for this demo
-      default:
-        return lastWeekData;
+  // Load chart data when timeframe changes
+  useEffect(() => {
+    loadChartData();
+  }, [timeFrame]);
+
+  const loadChartData = async () => {
+    setIsLoadingData(true);
+    try {
+      console.log("[DEBUG] Loading chart data for timeframe:", timeFrame);
+      const data = await getSymptomChartData(timeFrame);
+      console.log("[DEBUG] Chart data loaded:", data);
+      setChartData(data);
+      
+      // Set initial selected data point
+      if (data.length > 0) {
+        setSelectedDataPoint(data.length - 1); // Select the most recent data point
+      }
+    } catch (error) {
+      console.error("Error loading chart data:", error);
+      toast({
+        title: "Error loading chart data",
+        description: "Failed to load your symptom data for the chart",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
-  const chartData = getChartData();
-
-  // Set the initial selected data point when chart data changes
-  useEffect(() => {
-    if (chartData && chartData.length > 0) {
-      setSelectedDataPoint(0);
-    }
-  }, [chartData]);
+  // Handle timeframe change
+  const handleTimeFrameChange = (value: TimeFrame) => {
+    setTimeFrame(value);
+  };
 
   // Fixed to correctly handle the data point index
   const handleDataPointClick = (data: any, index: number) => {
@@ -135,6 +117,8 @@ export const SymptomChart = ({ isLoading }: SymptomChartProps) => {
     }
   };
 
+  const isLoading = parentLoading || isLoadingData;
+
   return (
     <Card className="lg:col-span-2">
       <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -143,7 +127,7 @@ export const SymptomChart = ({ isLoading }: SymptomChartProps) => {
           <CardDescription>Track how your symptoms have changed over time</CardDescription>
         </div>
         <div className="w-full md:w-40">
-          <Select value={timeFrame} onValueChange={(value) => setTimeFrame(value as TimeFrame)}>
+          <Select value={timeFrame} onValueChange={handleTimeFrameChange}>
             <SelectTrigger>
               <SelectValue placeholder="Select timeframe" />
             </SelectTrigger>
@@ -160,6 +144,11 @@ export const SymptomChart = ({ isLoading }: SymptomChartProps) => {
         {isLoading ? (
           <div className="flex items-center justify-center h-80">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : chartData.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-80 text-muted-foreground">
+            <p className="text-lg font-medium">No symptom data available</p>
+            <p className="text-sm">Start tracking your symptoms to see trends here</p>
           </div>
         ) : (
           <div className="space-y-6">

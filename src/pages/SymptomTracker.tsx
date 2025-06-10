@@ -135,10 +135,8 @@ const SymptomTracker = () => {
 
         <TabsContent value="history" className="mt-0">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <SymptomChart isLoading={isLoading} />
-            {isLoading ? (
-              <RecentEntries isLoading={isLoading} entries={recentEntries} />
-            ) : recentEntries.length === 0 ? (
+            <SymptomChart isLoading={false} />
+            {recentEntries.length === 0 && !isLoading ? (
               <div className="flex flex-col items-center py-8 text-muted-foreground col-span-1">
                 <p>No symptom entries yet</p>
                 <p className="text-sm">Tap "Track Symptoms" above to add the first one.</p>
