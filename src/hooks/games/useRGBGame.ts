@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type Difficulty = "easy" | "medium" | "hard";
 type GameState = "intro" | "playing" | "result";
@@ -11,15 +11,14 @@ export interface ColorSquare {
 }
 
 interface GameConfig {
-  rounds: number;
-  squaresPerRound: number;
-  targetColorFrequency: number;
+  gameDuration: number; // in seconds
+  reactionTime: number; // in milliseconds
 }
 
 const difficultySettings: Record<Difficulty, GameConfig> = {
-  easy: { rounds: 5, squaresPerRound: 4, targetColorFrequency: 3 },
-  medium: { rounds: 8, squaresPerRound: 9, targetColorFrequency: 4 },
-  hard: { rounds: 10, squaresPerRound: 16, targetColorFrequency: 5 },
+  easy: { gameDuration: 60, reactionTime: 1000 }, // 1 second to react
+  medium: { gameDuration: 60, reactionTime: 750 }, // 0.75 seconds to react
+  hard: { gameDuration: 60, reactionTime: 500 }, // 0.5 seconds to react
 };
 
 export const colorMap: Record<ColorType, string> = {
@@ -31,12 +30,22 @@ export const colorMap: Record<ColorType, string> = {
 export const useRGBGame = () => {
   const [gameState, setGameState] = useState<GameState>("intro");
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
-  const [currentRound, setCurrentRound] = useState<number>(0);
-  const [squares, setSquares] = useState<ColorSquare[]>([]);
-  const [targetColor, setTargetColor] = useState<ColorType | null>(null);
+  const [currentTargetColor, setCurrentTargetColor] = useState<ColorType | null>(null);
   const [score, setScore] = useState<number>(0);
-  const [roundsCorrect, setRoundsCorrect] = useState<number>(0);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
   const [gameConfig, setGameConfig] = useState<GameConfig>(difficultySettings.medium);
+  const [showColorPrompt, setShowColorPrompt] = useState<boolean>(false);
+  
+  const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const colorTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fixed squares - always the same three colors
+  const squares: ColorSquare[] = [
+    { id: 1, color: "red" },
+    { id: 2, color: "green" },
+    { id: 3, color: "blue" }
+  ];
   
   // Handle difficulty change
   const handleDifficultyChange = (value: string) => {
@@ -45,89 +54,123 @@ export const useRGBGame = () => {
     setGameConfig(difficultySettings[newDifficulty]);
   };
   
-  // Generate squares for a round
-  const generateRound = () => {
+  // Generate new target color
+  const generateNewTargetColor = () => {
     const colors: ColorType[] = ["red", "green", "blue"];
-    const newTargetColor = colors[Math.floor(Math.random() * colors.length)];
-    setTargetColor(newTargetColor);
+    const newColor = colors[Math.floor(Math.random() * colors.length)];
+    setCurrentTargetColor(newColor);
+    setShowColorPrompt(true);
     
-    // Create array of squares with random colors
-    const newSquares: ColorSquare[] = [];
-    
-    // Add target color squares
-    for (let i = 0; i < gameConfig.targetColorFrequency; i++) {
-      newSquares.push({
-        id: i,
-        color: newTargetColor
-      });
+    // Hide the prompt after reaction time expires
+    if (colorTimerRef.current) {
+      clearTimeout(colorTimerRef.current);
     }
     
-    // Fill remaining squares with other colors
-    const otherColors = colors.filter(c => c !== newTargetColor);
-    for (let i = gameConfig.targetColorFrequency; i < gameConfig.squaresPerRound; i++) {
-      const randomColor = otherColors[Math.floor(Math.random() * otherColors.length)];
-      newSquares.push({
-        id: i,
-        color: randomColor
-      });
-    }
-    
-    // Shuffle the squares
-    const shuffledSquares = newSquares.sort(() => Math.random() - 0.5);
-    setSquares(shuffledSquares);
+    colorTimerRef.current = setTimeout(() => {
+      setShowColorPrompt(false);
+      // Generate next color after a brief pause
+      setTimeout(() => {
+        if (timeLeft > 0) {
+          generateNewTargetColor();
+        }
+      }, 200);
+    }, gameConfig.reactionTime);
   };
   
   // Start the game
   const startGame = () => {
-    setCurrentRound(0);
     setScore(0);
-    setRoundsCorrect(0);
+    setTimeLeft(gameConfig.gameDuration);
     setGameState("playing");
-    generateRound();
+    
+    // Start game timer
+    if (gameTimerRef.current) {
+      clearInterval(gameTimerRef.current);
+    }
+    
+    gameTimerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          setGameState("result");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    // Start with first color after a brief delay
+    setTimeout(() => {
+      generateNewTargetColor();
+    }, 1000);
   };
   
   // Handle square click
   const handleSquareClick = (square: ColorSquare) => {
-    const isCorrect = square.color === targetColor;
+    if (!showColorPrompt || !currentTargetColor) return;
+    
+    const isCorrect = square.color === currentTargetColor;
     
     if (isCorrect) {
       setScore(score + 1);
     }
     
-    // Move to next round or end game
-    if (currentRound < gameConfig.rounds - 1) {
-      setCurrentRound(currentRound + 1);
-      generateRound();
-      
-      if (isCorrect) {
-        setRoundsCorrect(roundsCorrect + 1);
-      }
-    } else {
-      // Last round
-      setGameState("result");
-      if (isCorrect) {
-        setRoundsCorrect(roundsCorrect + 1);
-      }
+    // Hide current prompt and generate new color
+    setShowColorPrompt(false);
+    if (colorTimerRef.current) {
+      clearTimeout(colorTimerRef.current);
     }
+    
+    // Generate next color after a brief pause
+    setTimeout(() => {
+      if (timeLeft > 0) {
+        generateNewTargetColor();
+      }
+    }, 300);
   };
   
   // Reset the game
   const resetGame = () => {
     setGameState("intro");
-    setCurrentRound(0);
     setScore(0);
-    setRoundsCorrect(0);
-    setSquares([]);
+    setTimeLeft(0);
+    setCurrentTargetColor(null);
+    setShowColorPrompt(false);
+    
+    // Clear all timers
+    if (gameTimerRef.current) {
+      clearInterval(gameTimerRef.current);
+    }
+    if (colorTimerRef.current) {
+      clearTimeout(colorTimerRef.current);
+    }
+    if (countdownRef.current) {
+      clearTimeout(countdownRef.current);
+    }
   };
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (gameTimerRef.current) {
+        clearInterval(gameTimerRef.current);
+      }
+      if (colorTimerRef.current) {
+        clearTimeout(colorTimerRef.current);
+      }
+      if (countdownRef.current) {
+        clearTimeout(countdownRef.current);
+      }
+    };
+  }, []);
   
   return {
     gameState,
     difficulty,
-    currentRound,
     squares,
-    targetColor,
+    currentTargetColor,
+    showColorPrompt,
     score,
-    roundsCorrect,
+    timeLeft,
     gameConfig,
     handleDifficultyChange,
     startGame,

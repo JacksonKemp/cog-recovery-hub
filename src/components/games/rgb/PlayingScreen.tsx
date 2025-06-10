@@ -7,44 +7,54 @@ import { Button } from "@/components/ui/button";
 import { ColorSquare, colorMap } from "@/hooks/games/useRGBGame";
 
 interface PlayingScreenProps {
-  currentRound: number;
-  totalRounds: number;
-  targetColor: string;
   squares: ColorSquare[];
-  squaresPerRound: number;
+  currentTargetColor: string | null;
+  showColorPrompt: boolean;
+  score: number;
+  timeLeft: number;
   onSquareClick: (square: ColorSquare) => void;
   onEndGame: () => void;
 }
 
 const PlayingScreen = ({ 
-  currentRound, 
-  totalRounds, 
-  targetColor, 
-  squares, 
-  squaresPerRound,
+  squares,
+  currentTargetColor,
+  showColorPrompt,
+  score,
+  timeLeft,
   onSquareClick, 
   onEndGame 
 }: PlayingScreenProps) => {
-  // Determine grid columns based on square count (2x2, 3x3, or 4x4)
-  const gridColumns = Math.sqrt(squaresPerRound);
-  const gridClass = `grid grid-cols-${gridColumns} gap-4`;
-  
   return (
     <div className="text-center">
-      <h2 className="text-xl mb-2">
-        Round {currentRound + 1} of {totalRounds}
-      </h2>
-      <p className="mb-6 text-lg font-medium">
-        Find and tap all <span className="capitalize">{targetColor}</span> squares
-      </p>
+      <div className="flex justify-between items-center mb-6">
+        <div className="text-lg font-medium">
+          Score: {score}
+        </div>
+        <div className="text-lg font-medium">
+          Time: {timeLeft}s
+        </div>
+      </div>
+      
+      <div className="mb-8">
+        {showColorPrompt && currentTargetColor ? (
+          <p className="text-2xl font-bold mb-4">
+            Tap <span className="capitalize text-3xl">{currentTargetColor}</span>!
+          </p>
+        ) : (
+          <p className="text-2xl font-bold mb-4 text-muted-foreground">
+            Get ready...
+          </p>
+        )}
+      </div>
       
       <Card className="mb-8">
-        <CardContent className="p-4">
-          <div className={gridClass}>
+        <CardContent className="p-8">
+          <div className="flex justify-center gap-8">
             {squares.map((square) => (
               <div
                 key={square.id}
-                className={`${colorMap[square.color]} w-16 h-16 rounded-lg cursor-pointer`}
+                className={`${colorMap[square.color]} w-24 h-24 rounded-lg cursor-pointer transition-transform hover:scale-105 active:scale-95`}
                 onClick={() => onSquareClick(square)}
               />
             ))}

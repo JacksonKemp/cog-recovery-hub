@@ -14,10 +14,11 @@ const RGBGame = () => {
   const {
     gameState,
     difficulty,
-    currentRound,
     squares,
-    targetColor,
-    roundsCorrect,
+    currentTargetColor,
+    showColorPrompt,
+    score,
+    timeLeft,
     gameConfig,
     handleDifficultyChange,
     startGame,
@@ -30,32 +31,31 @@ const RGBGame = () => {
     const saveProgress = async () => {
       if (gameState === "result" && user) {
         try {
-          const score = roundsCorrect;
-          const maxScore = gameConfig.rounds;
           const difficultyLevel = difficulty === "easy" ? 1 : difficulty === "medium" ? 2 : 3;
           
           await saveGameProgress(
-            "rgb-game",
+            "rgb-reaction",
             "attention",
             score,
-            maxScore,
-            difficultyLevel
+            undefined, // No max score for reaction time game
+            difficultyLevel,
+            gameConfig.gameDuration
           );
           
-          console.log("RGB game progress saved successfully");
+          console.log("RGB reaction game progress saved successfully");
         } catch (error) {
-          console.error("Failed to save RGB game progress:", error);
+          console.error("Failed to save RGB reaction game progress:", error);
           toast.error("Failed to save game progress");
         }
       }
     };
 
     saveProgress();
-  }, [gameState, roundsCorrect, gameConfig.rounds, difficulty, user]);
+  }, [gameState, score, gameConfig.gameDuration, difficulty, user]);
   
   return (
     <GameLayout 
-      title="Red, Green, Blue Exercise" 
+      title="Red, Green, Blue Reaction" 
       backLink="/games"
       showTitle={gameState === "intro"}
     >
@@ -67,13 +67,13 @@ const RGBGame = () => {
         />
       )}
       
-      {gameState === "playing" && targetColor && (
+      {gameState === "playing" && (
         <PlayingScreen 
-          currentRound={currentRound}
-          totalRounds={gameConfig.rounds}
-          targetColor={targetColor}
           squares={squares}
-          squaresPerRound={gameConfig.squaresPerRound}
+          currentTargetColor={currentTargetColor}
+          showColorPrompt={showColorPrompt}
+          score={score}
+          timeLeft={timeLeft}
           onSquareClick={handleSquareClick}
           onEndGame={resetGame}
         />
@@ -81,8 +81,8 @@ const RGBGame = () => {
       
       {gameState === "result" && (
         <ResultScreen 
-          roundsCorrect={roundsCorrect}
-          totalRounds={gameConfig.rounds}
+          score={score}
+          gameDuration={gameConfig.gameDuration}
           onPlayAgain={startGame}
           onBackToIntro={resetGame}
         />
