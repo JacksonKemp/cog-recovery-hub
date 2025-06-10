@@ -7,6 +7,7 @@ import { useTasks } from "@/hooks/use-tasks";
 import { cn } from "@/lib/utils";
 import { getExerciseRoute } from "@/utils/exerciseRecommendations";
 import { useNavigate } from "react-router-dom";
+import type { Task } from "@/utils/taskUtils";
 
 export default function Dashboard() {
   const { user } = useAuth();

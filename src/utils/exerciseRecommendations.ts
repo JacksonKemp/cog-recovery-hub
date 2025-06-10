@@ -2,52 +2,84 @@
 // Exercise difficulty recommendations based on cognitive load and complexity
 export const exerciseRecommendations = {
   'memory-match': { 
-    difficulty: 4, 
     description: 'Visual memory training',
     displayName: 'Memory Match',
-    route: '/games/memory-match'
+    route: '/games/memory-match',
+    difficulties: {
+      easy: 5,
+      medium: 7,
+      hard: 9
+    }
   },
   'numbers': { 
-    difficulty: 5, 
     description: 'Working memory exercise',
     displayName: 'Numbers Game',
-    route: '/games/numbers'
+    route: '/games/numbers',
+    difficulties: {
+      easy: 5,
+      medium: 7,
+      hard: 9
+    }
   },
   'word-finder': { 
-    difficulty: 3, 
     description: 'Pattern recognition',
     displayName: 'Word Finder',
-    route: '/games/word-finder'
+    route: '/games/word-finder',
+    difficulties: {
+      easy: 5,
+      medium: 7,
+      hard: 9
+    }
   },
   'rgb': { 
-    difficulty: 6, 
     description: 'Color discrimination',
     displayName: 'RGB Game',
-    route: '/games/rgb'
+    route: '/games/rgb',
+    difficulties: {
+      easy: 5,
+      medium: 7,
+      hard: 9
+    }
   },
   'faces': { 
-    difficulty: 4, 
     description: 'Face recognition training',
     displayName: 'Faces Game',
-    route: '/games/faces'
+    route: '/games/faces',
+    difficulties: {
+      easy: 5,
+      medium: 7,
+      hard: 9
+    }
   },
   'identification': { 
-    difficulty: 3, 
     description: 'Object identification',
     displayName: 'Identification Game',
-    route: '/games/identification'
+    route: '/games/identification',
+    difficulties: {
+      easy: 5,
+      medium: 7,
+      hard: 9
+    }
   },
   'names': { 
-    difficulty: 5, 
     description: 'Name-face association',
     displayName: 'Names Game',
-    route: '/games/names'
+    route: '/games/names',
+    difficulties: {
+      easy: 5,
+      medium: 7,
+      hard: 9
+    }
   },
   'then-what': { 
-    difficulty: 7, 
     description: 'Sequential reasoning',
     displayName: 'Then What Game',
-    route: '/games/then-what'
+    route: '/games/then-what',
+    difficulties: {
+      easy: 5,
+      medium: 7,
+      hard: 9
+    }
   },
 };
 
