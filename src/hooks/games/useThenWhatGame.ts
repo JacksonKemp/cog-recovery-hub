@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 
 type Difficulty = "easy" | "medium" | "hard";
@@ -18,9 +17,9 @@ interface GameConfig {
 }
 
 const difficultySettings: Record<Difficulty, GameConfig> = {
-  easy: { rounds: 3, instructionTime: 15, waitTime: 10 },
-  medium: { rounds: 5, instructionTime: 12, waitTime: 10 },
-  hard: { rounds: 7, instructionTime: 10, waitTime: 10 },
+  easy: { rounds: 1, instructionTime: 15, waitTime: 10 },
+  medium: { rounds: 1, instructionTime: 15, waitTime: 10 },
+  hard: { rounds: 1, instructionTime: 15, waitTime: 10 },
 };
 
 export const useThenWhatGame = () => {
@@ -187,7 +186,7 @@ export const useThenWhatGame = () => {
     setUserResponse(response);
   };
   
-  // Submit answer and move to next round or results
+  // Submit answer and move to results (since there's only 1 round now)
   const submitAnswer = async () => {
     setIsLoading(true);
     
@@ -204,18 +203,8 @@ export const useThenWhatGame = () => {
       const newResults = [...results, result];
       setResults(newResults);
       
-      if (currentRound + 1 < gameConfig.rounds) {
-        // Next round - use pre-generated instruction
-        const nextRound = currentRound + 1;
-        setCurrentInstruction(gameInstructions[nextRound]);
-        setCurrentRound(nextRound);
-        setUserResponse("");
-        setGameState("instruction");
-        setTimeRemaining(gameConfig.instructionTime);
-      } else {
-        // Game complete
-        setGameState("result");
-      }
+      // Game complete after 1 round
+      setGameState("result");
     } catch (error) {
       console.error("Failed to judge answer:", error);
     } finally {
