@@ -114,11 +114,6 @@ const TaskManager = () => {
     updateTaskDate 
   } = useTasks();
 
-  // Test reminder function
-  const testReminder = (task: Task) => {
-    showNotification(task);
-  };
-
   const handleAddTask = async () => {
     if (newTaskTitle.trim() !== "") {
       // Create task date (today by default)
@@ -447,19 +442,6 @@ const TaskManager = () => {
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Test Reminder Button */}
-                  {task.hasReminder && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => testReminder(task)}
-                      className="ml-2 flex items-center gap-1"
-                    >
-                      <TestTube className="h-3 w-3" />
-                      {isMobile ? "Test" : "Test Reminder"}
-                    </Button>
-                  )}
                 </CardContent>
               </Card>
             ))}
