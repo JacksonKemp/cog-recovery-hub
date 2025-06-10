@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -273,6 +274,85 @@ const TaskManager = () => {
         <h1 className="text-2xl md:text-3xl font-bold mb-4">Task Manager</h1>
         <h2 className="text-xl md:text-2xl font-semibold mb-4">Today - {format(new Date(), 'MMMM d, yyyy')}</h2>
         
+        {/* View Toggle Section */}
+        <div className="rounded-lg border mb-6">
+          <Tabs defaultValue="day" className="w-full">
+            <div className="p-3 md:p-4 border-b">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="day" className={cn(isMobile && "py-3")}>
+                  <CalendarIcon className="h-4 w-4 mr-2" />
+                  Day View
+                </TabsTrigger>
+                <TabsTrigger value="week" className={cn(isMobile && "py-3")}>
+                  <MoveHorizontal className="h-4 w-4 mr-2" />
+                  Week View
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <div className="p-3 md:p-4">
+              <TabsContent value="week" className="mt-0">
+                <h3 className="text-lg font-semibold mb-4">Week View</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
+                  {weekDates.map((date) => {
+                    const dayTasks = tasks.filter(task => 
+                      isSameDay(task.date, date) && !task.completed
+                    );
+                    
+                    const totalDifficulty = calculateDayDifficulty(tasks, date);
+                    
+                    return (
+                      <div 
+                        key={format(date, 'yyyy-MM-dd')}
+                        className={cn(
+                          "border rounded-md p-2 min-h-[120px] md:min-h-[150px]",
+                          isMobile && "mb-2",
+                          isSameDay(date, new Date()) && "bg-muted/30 border-primary",
+                        )}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => handleDrop(date)}
+                        onClick={() => setSelectedDate(date)}
+                      >
+                        <div className="font-medium text-sm mb-1">
+                          {format(date, 'EEE, MMM d')}
+                          {totalDifficulty > 0 && (
+                            <span className="ml-1 px-1.5 py-0.5 bg-muted text-xs rounded-full">
+                              Difficulty: {totalDifficulty}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="space-y-1">
+                          {dayTasks.map((task) => (
+                            <div
+                              key={task.id}
+                              draggable
+                              onDragStart={() => handleDragStart(task)}
+                              className={cn(
+                                "text-xs p-1 bg-card border rounded-sm cursor-move flex items-center justify-between group",
+                                isMobile && "p-2 text-sm"
+                              )}
+                            >
+                              <div className="truncate flex-1">{task.title}</div>
+                              <div className="flex items-center gap-1">
+                                <span className="text-[10px] opacity-70">
+                                  {format(task.date, 'HH:mm') !== '00:00' && format(task.date, 'HH:mm')}
+                                </span>
+                                {task.hasReminder && <Bell className="h-3 w-3 text-cog-teal opacity-70" />}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+            </div>
+          </Tabs>
+        </div>
+
         {/* Tasks Section */}
         {pendingTasks.length === 0 ? (
           <div className="text-center py-10 md:py-12 text-muted-foreground mb-6">
@@ -401,85 +481,6 @@ const TaskManager = () => {
             </DropdownMenu>
           </div>
         )}
-      </div>
-
-      {/* View Toggle Section */}
-      <div className="rounded-lg border mb-4">
-        <Tabs defaultValue="day" className="w-full">
-          <div className="p-3 md:p-4 border-b">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="day" className={cn(isMobile && "py-3")}>
-                <CalendarIcon className="h-4 w-4 mr-2" />
-                Day View
-              </TabsTrigger>
-              <TabsTrigger value="week" className={cn(isMobile && "py-3")}>
-                <MoveHorizontal className="h-4 w-4 mr-2" />
-                Week View
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          <div className="p-3 md:p-4">
-            <TabsContent value="week" className="mt-0">
-              <h3 className="text-lg font-semibold mb-4">Week View</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
-                {weekDates.map((date) => {
-                  const dayTasks = tasks.filter(task => 
-                    isSameDay(task.date, date) && !task.completed
-                  );
-                  
-                  const totalDifficulty = calculateDayDifficulty(tasks, date);
-                  
-                  return (
-                    <div 
-                      key={format(date, 'yyyy-MM-dd')}
-                      className={cn(
-                        "border rounded-md p-2 min-h-[120px] md:min-h-[150px]",
-                        isMobile && "mb-2",
-                        isSameDay(date, new Date()) && "bg-muted/30 border-primary",
-                      )}
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={() => handleDrop(date)}
-                      onClick={() => setSelectedDate(date)}
-                    >
-                      <div className="font-medium text-sm mb-1">
-                        {format(date, 'EEE, MMM d')}
-                        {totalDifficulty > 0 && (
-                          <span className="ml-1 px-1.5 py-0.5 bg-muted text-xs rounded-full">
-                            Difficulty: {totalDifficulty}
-                          </span>
-                        )}
-                      </div>
-                      
-                      <div className="space-y-1">
-                        {dayTasks.map((task) => (
-                          <div
-                            key={task.id}
-                            draggable
-                            onDragStart={() => handleDragStart(task)}
-                            className={cn(
-                              "text-xs p-1 bg-card border rounded-sm cursor-move flex items-center justify-between group",
-                              isMobile && "p-2 text-sm"
-                            )}
-                          >
-                            <div className="truncate flex-1">{task.title}</div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-[10px] opacity-70">
-                                {format(task.date, 'HH:mm') !== '00:00' && format(task.date, 'HH:mm')}
-                              </span>
-                              {task.hasReminder && <Bell className="h-3 w-3 text-cog-teal opacity-70" />}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </TabsContent>
-          </div>
-        </Tabs>
       </div>
 
       {/* Add Task Button */}
@@ -711,3 +712,4 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
+
