@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 
 type Difficulty = "easy" | "medium" | "hard";
@@ -29,9 +28,9 @@ interface Score {
 }
 
 const difficultySettings: Record<Difficulty, GameConfig> = {
-  easy: { namesCount: 3, memorizeTime: 12, waitTime: 15 },
-  medium: { namesCount: 5, memorizeTime: 15, waitTime: 15 },
-  hard: { namesCount: 7, memorizeTime: 20, waitTime: 15 },
+  easy: { namesCount: 1, memorizeTime: 8, waitTime: 10 },
+  medium: { namesCount: 2, memorizeTime: 12, waitTime: 15 },
+  hard: { namesCount: 3, memorizeTime: 15, waitTime: 15 },
 };
 
 // Sample names for demonstration
