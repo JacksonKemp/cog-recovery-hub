@@ -1,86 +1,15 @@
 
 // Exercise difficulty recommendations based on cognitive load and complexity
 export const exerciseRecommendations = {
-  'memory-match': { 
-    description: 'Visual memory training',
-    displayName: 'Memory Match',
-    route: '/games/memory-match',
-    difficulties: {
-      easy: 5,
-      medium: 7,
-      hard: 9
-    }
-  },
-  'numbers': { 
-    description: 'Working memory exercise',
-    displayName: 'Numbers Game',
-    route: '/games/numbers',
-    difficulties: {
-      easy: 5,
-      medium: 7,
-      hard: 9
-    }
-  },
-  'word-finder': { 
-    description: 'Pattern recognition',
-    displayName: 'Word Finder',
-    route: '/games/word-finder',
-    difficulties: {
-      easy: 5,
-      medium: 7,
-      hard: 9
-    }
-  },
-  'rgb': { 
-    description: 'Color discrimination',
-    displayName: 'RGB Game',
-    route: '/games/rgb',
-    difficulties: {
-      easy: 5,
-      medium: 7,
-      hard: 9
-    }
-  },
-  'faces': { 
-    description: 'Face recognition training',
-    displayName: 'Faces Game',
-    route: '/games/faces',
-    difficulties: {
-      easy: 5,
-      medium: 7,
-      hard: 9
-    }
-  },
-  'identification': { 
-    description: 'Object identification',
-    displayName: 'Identification Game',
-    route: '/games/identification',
-    difficulties: {
-      easy: 5,
-      medium: 7,
-      hard: 9
-    }
-  },
-  'names': { 
-    description: 'Name-face association',
-    displayName: 'Names Game',
-    route: '/games/names',
-    difficulties: {
-      easy: 5,
-      medium: 7,
-      hard: 9
-    }
-  },
-  'then-what': { 
-    description: 'Sequential reasoning',
-    displayName: 'Then What Game',
-    route: '/games/then-what',
-    difficulties: {
-      easy: 5,
-      medium: 7,
-      hard: 9
-    }
-  },
+  'memory match': { difficulty: 4, description: 'Visual memory training' },
+  'number recall': { difficulty: 5, description: 'Working memory exercise' },
+  'numbers': { difficulty: 5, description: 'Working memory exercise' },
+  'word finder': { difficulty: 3, description: 'Pattern recognition' },
+  'rgb': { difficulty: 6, description: 'Color discrimination' },
+  'faces': { difficulty: 4, description: 'Face recognition training' },
+  'identification': { difficulty: 3, description: 'Object identification' },
+  'names': { difficulty: 5, description: 'Name-face association' },
+  'then what': { difficulty: 7, description: 'Sequential reasoning' },
 };
 
 export const getExerciseRecommendation = (taskTitle: string) => {
@@ -88,9 +17,14 @@ export const getExerciseRecommendation = (taskTitle: string) => {
   
   // Check for exact matches or partial matches
   for (const [exercise, recommendation] of Object.entries(exerciseRecommendations)) {
-    if (title.includes(exercise) || title.includes(exercise.replace('-', ' '))) {
+    if (title.includes(exercise) || title.includes(exercise.replace(' ', ''))) {
       return recommendation;
     }
+  }
+  
+  // Check for general exercise keywords
+  if (title.includes('exercise') || title.includes('game') || title.includes('training')) {
+    return { difficulty: 4, description: 'Cognitive exercise' };
   }
   
   return null;
@@ -98,9 +32,4 @@ export const getExerciseRecommendation = (taskTitle: string) => {
 
 export const isExerciseTask = (taskTitle: string) => {
   return getExerciseRecommendation(taskTitle) !== null;
-};
-
-export const getExerciseRoute = (taskTitle: string) => {
-  const recommendation = getExerciseRecommendation(taskTitle);
-  return recommendation?.route || null;
 };

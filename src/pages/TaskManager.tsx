@@ -45,7 +45,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useTasks } from "@/hooks/use-tasks";
 import { useAuth } from "@/hooks/use-auth";
 import type { Task } from "@/utils/taskUtils";
-import { exerciseRecommendations, getExerciseRecommendation, isExerciseTask } from "@/utils/exerciseRecommendations";
+import { getExerciseRecommendation, isExerciseTask } from "@/utils/exerciseRecommendations";
 
 // Reminder time options
 const reminderOptions = [
@@ -102,9 +102,6 @@ const TaskManager = () => {
   const [conflictNewTime, setConflictNewTime] = useState<string>("12:00");
   const [reminderDropdownOpen, setReminderDropdownOpen] = useState(false);
   const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
-  const [exerciseDropdownOpen, setExerciseDropdownOpen] = useState(false);
-  const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
-  const [selectedDifficultyLevel, setSelectedDifficultyLevel] = useState<'easy' | 'medium' | 'hard' | null>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { user } = useAuth();
@@ -119,26 +116,16 @@ const TaskManager = () => {
     updateTaskDate 
   } = useTasks();
 
-  // Handle exercise selection
-  const handleExerciseSelect = (exerciseKey: string) => {
-    const exercise = exerciseRecommendations[exerciseKey as keyof typeof exerciseRecommendations];
-    if (exercise) {
-      setSelectedExercise(exerciseKey);
-      setNewTaskTitle(exercise.displayName);
-      setSelectedDifficultyLevel(null); // Reset difficulty level selection
-      setTaskDifficulty(exercise.difficulties.medium); // Default to medium
-      setExerciseDropdownOpen(false);
-    }
-  };
-
-  // Handle difficulty level selection for exercises
-  const handleDifficultyLevelSelect = (level: 'easy' | 'medium' | 'hard') => {
-    if (selectedExercise) {
-      const exercise = exerciseRecommendations[selectedExercise as keyof typeof exerciseRecommendations];
-      if (exercise) {
-        setSelectedDifficultyLevel(level);
-        setTaskDifficulty(exercise.difficulties[level]);
-      }
+  // Get exercise recommendation when task title changes
+  const exerciseRecommendation = getExerciseRecommendation(newTaskTitle);
+  
+  // Update difficulty when exercise is detected
+  const handleTaskTitleChange = (value: string) => {
+    setNewTaskTitle(value);
+    
+    const recommendation = getExerciseRecommendation(value);
+    if (recommendation) {
+      setTaskDifficulty(recommendation.difficulty);
     }
   };
 
@@ -484,7 +471,6 @@ const TaskManager = () => {
                   variant="outline" 
                   className="w-full flex justify-between"
                   size={isMobile ? "mobile" : "default"}
-                  onClick={() => setShowCompleted(!showCompleted)}
                 >
                   <span>Completed Tasks ({completedTasks.length})</span>
                   {showCompleted ? (
@@ -494,56 +480,54 @@ const TaskManager = () => {
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              {showCompleted && (
-                <DropdownMenuContent className="w-full" align="start">
-                  <div className="space-y-3 p-2">
-                    {completedTasks.map((task) => (
-                      <Card key={task.id} className="bg-muted/40">
-                        <CardContent className={cn(
-                          "p-4 flex items-center justify-between",
-                          isMobile && "p-3"
-                        )}>
-                          <div className="flex items-center">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button className={cn("mr-3 text-cog-teal p-1 rounded-full hover:bg-muted", isMobile && "mr-2")}>
-                                  <CheckCircle className={cn("h-5 w-5", isMobile && "h-6 w-6")} fill="currentColor" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="start">
-                                <DropdownMenuItem onClick={() => toggleTaskCompletion(task.id)}>
-                                  <Circle className="h-4 w-4 mr-2" />
-                                  Mark Incomplete
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                  onClick={() => deleteTask(task.id)}
-                                  className="text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <p className={cn(
-                                  "font-medium line-through",
-                                  isMobile && "text-base"
-                                )}>
-                                  {task.title}
-                                </p>
-                                <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
-                                  Difficulty: {task.difficulty}
-                                </span>
-                              </div>
+              <DropdownMenuContent className="w-full" align="start">
+                <div className="space-y-3 p-2">
+                  {completedTasks.map((task) => (
+                    <Card key={task.id} className="bg-muted/40">
+                      <CardContent className={cn(
+                        "p-4 flex items-center justify-between",
+                        isMobile && "p-3"
+                      )}>
+                        <div className="flex items-center">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className={cn("mr-3 text-cog-teal p-1 rounded-full hover:bg-muted", isMobile && "mr-2")}>
+                                <CheckCircle className={cn("h-5 w-5", isMobile && "h-6 w-6")} fill="currentColor" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start">
+                              <DropdownMenuItem onClick={() => toggleTaskCompletion(task.id)}>
+                                <Circle className="h-4 w-4 mr-2" />
+                                Mark Incomplete
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => deleteTask(task.id)}
+                                className="text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className={cn(
+                                "font-medium line-through",
+                                isMobile && "text-base"
+                              )}>
+                                {task.title}
+                              </p>
+                              <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
+                                Difficulty: {task.difficulty}
+                              </span>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </DropdownMenuContent>
-              )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </DropdownMenuContent>
             </DropdownMenu>
           </div>
         )}
@@ -565,124 +549,60 @@ const TaskManager = () => {
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
-            {/* Task Name with Select Exercise */}
+            {/* Task Name */}
             <div className="grid gap-2">
-              <div className="flex items-center justify-between">
-                <label htmlFor="task" className="text-sm font-medium">
-                  Task Name
-                </label>
-                <DropdownMenu open={exerciseDropdownOpen} onOpenChange={setExerciseDropdownOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size={isMobile ? "mobile" : "sm"}
-                      className="text-cog-teal border-cog-teal hover:bg-cog-light-teal"
-                    >
-                      <Brain className="h-4 w-4 mr-2" />
-                      Select Exercise
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent 
-                    className="w-64 bg-background border shadow-lg" 
-                    align="end"
-                    side="bottom"
-                  >
-                    <div className="p-2">
-                      <div className="font-medium text-sm mb-2">Available Exercises</div>
-                      <div className="space-y-1">
-                        {Object.entries(exerciseRecommendations).map(([key, exercise]) => (
-                          <DropdownMenuItem
-                            key={key}
-                            onClick={() => handleExerciseSelect(key)}
-                            className="cursor-pointer"
-                          >
-                            <div className="flex flex-col">
-                              <span className="font-medium">{exercise.displayName}</span>
-                              <span className="text-xs text-muted-foreground">{exercise.description}</span>
-                            </div>
-                          </DropdownMenuItem>
-                        ))}
-                      </div>
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              <label htmlFor="task" className="text-sm font-medium">
+                Task Name
+              </label>
               <Input
                 id="task"
                 value={newTaskTitle}
-                onChange={(e) => {
-                  setNewTaskTitle(e.target.value);
-                  // Reset exercise selection if user manually changes the title
-                  if (selectedExercise) {
-                    const exercise = exerciseRecommendations[selectedExercise as keyof typeof exerciseRecommendations];
-                    if (e.target.value !== exercise.displayName) {
-                      setSelectedExercise(null);
-                      setSelectedDifficultyLevel(null);
-                    }
-                  }
-                }}
+                onChange={(e) => handleTaskTitleChange(e.target.value)}
                 placeholder="Enter task name..."
                 className={cn("col-span-3", isMobile && "h-12 text-base")}
               />
-            </div>
-
-            {/* Exercise Difficulty Level Selection */}
-            {selectedExercise && (
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">
-                  Exercise Difficulty
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['easy', 'medium', 'hard'] as const).map((level) => {
-                    const exercise = exerciseRecommendations[selectedExercise as keyof typeof exerciseRecommendations];
-                    const difficulty = exercise.difficulties[level];
-                    const isSelected = selectedDifficultyLevel === level;
-                    
-                    return (
-                      <Button
-                        key={level}
-                        type="button"
-                        variant={isSelected ? "default" : "outline"}
-                        size={isMobile ? "mobile" : "sm"}
-                        onClick={() => handleDifficultyLevelSelect(level)}
-                        className={cn(
-                          "flex flex-col h-auto py-3",
-                          isSelected && "bg-cog-teal hover:bg-cog-teal/90"
-                        )}
-                      >
-                        <span className="font-medium capitalize">{level}</span>
-                        <span className="text-xs opacity-70">Level {difficulty}</span>
-                      </Button>
-                    );
-                  })}
+              {exerciseRecommendation && (
+                <div className="flex items-center gap-2 p-2 bg-cog-light-teal rounded-md">
+                  <Brain className="h-4 w-4 text-cog-teal" />
+                  <div className="text-sm">
+                    <span className="font-medium text-cog-teal">Exercise detected:</span>
+                    <span className="text-muted-foreground ml-1">{exerciseRecommendation.description}</span>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
             
-            {/* Difficulty Level - Only show if not an exercise */}
-            {!selectedExercise && (
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">
-                  Difficulty Level (1-10)
-                </label>
-                <Select 
-                  value={taskDifficulty.toString()} 
-                  onValueChange={(value) => setTaskDifficulty(parseInt(value))}
-                >
-                  <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
-                    <SelectValue placeholder="Select difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
-                      <SelectItem key={level} value={level.toString()}>
-                        {level}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            {/* Difficulty Level */}
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">
+                Difficulty Level (1-10)
+                {exerciseRecommendation && (
+                  <span className="ml-2 text-xs text-cog-teal font-normal">
+                    (Recommended: {exerciseRecommendation.difficulty})
+                  </span>
+                )}
+              </label>
+              <Select 
+                value={taskDifficulty.toString()} 
+                onValueChange={(value) => setTaskDifficulty(parseInt(value))}
+              >
+                <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
+                    <SelectItem key={level} value={level.toString()}>
+                      <div className="flex items-center justify-between w-full">
+                        <span>{level}</span>
+                        {exerciseRecommendation && level === exerciseRecommendation.difficulty && (
+                          <span className="ml-2 text-xs text-cog-teal">(Recommended)</span>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             
             {/* Schedule Option */}
             <div className="grid gap-2">
