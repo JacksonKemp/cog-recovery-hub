@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -120,15 +119,15 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
   const isLoading = parentLoading || isLoadingData;
 
   return (
-    <Card className="col-span-1">
-      <CardHeader className="flex flex-col gap-4">
+    <Card className="w-full">
+      <CardHeader className="flex flex-col gap-4 pb-3">
         <div>
-          <CardTitle>Symptom Trends</CardTitle>
-          <CardDescription>Track how your symptoms have changed over time</CardDescription>
+          <CardTitle className="text-lg">Symptom Trends</CardTitle>
+          <CardDescription className="text-sm">Track how your symptoms have changed over time</CardDescription>
         </div>
-        <div className="w-full">
+        <div className="w-full max-w-[200px]">
           <Select value={timeFrame} onValueChange={handleTimeFrameChange}>
-            <SelectTrigger>
+            <SelectTrigger className="text-sm">
               <SelectValue placeholder="Select timeframe" />
             </SelectTrigger>
             <SelectContent>
@@ -140,27 +139,27 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
           </Select>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 pb-3">
         {isLoading ? (
-          <div className="flex items-center justify-center h-80">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <div className="flex items-center justify-center h-48">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : chartData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-80 text-muted-foreground">
-            <p className="text-lg font-medium">No symptom data available</p>
-            <p className="text-sm">Start tracking your symptoms to see trends here</p>
+          <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
+            <p className="text-base font-medium">No symptom data available</p>
+            <p className="text-xs">Start tracking your symptoms to see trends here</p>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="h-80">
+          <div className="space-y-4">
+            <div className="h-48 w-full overflow-hidden">
               <ChartContainer 
-                className="h-full"
+                className="h-full w-full"
                 config={chartConfig}
               >
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsLineChart 
                     data={chartData}
-                    margin={{ top: 20, right: 10, left: 10, bottom: 30 }}
+                    margin={{ top: 10, right: 5, left: 5, bottom: 20 }}
                     onClick={(data) => {
                       if (data.activeTooltipIndex !== undefined) {
                         handleDataPointClick(data, data.activeTooltipIndex);
@@ -170,23 +169,23 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
                       dataKey="date"
-                      tick={{ fontSize: 11 }}
+                      tick={{ fontSize: 10 }}
                       label={{ 
                         value: getTimeframeLabel(), 
                         position: 'insideBottom', 
-                        offset: -15,
-                        fontSize: 11
+                        offset: -10,
+                        fontSize: 10
                       }}
                     />
                     <YAxis 
                       domain={[0, 5]}
-                      tick={{ fontSize: 11 }}
+                      tick={{ fontSize: 10 }}
                       label={{ 
                         value: getYAxisLabel(), 
                         angle: -90, 
                         position: 'insideLeft',
                         style: { textAnchor: 'middle' },
-                        fontSize: 11
+                        fontSize: 10
                       }}
                     />
                     <Tooltip 
@@ -198,7 +197,7 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                       verticalAlign="top"
                       align="center"
                       content={<ChartLegendContent />}
-                      wrapperStyle={{ paddingBottom: 20 }}
+                      wrapperStyle={{ paddingBottom: 10, fontSize: 10 }}
                     />
                     <Line 
                       type="monotone" 
@@ -206,9 +205,9 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                       name="Headache"
                       stroke={chartConfig.headache.color} 
                       strokeWidth={2}
-                      dot={{ r: 3 }}
+                      dot={{ r: 2 }}
                       activeDot={{ 
-                        r: 5, 
+                        r: 4, 
                         onClick: (_, index) => {
                           if (typeof index === 'number') {
                             setSelectedDataPoint(index);
@@ -223,9 +222,9 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                       name="Fatigue"
                       stroke={chartConfig.fatigue.color} 
                       strokeWidth={2}
-                      dot={{ r: 3 }}
+                      dot={{ r: 2 }}
                       activeDot={{ 
-                        r: 5, 
+                        r: 4, 
                         onClick: (_, index) => {
                           if (typeof index === 'number') {
                             setSelectedDataPoint(index);
@@ -240,9 +239,9 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                       name="Anxiety"
                       stroke={chartConfig.anxiety.color} 
                       strokeWidth={2}
-                      dot={{ r: 3 }}
+                      dot={{ r: 2 }}
                       activeDot={{ 
-                        r: 5, 
+                        r: 4, 
                         onClick: (_, index) => {
                           if (typeof index === 'number') {
                             setSelectedDataPoint(index);
@@ -257,9 +256,9 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                       name="Focus"
                       stroke={chartConfig.focus.color} 
                       strokeWidth={2}
-                      dot={{ r: 3 }}
+                      dot={{ r: 2 }}
                       activeDot={{ 
-                        r: 5, 
+                        r: 4, 
                         onClick: (_, index) => {
                           if (typeof index === 'number') {
                             setSelectedDataPoint(index);
@@ -275,19 +274,19 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
             
             {/* Always visible data point details */}
             {selectedDataPoint !== null && chartData[selectedDataPoint] && (
-              <div className="p-4 border rounded-lg bg-background shadow-sm">
+              <div className="p-3 border rounded-lg bg-background shadow-sm">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold text-lg">{chartData[selectedDataPoint].date}</h3>
+                  <h3 className="font-semibold text-base">{chartData[selectedDataPoint].date}</h3>
                   <span className="text-xs text-muted-foreground">{getTimeframeLabel()}</span>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="flex flex-col p-2 bg-muted/30 rounded border">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{backgroundColor: chartConfig.headache.color}}></div>
-                      <span className="text-sm font-medium">Headache:</span>
+                      <div className="w-2 h-2 rounded-full" style={{backgroundColor: chartConfig.headache.color}}></div>
+                      <span className="text-xs font-medium">Headache:</span>
                     </div>
-                    <span className="text-xl font-semibold">{chartData[selectedDataPoint].headache}</span>
+                    <span className="text-lg font-semibold">{chartData[selectedDataPoint].headache}</span>
                     <span className="text-xs text-muted-foreground">
                       {getRatingLabel(chartData[selectedDataPoint].headache, "headache")}
                     </span>
@@ -295,10 +294,10 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                   
                   <div className="flex flex-col p-2 bg-muted/30 rounded border">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{backgroundColor: chartConfig.fatigue.color}}></div>
-                      <span className="text-sm font-medium">Fatigue:</span>
+                      <div className="w-2 h-2 rounded-full" style={{backgroundColor: chartConfig.fatigue.color}}></div>
+                      <span className="text-xs font-medium">Fatigue:</span>
                     </div>
-                    <span className="text-xl font-semibold">{chartData[selectedDataPoint].fatigue}</span>
+                    <span className="text-lg font-semibold">{chartData[selectedDataPoint].fatigue}</span>
                     <span className="text-xs text-muted-foreground">
                       {getRatingLabel(chartData[selectedDataPoint].fatigue, "fatigue")}
                     </span>
@@ -306,10 +305,10 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                   
                   <div className="flex flex-col p-2 bg-muted/30 rounded border">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{backgroundColor: chartConfig.anxiety.color}}></div>
-                      <span className="text-sm font-medium">Anxiety:</span>
+                      <div className="w-2 h-2 rounded-full" style={{backgroundColor: chartConfig.anxiety.color}}></div>
+                      <span className="text-xs font-medium">Anxiety:</span>
                     </div>
-                    <span className="text-xl font-semibold">{chartData[selectedDataPoint].anxiety}</span>
+                    <span className="text-lg font-semibold">{chartData[selectedDataPoint].anxiety}</span>
                     <span className="text-xs text-muted-foreground">
                       {getRatingLabel(chartData[selectedDataPoint].anxiety, "anxiety")}
                     </span>
@@ -317,10 +316,10 @@ export const SymptomChart = ({ isLoading: parentLoading }: SymptomChartProps) =>
                   
                   <div className="flex flex-col p-2 bg-muted/30 rounded border">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{backgroundColor: chartConfig.focus.color}}></div>
-                      <span className="text-sm font-medium">Focus:</span>
+                      <div className="w-2 h-2 rounded-full" style={{backgroundColor: chartConfig.focus.color}}></div>
+                      <span className="text-xs font-medium">Focus:</span>
                     </div>
-                    <span className="text-xl font-semibold">{chartData[selectedDataPoint].focus}</span>
+                    <span className="text-lg font-semibold">{chartData[selectedDataPoint].focus}</span>
                     <span className="text-xs text-muted-foreground">
                       {getRatingLabel(chartData[selectedDataPoint].focus, "focus")}
                     </span>
