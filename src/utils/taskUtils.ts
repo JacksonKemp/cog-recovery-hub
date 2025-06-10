@@ -10,6 +10,7 @@ export type Task = {
   hasReminder: boolean;
   difficulty: number;
   reminderTimes: string[];
+  notificationMethods: string[];
   user_id?: string;
 };
 
@@ -43,6 +44,7 @@ export const loadTasks = async (): Promise<Task[]> => {
       hasReminder: task.has_reminder,
       difficulty: task.difficulty,
       reminderTimes: task.reminder_times || [],
+      notificationMethods: task.notification_methods || ['email'],
       user_id: task.user_id
     }));
   } catch (error) {
@@ -57,7 +59,8 @@ export const createTask = async (
   date: Date,
   hasReminder: boolean,
   reminderTimes: string[],
-  difficulty: number
+  difficulty: number,
+  notificationMethods: string[]
 ): Promise<Task | null> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
@@ -71,6 +74,7 @@ export const createTask = async (
         has_reminder: hasReminder,
         reminder_times: reminderTimes,
         difficulty,
+        notification_methods: notificationMethods,
         user_id: user.id
       })
       .select()
@@ -86,6 +90,7 @@ export const createTask = async (
       hasReminder: data.has_reminder,
       difficulty: data.difficulty,
       reminderTimes: data.reminder_times || [],
+      notificationMethods: data.notification_methods || ['email'],
       user_id: data.user_id
     };
   } catch (error) {
@@ -105,6 +110,7 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
     if (updates.hasReminder !== undefined) dbUpdates.has_reminder = updates.hasReminder;
     if (updates.difficulty !== undefined) dbUpdates.difficulty = updates.difficulty;
     if (updates.reminderTimes !== undefined) dbUpdates.reminder_times = updates.reminderTimes;
+    if (updates.notificationMethods !== undefined) dbUpdates.notification_methods = updates.notificationMethods;
 
     const { error } = await supabase
       .from('tasks')

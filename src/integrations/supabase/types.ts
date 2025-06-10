@@ -45,6 +45,50 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_logs: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          notification_type: string
+          recipient: string
+          sent_at: string | null
+          status: string
+          task_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          notification_type: string
+          recipient: string
+          sent_at?: string | null
+          status?: string
+          task_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          notification_type?: string
+          recipient?: string
+          sent_at?: string | null
+          status?: string
+          task_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_logs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       practitioners: {
         Row: {
           created_at: string
@@ -75,6 +119,8 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          phone_number: string | null
+          phone_verified: boolean | null
           pt_key: string | null
           updated_at: string
         }
@@ -83,6 +129,8 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          phone_number?: string | null
+          phone_verified?: boolean | null
           pt_key?: string | null
           updated_at?: string
         }
@@ -91,6 +139,8 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          phone_number?: string | null
+          phone_verified?: boolean | null
           pt_key?: string | null
           updated_at?: string
         }
@@ -128,6 +178,7 @@ export type Database = {
           difficulty: number
           has_reminder: boolean
           id: string
+          notification_methods: Json | null
           reminder_times: Json
           title: string
           updated_at: string
@@ -140,6 +191,7 @@ export type Database = {
           difficulty?: number
           has_reminder?: boolean
           id?: string
+          notification_methods?: Json | null
           reminder_times?: Json
           title: string
           updated_at?: string
@@ -152,6 +204,7 @@ export type Database = {
           difficulty?: number
           has_reminder?: boolean
           id?: string
+          notification_methods?: Json | null
           reminder_times?: Json
           title?: string
           updated_at?: string

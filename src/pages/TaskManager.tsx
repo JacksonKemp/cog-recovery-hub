@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -57,6 +56,12 @@ const reminderOptions = [
   { value: "1week", label: "1 week before" }
 ];
 
+// Notification method options
+const notificationOptions = [
+  { value: "email", label: "Email" },
+  { value: "sms", label: "SMS" }
+];
+
 // Helper function to get day name
 const getDayName = (date: Date) => {
   return format(date, 'EEEE');
@@ -87,12 +92,14 @@ const TaskManager = () => {
   const [showSchedule, setShowSchedule] = useState(false);
   const [hasReminder, setHasReminder] = useState(false);
   const [selectedReminders, setSelectedReminders] = useState<string[]>([]);
+  const [selectedNotificationMethods, setSelectedNotificationMethods] = useState<string[]>(["email"]);
   const [taskDifficulty, setTaskDifficulty] = useState<number>(3);
   const [selectedTime, setSelectedTime] = useState<string>("12:00");
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
   const [conflictTargetDate, setConflictTargetDate] = useState<Date | null>(null);
   const [conflictNewTime, setConflictNewTime] = useState<string>("12:00");
   const [reminderDropdownOpen, setReminderDropdownOpen] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { user } = useAuth();
@@ -138,13 +145,15 @@ const TaskManager = () => {
         taskDate,
         hasReminder,
         hasReminder ? selectedReminders : [],
-        taskDifficulty
+        taskDifficulty,
+        hasReminder ? selectedNotificationMethods : []
       );
       
       setNewTaskTitle("");
       setShowSchedule(false);
       setHasReminder(false);
       setSelectedReminders([]);
+      setSelectedNotificationMethods(["email"]);
       setTaskDifficulty(3);
       setDialogOpen(false);
     }
@@ -223,6 +232,15 @@ const TaskManager = () => {
   // Toggle reminder status for a task
   const toggleReminderSelection = (value: string) => {
     setSelectedReminders(prev => 
+      prev.includes(value)
+        ? prev.filter(item => item !== value)
+        : [...prev, value]
+    );
+  };
+
+  // Toggle notification method selection
+  const toggleNotificationMethod = (value: string) => {
+    setSelectedNotificationMethods(prev => 
       prev.includes(value)
         ? prev.filter(item => item !== value)
         : [...prev, value]
@@ -414,6 +432,11 @@ const TaskManager = () => {
                           <div className="flex items-center text-xs text-cog-teal">
                             <Bell className="h-3 w-3 mr-1" /> 
                             {task.reminderTimes.length > 0 && `${task.reminderTimes.length} reminder${task.reminderTimes.length > 1 ? 's' : ''}`}
+                            {task.notificationMethods && task.notificationMethods.length > 0 && (
+                              <span className="ml-1">
+                                ({task.notificationMethods.join(', ')})
+                              </span>
+                            )}
                           </div>
                         )}
                       </div>
@@ -658,10 +681,6 @@ const TaskManager = () => {
                     align="end"
                     side="bottom"
                     sticky="always"
-                    onPointerDownOutside={(e) => {
-                      // Prevent closing when clicking inside the dropdown
-                      e.preventDefault();
-                    }}
                   >
                     <div className="space-y-4">
                       <div className="font-medium text-sm">Reminder Times (Select Multiple)</div>
@@ -692,6 +711,39 @@ const TaskManager = () => {
                           </div>
                         ))}
                       </div>
+                      
+                      {/* Notification Methods */}
+                      {hasReminder && (
+                        <>
+                          <div className="border-t pt-4">
+                            <div className="font-medium text-sm mb-3">Notification Methods</div>
+                            <div className="space-y-3">
+                              {notificationOptions.map((option) => (
+                                <div key={option.value} className="flex items-center space-x-3">
+                                  <Checkbox
+                                    id={`notification-${option.value}`}
+                                    checked={selectedNotificationMethods.includes(option.value)}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        setSelectedNotificationMethods(prev => [...prev, option.value]);
+                                      } else {
+                                        setSelectedNotificationMethods(prev => prev.filter(item => item !== option.value));
+                                      }
+                                    }}
+                                  />
+                                  <label 
+                                    htmlFor={`notification-${option.value}`} 
+                                    className="text-sm font-normal cursor-pointer"
+                                  >
+                                    {option.label}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
+                      
                       <div className="flex justify-end pt-2 border-t">
                         <Button
                           size="sm"
@@ -785,7 +837,7 @@ const TaskManager = () => {
             <h3 className="text-lg md:text-xl font-semibold">Message from your Occupational Therapist</h3>
             <p className="text-muted-foreground max-w-xl">
               Breaking down tasks by difficulty helps manage your cognitive load throughout the day.
-              Don't forget to set reminders for important tasks.
+              Set reminders via SMS or email to stay on track with your rehabilitation goals.
             </p>
           </div>
         </div>

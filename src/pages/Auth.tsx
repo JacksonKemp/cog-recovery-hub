@@ -1,5 +1,4 @@
 
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ const Auth = () => {
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -55,6 +55,20 @@ const Auth = () => {
       return;
     }
 
+    if (!phoneNumber.trim()) {
+      toast.error("Please enter your phone number");
+      setLoading(false);
+      return;
+    }
+
+    // Basic phone number validation
+    const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      toast.error("Please enter a valid phone number");
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signUp({
         email: signUpEmail,
@@ -62,6 +76,7 @@ const Auth = () => {
         options: {
           data: {
             full_name: fullName,
+            phone_number: phoneNumber,
           },
         },
       });
@@ -143,6 +158,21 @@ const Auth = () => {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="phoneNumber">Phone Number</Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    required
+                    placeholder="+1 (555) 123-4567"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    We'll use this to send you task reminders via SMS
+                  </p>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="signUpEmail">Email</Label>
                   <Input
                     id="signUpEmail"
@@ -183,4 +213,3 @@ const Auth = () => {
 };
 
 export default Auth;
-

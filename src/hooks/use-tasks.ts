@@ -44,10 +44,11 @@ export function useTasks() {
     date: Date,
     hasReminder: boolean,
     reminderTimes: string[],
-    difficulty: number
+    difficulty: number,
+    notificationMethods: string[]
   ) => {
     try {
-      const newTask = await createTask(title, date, hasReminder, reminderTimes, difficulty);
+      const newTask = await createTask(title, date, hasReminder, reminderTimes, difficulty, notificationMethods);
       
       if (newTask) {
         setTasks(prevTasks => [newTask, ...prevTasks]);
@@ -56,7 +57,7 @@ export function useTasks() {
           scheduleTaskReminders(newTask);
           toast({
             title: "Reminder Set",
-            description: `You'll be reminded about "${title}"`,
+            description: `You'll be reminded about "${title}" via ${notificationMethods.join(' and ')}`,
             duration: 3000,
           });
         }
