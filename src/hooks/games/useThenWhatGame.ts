@@ -33,6 +33,7 @@ export const useThenWhatGame = () => {
   const [results, setResults] = useState<GameResult[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [gameConfig, setGameConfig] = useState<GameConfig>(difficultySettings.medium);
+  const [gameInstructions, setGameInstructions] = useState<string[]>([]);
   
   // Handle difficulty change
   const handleDifficultyChange = (value: string) => {
@@ -42,7 +43,7 @@ export const useThenWhatGame = () => {
   };
   
   // Generate AI instruction
-  const generateInstruction = async (): Promise<string> => {
+  const generateInstructions = async (numRounds: number): Promise<string[]> => {
     // This would connect to an AI service to generate instructions
     // For now, using predefined instructions that vary by difficulty
     const instructionPrompts = {
@@ -51,26 +52,36 @@ export const useThenWhatGame = () => {
         "Write down the number 42 when the timer reaches zero",
         "Say the word 'banana' three times in your response",
         "Count backwards from 10 to 1 and include the word 'ready'",
-        "Type your name followed by the current day of the week"
+        "Type your name followed by the current day of the week",
+        "Click the red square twice and type 'done'",
+        "Write the word 'hello' in uppercase letters",
+        "Count from 1 to 5 and add the word 'complete'"
       ],
       medium: [
         "When you see a red square, click it twice, then type the word 'completed'",
         "Remember the sequence: triangle, circle, square, then write it backwards",
         "Count the number of vowels in this sentence and multiply by 3",
         "Type the alphabet backwards from Z to A, skipping every third letter",
-        "Calculate 15 + 27 and write the answer followed by the word 'done'"
+        "Calculate 15 + 27 and write the answer followed by the word 'done'",
+        "Write the first three letters of each word in 'MEMORY GAME TEST'",
+        "Add 25 and 17, then subtract 10, write the result with 'final'",
+        "Type the word 'SUCCESS' but replace each S with the number 5"
       ],
       hard: [
         "Memorize this sequence: A1, B3, C5, D7, then write it with each letter in lowercase and each number doubled",
         "Count the number of words in this instruction, subtract 5, multiply by 2, and write the result followed by 'final answer'",
         "Remember these colors in order: red, blue, green, yellow, purple, then write them in reverse order with the first letter capitalized",
         "Take the third letter of each word in 'THE QUICK BROWN FOX' and write them as a single word",
-        "Convert the time 3:45 PM to 24-hour format and add 2 hours and 30 minutes"
+        "Convert the time 3:45 PM to 24-hour format and add 2 hours and 30 minutes",
+        "Calculate 144 divided by 12, multiply by 3, subtract 18, and write the result followed by 'calculated'",
+        "Write the vowels from 'COGNITIVE TRAINING EXERCISE' in the order they appear, separated by dashes",
+        "Take the last letter of each word in 'BRAIN POWER BOOST' and write them backwards as one word"
       ]
     };
     
     const prompts = instructionPrompts[difficulty];
-    return prompts[Math.floor(Math.random() * prompts.length)];
+    const shuffled = [...prompts].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, numRounds);
   };
   
   // Judge accuracy using AI (mock implementation)
@@ -107,16 +118,16 @@ export const useThenWhatGame = () => {
     }
     
     // Check for number preservation
-    const originalNumbers = original.match(/\d+/g) || [];
-    const responseNumbers = response.match(/\d+/g) || [];
+    const originalNumbers: string[] = original.match(/\d+/g) || [];
+    const responseNumbers: string[] = response.match(/\d+/g) || [];
     if (originalNumbers.length > 0 && responseNumbers.length > 0) {
-      const matchingNumbers = originalNumbers.filter((num: string) => responseNumbers.includes(num));
+      const matchingNumbers = originalNumbers.filter(num => responseNumbers.includes(num));
       score += (matchingNumbers.length / originalNumbers.length) * 30;
     }
     
     // Basic similarity check
     const originalWords = originalLower.split(' ');
-    const commonWords = originalWords.filter((word: string) => 
+    const commonWords = originalWords.filter(word => 
       responseLower.includes(word) && word.length > 2
     );
     score += (commonWords.length / originalWords.length) * 25;
@@ -159,12 +170,13 @@ export const useThenWhatGame = () => {
     setResults([]);
     
     try {
-      const instruction = await generateInstruction();
-      setCurrentInstruction(instruction);
+      const instructions = await generateInstructions(gameConfig.rounds);
+      setGameInstructions(instructions);
+      setCurrentInstruction(instructions[0]);
       setGameState("instruction");
       setTimeRemaining(gameConfig.instructionTime);
     } catch (error) {
-      console.error("Failed to generate instruction:", error);
+      console.error("Failed to generate instructions:", error);
     } finally {
       setIsLoading(false);
     }
@@ -193,10 +205,10 @@ export const useThenWhatGame = () => {
       setResults(newResults);
       
       if (currentRound + 1 < gameConfig.rounds) {
-        // Next round
-        const nextInstruction = await generateInstruction();
-        setCurrentInstruction(nextInstruction);
-        setCurrentRound(currentRound + 1);
+        // Next round - use pre-generated instruction
+        const nextRound = currentRound + 1;
+        setCurrentInstruction(gameInstructions[nextRound]);
+        setCurrentRound(nextRound);
         setUserResponse("");
         setGameState("instruction");
         setTimeRemaining(gameConfig.instructionTime);
@@ -220,6 +232,7 @@ export const useThenWhatGame = () => {
     setTimeRemaining(0);
     setResults([]);
     setIsLoading(false);
+    setGameInstructions([]);
   };
 
   const totalScore = results.reduce((sum, result) => sum + result.accuracyScore, 0);
