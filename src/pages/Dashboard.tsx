@@ -30,14 +30,22 @@ const Dashboard = () => {
     return 'User';
   };
 
-  // Helper function to extract exercise info from task title
-  const getExerciseInfo = (title: string) => {
+  // Helper function to extract exercise info from task title and difficulty
+  const getExerciseInfo = (title: string, taskDifficulty: number) => {
     const lowerTitle = title.toLowerCase();
     
-    // Extract difficulty
+    // Convert numeric difficulty to string, with better mapping
     let difficulty = "easy"; // default
-    if (lowerTitle.includes("medium")) difficulty = "medium";
+    if (taskDifficulty >= 5) {
+      difficulty = "hard";
+    } else if (taskDifficulty >= 4) {
+      difficulty = "medium";
+    }
+    
+    // Also check title for explicit difficulty mentions (fallback)
     if (lowerTitle.includes("hard")) difficulty = "hard";
+    else if (lowerTitle.includes("medium")) difficulty = "medium";
+    else if (lowerTitle.includes("easy")) difficulty = "easy";
     
     // Map exercise types to routes
     const exerciseMap = {
@@ -73,7 +81,7 @@ const Dashboard = () => {
       .sort((a, b) => a.date.getTime() - b.date.getTime())
       .slice(0, 5) // Limit to 5 items for display
       .map(task => {
-        const exerciseInfo = getExerciseInfo(task.title);
+        const exerciseInfo = getExerciseInfo(task.title, task.difficulty);
         
         return {
           id: task.id,
