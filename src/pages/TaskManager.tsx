@@ -972,5 +972,3 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
-
-</edits_to_apply>
