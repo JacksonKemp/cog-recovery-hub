@@ -10,31 +10,21 @@ interface InstructionScreenProps {
 
 const InstructionScreen = ({ 
   currentInstruction, 
-  timeRemaining,
-  currentRound,
-  totalRounds
+  timeRemaining
 }: InstructionScreenProps) => {
   return (
     <div className="text-center">
-      <h2 className="text-xl mb-2">
-        Memorize This Instruction ({currentRound + 1} of {totalRounds})
+      <h2 className="text-xl mb-6">
+        You have {timeRemaining} seconds to remember this instruction:
       </h2>
       
-      <div className="text-4xl font-bold text-primary mb-4">
-        {timeRemaining}
-      </div>
-      
-      <Card className="mb-8">
+      <Card>
         <CardContent className="p-6">
           <p className="text-xl font-medium">
             {currentInstruction}
           </p>
         </CardContent>
       </Card>
-      
-      <p className="text-muted-foreground">
-        Remember this instruction carefully. You'll need to recall it exactly.
-      </p>
     </div>
   );
 };
