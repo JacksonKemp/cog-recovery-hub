@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 
 type Difficulty = "easy" | "medium" | "hard";
@@ -68,20 +67,15 @@ export const useRGBGame = () => {
     }
     
     colorCycleRef.current = setTimeout(() => {
-      console.log("Color cycle timeout, checking if game is still running");
-      setShowColorPrompt(false);
-      
-      // Brief pause before next color
-      setTimeout(() => {
-        // Check if game is still running before starting next cycle
-        setTimeLeft(currentTime => {
-          if (currentTime > 0) {
-            console.log("Game still running, starting next color cycle");
-            startColorCycle();
-          }
-          return currentTime;
-        });
-      }, 200);
+      console.log("Color cycle timeout, starting next color immediately");
+      // Check if game is still running before starting next cycle
+      setTimeLeft(currentTime => {
+        if (currentTime > 0) {
+          console.log("Game still running, starting next color cycle");
+          startColorCycle();
+        }
+        return currentTime;
+      });
     }, gameConfig.reactionTime);
   };
   
@@ -139,22 +133,19 @@ export const useRGBGame = () => {
       setScore(prevScore => prevScore + 1);
     }
     
-    // Clear current color cycle and start new one
-    setShowColorPrompt(false);
+    // Clear current color cycle and start new one immediately
     if (colorCycleRef.current) {
       clearTimeout(colorCycleRef.current);
     }
     
-    // Start next color after brief pause
-    setTimeout(() => {
-      setTimeLeft(currentTime => {
-        if (currentTime > 0) {
-          console.log("Starting next color after click");
-          startColorCycle();
-        }
-        return currentTime;
-      });
-    }, 300);
+    // Start next color immediately
+    setTimeLeft(currentTime => {
+      if (currentTime > 0) {
+        console.log("Starting next color after click");
+        startColorCycle();
+      }
+      return currentTime;
+    });
   };
   
   // Reset the game

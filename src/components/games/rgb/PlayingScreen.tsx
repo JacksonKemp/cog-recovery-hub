@@ -38,8 +38,8 @@ const PlayingScreen = ({
       
       <div className="mb-8">
         {showColorPrompt && currentTargetColor ? (
-          <p className="text-2xl font-bold mb-4">
-            Tap <span className="capitalize text-3xl">{currentTargetColor}</span>!
+          <p className="text-3xl font-bold mb-4 capitalize">
+            {currentTargetColor}
           </p>
         ) : (
           <p className="text-2xl font-bold mb-4 text-muted-foreground">
