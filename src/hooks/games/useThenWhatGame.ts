@@ -110,15 +110,16 @@ export const useThenWhatGame = () => {
     const originalNumbers = original.match(/\d+/g) || [];
     const responseNumbers = response.match(/\d+/g) || [];
     if (originalNumbers.length > 0 && responseNumbers.length > 0) {
-      const matchingNumbers = originalNumbers.filter(num => responseNumbers.includes(num));
+      const matchingNumbers = originalNumbers.filter((num: string) => responseNumbers.includes(num));
       score += (matchingNumbers.length / originalNumbers.length) * 30;
     }
     
     // Basic similarity check
-    const commonWords = originalLower.split(' ').filter(word => 
+    const originalWords = originalLower.split(' ');
+    const commonWords = originalWords.filter((word: string) => 
       responseLower.includes(word) && word.length > 2
     );
-    score += (commonWords.length / originalLower.split(' ').length) * 25;
+    score += (commonWords.length / originalWords.length) * 25;
     
     score = Math.min(100, Math.max(0, score));
     
