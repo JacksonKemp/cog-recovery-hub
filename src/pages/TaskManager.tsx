@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -710,5 +711,3 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
-
-</edits_to_apply>
