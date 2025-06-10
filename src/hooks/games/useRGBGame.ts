@@ -37,8 +37,7 @@ export const useRGBGame = () => {
   const [showColorPrompt, setShowColorPrompt] = useState<boolean>(false);
   
   const gameTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const colorTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const countdownRef = useRef<NodeJS.Timeout | null>(null);
+  const colorCycleRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fixed squares - always the same three colors
   const squares: ColorSquare[] = [
@@ -54,82 +53,113 @@ export const useRGBGame = () => {
     setGameConfig(difficultySettings[newDifficulty]);
   };
   
-  // Generate new target color
-  const generateNewTargetColor = () => {
+  // Generate new target color and cycle
+  const startColorCycle = () => {
     const colors: ColorType[] = ["red", "green", "blue"];
     const newColor = colors[Math.floor(Math.random() * colors.length)];
+    
+    console.log("Starting new color cycle with:", newColor);
     setCurrentTargetColor(newColor);
     setShowColorPrompt(true);
     
-    // Hide the prompt after reaction time expires
-    if (colorTimerRef.current) {
-      clearTimeout(colorTimerRef.current);
+    // Schedule the next color cycle
+    if (colorCycleRef.current) {
+      clearTimeout(colorCycleRef.current);
     }
     
-    colorTimerRef.current = setTimeout(() => {
+    colorCycleRef.current = setTimeout(() => {
+      console.log("Color cycle timeout, checking if game is still running");
       setShowColorPrompt(false);
-      // Generate next color after a brief pause
+      
+      // Brief pause before next color
       setTimeout(() => {
-        if (timeLeft > 0) {
-          generateNewTargetColor();
-        }
+        // Check if game is still running before starting next cycle
+        setTimeLeft(currentTime => {
+          if (currentTime > 0) {
+            console.log("Game still running, starting next color cycle");
+            startColorCycle();
+          }
+          return currentTime;
+        });
       }, 200);
     }, gameConfig.reactionTime);
   };
   
   // Start the game
   const startGame = () => {
+    console.log("Starting RGB game");
     setScore(0);
     setTimeLeft(gameConfig.gameDuration);
     setGameState("playing");
+    setShowColorPrompt(false);
+    setCurrentTargetColor(null);
     
-    // Start game timer
+    // Clear any existing timers
     if (gameTimerRef.current) {
       clearInterval(gameTimerRef.current);
     }
+    if (colorCycleRef.current) {
+      clearTimeout(colorCycleRef.current);
+    }
     
+    // Start game timer
     gameTimerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
+        console.log("Game timer tick, time left:", prev - 1);
         if (prev <= 1) {
+          console.log("Game ending");
           setGameState("result");
+          setShowColorPrompt(false);
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     
-    // Start with first color after a brief delay
+    // Start first color cycle after brief delay
     setTimeout(() => {
-      generateNewTargetColor();
+      console.log("Starting first color cycle");
+      startColorCycle();
     }, 1000);
   };
   
   // Handle square click
   const handleSquareClick = (square: ColorSquare) => {
-    if (!showColorPrompt || !currentTargetColor) return;
+    console.log("Square clicked:", square.color, "Target:", currentTargetColor, "Show prompt:", showColorPrompt);
+    
+    if (!showColorPrompt || !currentTargetColor) {
+      console.log("Click ignored - no active prompt");
+      return;
+    }
     
     const isCorrect = square.color === currentTargetColor;
+    console.log("Click result:", isCorrect ? "correct" : "incorrect");
     
     if (isCorrect) {
-      setScore(score + 1);
+      setScore(prevScore => prevScore + 1);
     }
     
-    // Hide current prompt and generate new color
+    // Clear current color cycle and start new one
     setShowColorPrompt(false);
-    if (colorTimerRef.current) {
-      clearTimeout(colorTimerRef.current);
+    if (colorCycleRef.current) {
+      clearTimeout(colorCycleRef.current);
     }
     
-    // Generate next color after a brief pause
+    // Start next color after brief pause
     setTimeout(() => {
-      if (timeLeft > 0) {
-        generateNewTargetColor();
-      }
+      setTimeLeft(currentTime => {
+        if (currentTime > 0) {
+          console.log("Starting next color after click");
+          startColorCycle();
+        }
+        return currentTime;
+      });
     }, 300);
   };
   
   // Reset the game
   const resetGame = () => {
+    console.log("Resetting game");
     setGameState("intro");
     setScore(0);
     setTimeLeft(0);
@@ -140,11 +170,8 @@ export const useRGBGame = () => {
     if (gameTimerRef.current) {
       clearInterval(gameTimerRef.current);
     }
-    if (colorTimerRef.current) {
-      clearTimeout(colorTimerRef.current);
-    }
-    if (countdownRef.current) {
-      clearTimeout(countdownRef.current);
+    if (colorCycleRef.current) {
+      clearTimeout(colorCycleRef.current);
     }
   };
   
@@ -154,14 +181,24 @@ export const useRGBGame = () => {
       if (gameTimerRef.current) {
         clearInterval(gameTimerRef.current);
       }
-      if (colorTimerRef.current) {
-        clearTimeout(colorTimerRef.current);
-      }
-      if (countdownRef.current) {
-        clearTimeout(countdownRef.current);
+      if (colorCycleRef.current) {
+        clearTimeout(colorCycleRef.current);
       }
     };
   }, []);
+
+  // Clean up timers when game ends
+  useEffect(() => {
+    if (gameState === "result") {
+      console.log("Game ended, cleaning up timers");
+      if (gameTimerRef.current) {
+        clearInterval(gameTimerRef.current);
+      }
+      if (colorCycleRef.current) {
+        clearTimeout(colorCycleRef.current);
+      }
+    }
+  }, [gameState]);
   
   return {
     gameState,
