@@ -15,7 +15,7 @@ const InstructionScreen = ({
   return (
     <div className="text-center">
       <h2 className="text-xl mb-6">
-        You have {timeRemaining} seconds to remember this instruction:
+        You have 15 seconds to remember this instruction:
       </h2>
       
       <Card>
