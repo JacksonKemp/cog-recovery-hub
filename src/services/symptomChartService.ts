@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { SymptomRatings } from "./symptomService";
-import { format, subDays, subWeeks, subMonths, startOfDay, endOfDay } from "date-fns";
+import { format, subDays, subWeeks, subMonths, startOfDay, endOfDay, startOfMonth, endOfMonth, eachMonthOfInterval } from "date-fns";
 
 export type ChartDataPoint = {
   date: string;
@@ -103,14 +103,18 @@ function processMonthlyData(data: any[], startDate: Date, endDate: Date): ChartD
   
   // Create entries for each week in the last 4 weeks
   for (let i = 0; i < 4; i++) {
-    const weekStart = subWeeks(endDate, 3 - i);
-    const weekEnd = subWeeks(endDate, 2 - i);
+    const weekStart = startOfDay(subWeeks(endDate, 3 - i));
+    const weekEnd = endOfDay(subWeeks(endDate, 2 - i));
+    
+    console.log("[DEBUG] Week", i + 1, "range:", weekStart.toISOString(), "to", weekEnd.toISOString());
     
     // Find entries for this week
     const weekEntries = data.filter(entry => {
       const entryDate = new Date(entry.created_at);
       return entryDate >= weekStart && entryDate <= weekEnd;
     });
+    
+    console.log("[DEBUG] Week", i + 1, "entries found:", weekEntries.length);
     
     // Calculate average for the week
     const avgSymptoms = calculateAverageSymptoms(weekEntries);
@@ -127,10 +131,14 @@ function processMonthlyData(data: any[], startDate: Date, endDate: Date): ChartD
 function processYearlyData(data: any[], startDate: Date, endDate: Date): ChartDataPoint[] {
   const result: ChartDataPoint[] = [];
   
-  // Create entries for each month in the last 12 months
-  for (let i = 0; i < 12; i++) {
-    const monthStart = subMonths(endDate, 11 - i);
-    const monthEnd = subMonths(endDate, 10 - i);
+  // Get all months in the range
+  const months = eachMonthOfInterval({ start: startDate, end: endDate });
+  
+  months.forEach(monthDate => {
+    const monthStart = startOfMonth(monthDate);
+    const monthEnd = endOfMonth(monthDate);
+    
+    console.log("[DEBUG] Processing month:", format(monthDate, 'MMM yyyy'), "range:", monthStart.toISOString(), "to", monthEnd.toISOString());
     
     // Find entries for this month
     const monthEntries = data.filter(entry => {
@@ -138,14 +146,16 @@ function processYearlyData(data: any[], startDate: Date, endDate: Date): ChartDa
       return entryDate >= monthStart && entryDate <= monthEnd;
     });
     
+    console.log("[DEBUG] Month", format(monthDate, 'MMM'), "entries found:", monthEntries.length);
+    
     // Calculate average for the month
     const avgSymptoms = calculateAverageSymptoms(monthEntries);
     
     result.push({
-      date: format(monthStart, 'MMM'), // Jan, Feb, etc.
+      date: format(monthDate, 'MMM'), // Jan, Feb, etc.
       ...avgSymptoms
     });
-  }
+  });
   
   return result;
 }
@@ -155,20 +165,26 @@ function calculateAverageSymptoms(entries: any[]): SymptomRatings {
     return { headache: 0, fatigue: 0, anxiety: 0, focus: 0 };
   }
   
+  console.log("[DEBUG] Calculating average for", entries.length, "entries:", entries.map(e => e.symptoms));
+  
   const totals = entries.reduce((acc, entry) => {
     const symptoms = entry.symptoms as SymptomRatings;
     return {
-      headache: acc.headache + symptoms.headache,
-      fatigue: acc.fatigue + symptoms.fatigue,
-      anxiety: acc.anxiety + symptoms.anxiety,
-      focus: acc.focus + symptoms.focus
+      headache: acc.headache + (symptoms.headache || 0),
+      fatigue: acc.fatigue + (symptoms.fatigue || 0),
+      anxiety: acc.anxiety + (symptoms.anxiety || 0),
+      focus: acc.focus + (symptoms.focus || 0)
     };
   }, { headache: 0, fatigue: 0, anxiety: 0, focus: 0 });
   
-  return {
+  const averages = {
     headache: Math.round(totals.headache / entries.length),
     fatigue: Math.round(totals.fatigue / entries.length),
     anxiety: Math.round(totals.anxiety / entries.length),
     focus: Math.round(totals.focus / entries.length)
   };
+  
+  console.log("[DEBUG] Calculated averages:", averages);
+  
+  return averages;
 }
