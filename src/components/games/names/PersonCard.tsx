@@ -25,7 +25,6 @@ const PersonCard = ({ person }: PersonCardProps) => {
         </div>
         <div className="text-left">
           <div className="font-semibold">{person.firstName} {person.lastName}</div>
-          <div className="text-sm text-muted-foreground">Person #{person.id}</div>
         </div>
       </CardContent>
     </Card>
