@@ -102,6 +102,9 @@ const TaskManager = () => {
   const [conflictNewTime, setConflictNewTime] = useState<string>("12:00");
   const [reminderDropdownOpen, setReminderDropdownOpen] = useState(false);
   const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
+  const [exerciseDropdownOpen, setExerciseDropdownOpen] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
+  const [selectedDifficultyLevel, setSelectedDifficultyLevel] = useState<'easy' | 'medium' | 'hard' | null>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { user } = useAuth();
@@ -116,9 +119,34 @@ const TaskManager = () => {
     updateTaskDate 
   } = useTasks();
 
+  // Handle exercise selection
+  const handleExerciseSelect = (exerciseKey: string) => {
+    const exercise = exerciseRecommendations[exerciseKey as keyof typeof exerciseRecommendations];
+    if (exercise) {
+      setSelectedExercise(exerciseKey);
+      setNewTaskTitle(exercise.displayName);
+      setSelectedDifficultyLevel('medium'); // Default to medium
+      setTaskDifficulty(exercise.difficulties.medium);
+      setExerciseDropdownOpen(false);
+    }
+  };
+
+  // Handle difficulty level selection for exercises
+  const handleDifficultyLevelSelect = (level: 'easy' | 'medium' | 'hard') => {
+    if (selectedExercise) {
+      const exercise = exerciseRecommendations[selectedExercise as keyof typeof exerciseRecommendations];
+      if (exercise) {
+        setSelectedDifficultyLevel(level);
+        setTaskDifficulty(exercise.difficulties[level]);
+      }
+    }
+  };
+
   // Reset form when closing dialog
   const resetForm = () => {
     setNewTaskTitle("");
+    setSelectedExercise(null);
+    setSelectedDifficultyLevel(null);
     setShowSchedule(false);
     setHasReminder(false);
     setSelectedReminders([]);
@@ -133,8 +161,14 @@ const TaskManager = () => {
   const handleTaskTitleChange = (value: string) => {
     setNewTaskTitle(value);
     
+    // Reset exercise selection if user types manually
+    if (selectedExercise && value !== exerciseRecommendations[selectedExercise as keyof typeof exerciseRecommendations].displayName) {
+      setSelectedExercise(null);
+      setSelectedDifficultyLevel(null);
+    }
+    
     const recommendation = getExerciseRecommendation(value);
-    if (recommendation) {
+    if (recommendation && !selectedExercise) {
       setTaskDifficulty(recommendation.difficulty);
     }
   };
@@ -557,11 +591,42 @@ const TaskManager = () => {
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
-            {/* Task Name */}
+            {/* Task Name with Add Exercise link */}
             <div className="grid gap-2">
-              <label htmlFor="task" className="text-sm font-medium">
-                Task Name
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="task" className="text-sm font-medium">
+                  Task Name
+                </label>
+                <DropdownMenu open={exerciseDropdownOpen} onOpenChange={setExerciseDropdownOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-sm text-primary hover:underline focus:outline-none"
+                    >
+                      Add Exercise
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64 bg-background border shadow-lg">
+                    <div className="p-2">
+                      <div className="font-medium text-sm mb-2">Select Exercise</div>
+                      <div className="space-y-1">
+                        {Object.entries(exerciseRecommendations).map(([key, exercise]) => (
+                          <DropdownMenuItem
+                            key={key}
+                            onClick={() => handleExerciseSelect(key)}
+                            className="cursor-pointer"
+                          >
+                            <div>
+                              <div className="font-medium">{exercise.displayName}</div>
+                              <div className="text-xs text-muted-foreground">{exercise.description}</div>
+                            </div>
+                          </DropdownMenuItem>
+                        ))}
+                      </div>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <Input
                 id="task"
                 value={newTaskTitle}
@@ -580,36 +645,54 @@ const TaskManager = () => {
               )}
             </div>
             
-            {/* Difficulty Level */}
+            {/* Difficulty Level - Show easy/medium/hard for exercises, 1-10 for regular tasks */}
             <div className="grid gap-2">
               <label className="text-sm font-medium">
-                Difficulty Level (1-10)
-                {exerciseRecommendation && (
+                {selectedExercise ? "Difficulty Level" : "Difficulty Level (1-10)"}
+                {exerciseRecommendation && !selectedExercise && (
                   <span className="ml-2 text-xs text-cog-teal font-normal">
                     (Recommended: {exerciseRecommendation.difficulty})
                   </span>
                 )}
               </label>
-              <Select 
-                value={taskDifficulty.toString()} 
-                onValueChange={(value) => setTaskDifficulty(parseInt(value))}
-              >
-                <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
-                  <SelectValue placeholder="Select difficulty" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
-                    <SelectItem key={level} value={level.toString()}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{level}</span>
-                        {exerciseRecommendation && level === exerciseRecommendation.difficulty && (
-                          <span className="ml-2 text-xs text-cog-teal">(Recommended)</span>
-                        )}
-                      </div>
-                    </SelectItem>
+              
+              {selectedExercise ? (
+                <div className="grid grid-cols-3 gap-2">
+                  {(['easy', 'medium', 'hard'] as const).map((level) => (
+                    <Button
+                      key={level}
+                      type="button"
+                      variant={selectedDifficultyLevel === level ? "default" : "outline"}
+                      size={isMobile ? "mobile" : "sm"}
+                      onClick={() => handleDifficultyLevelSelect(level)}
+                      className="capitalize"
+                    >
+                      {level}
+                    </Button>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              ) : (
+                <Select 
+                  value={taskDifficulty.toString()} 
+                  onValueChange={(value) => setTaskDifficulty(parseInt(value))}
+                >
+                  <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
+                      <SelectItem key={level} value={level.toString()}>
+                        <div className="flex items-center justify-between w-full">
+                          <span>{level}</span>
+                          {exerciseRecommendation && level === exerciseRecommendation.difficulty && (
+                            <span className="ml-2 text-xs text-cog-teal">(Recommended)</span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             
             {/* Schedule Option */}
@@ -725,7 +808,7 @@ const TaskManager = () => {
                     sticky="always"
                   >
                     <div className="space-y-4">
-                      <div className="font-medium text-sm">Reminder Times (Select Multiple)</div>
+                      <div className="font-medium text-sm mb-3">Reminder Times (Select Multiple)</div>
                       <div className="space-y-3">
                         {reminderOptions.map((option) => (
                           <div key={option.value} className="flex items-center space-x-3">
@@ -889,3 +972,5 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
+
+</edits_to_apply>
