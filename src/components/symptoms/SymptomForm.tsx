@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -175,11 +174,6 @@ export const SymptomForm = ({ onEntryAdded, isLoading, hasRecordedToday }: Sympt
             </button>
           ))}
         </div>
-        {currentValue >= 0 && (
-          <p className="text-center mt-4">
-            Selected: <span className="font-medium">{currentValue}</span> - {getRatingLabel(currentValue, symptomType)}
-          </p>
-        )}
       </div>
     );
   };
