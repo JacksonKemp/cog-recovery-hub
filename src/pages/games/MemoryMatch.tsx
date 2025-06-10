@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -142,7 +143,6 @@ const MemoryMatch = () => {
       );
       
       console.log("Exercise progress saved with ID:", progressId);
-      toast.success("Exercise progress saved!");
     } catch (error) {
       console.error('Error saving exercise progress:', error);
       toast.error("Failed to save exercise progress");
