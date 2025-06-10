@@ -484,6 +484,7 @@ const TaskManager = () => {
                   variant="outline" 
                   className="w-full flex justify-between"
                   size={isMobile ? "mobile" : "default"}
+                  onClick={() => setShowCompleted(!showCompleted)}
                 >
                   <span>Completed Tasks ({completedTasks.length})</span>
                   {showCompleted ? (
@@ -493,54 +494,56 @@ const TaskManager = () => {
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full" align="start">
-                <div className="space-y-3 p-2">
-                  {completedTasks.map((task) => (
-                    <Card key={task.id} className="bg-muted/40">
-                      <CardContent className={cn(
-                        "p-4 flex items-center justify-between",
-                        isMobile && "p-3"
-                      )}>
-                        <div className="flex items-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <button className={cn("mr-3 text-cog-teal p-1 rounded-full hover:bg-muted", isMobile && "mr-2")}>
-                                <CheckCircle className={cn("h-5 w-5", isMobile && "h-6 w-6")} fill="currentColor" />
-                              </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start">
-                              <DropdownMenuItem onClick={() => toggleTaskCompletion(task.id)}>
-                                <Circle className="h-4 w-4 mr-2" />
-                                Mark Incomplete
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => deleteTask(task.id)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className={cn(
-                                "font-medium line-through",
-                                isMobile && "text-base"
-                              )}>
-                                {task.title}
-                              </p>
-                              <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
-                                Difficulty: {task.difficulty}
-                              </span>
+              {showCompleted && (
+                <DropdownMenuContent className="w-full" align="start">
+                  <div className="space-y-3 p-2">
+                    {completedTasks.map((task) => (
+                      <Card key={task.id} className="bg-muted/40">
+                        <CardContent className={cn(
+                          "p-4 flex items-center justify-between",
+                          isMobile && "p-3"
+                        )}>
+                          <div className="flex items-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className={cn("mr-3 text-cog-teal p-1 rounded-full hover:bg-muted", isMobile && "mr-2")}>
+                                  <CheckCircle className={cn("h-5 w-5", isMobile && "h-6 w-6")} fill="currentColor" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="start">
+                                <DropdownMenuItem onClick={() => toggleTaskCompletion(task.id)}>
+                                  <Circle className="h-4 w-4 mr-2" />
+                                  Mark Incomplete
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => deleteTask(task.id)}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className={cn(
+                                  "font-medium line-through",
+                                  isMobile && "text-base"
+                                )}>
+                                  {task.title}
+                                </p>
+                                <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
+                                  Difficulty: {task.difficulty}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </DropdownMenuContent>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </DropdownMenuContent>
+              )}
             </DropdownMenu>
           </div>
         )}
@@ -958,5 +961,3 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
-
-}
