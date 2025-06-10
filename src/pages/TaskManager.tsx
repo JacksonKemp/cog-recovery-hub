@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTasks } from "@/hooks/use-tasks";
@@ -90,6 +92,7 @@ const TaskManager = () => {
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
   const [conflictTargetDate, setConflictTargetDate] = useState<Date | null>(null);
   const [conflictNewTime, setConflictNewTime] = useState<string>("12:00");
+  const [reminderDropdownOpen, setReminderDropdownOpen] = useState(false);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { user } = useAuth();
@@ -499,7 +502,7 @@ const TaskManager = () => {
             <Plus className="mr-2 h-4 w-4" /> Add New Task
           </Button>
         </DialogTrigger>
-        <DialogContent className={cn("sm:max-w-[425px]", isMobile && "mobile-dialog-content")}>
+        <DialogContent className={cn("sm:max-w-[425px] max-h-[90vh] overflow-y-auto", isMobile && "mobile-dialog-content")}>
           <DialogHeader>
             <DialogTitle>Add New Task</DialogTitle>
             <DialogDescription>
@@ -620,75 +623,88 @@ const TaskManager = () => {
               </div>
             )}
             
-            {/* Reminder toggle */}
+            {/* Set Reminder - Dropdown */}
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium">
                   Set Reminder
                 </label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size={isMobile ? "mobile" : "sm"}
-                  onClick={() => {
-                    setHasReminder(!hasReminder);
-                    if (!hasReminder && selectedReminders.length === 0) {
-                      setSelectedReminders(["30min"]);
-                    }
-                  }}
-                  className={cn(
-                    "w-[100px]",
-                    hasReminder && "bg-cog-light-teal text-cog-teal border-cog-teal"
-                  )}
-                >
-                  {hasReminder ? (
-                    <>
-                      <Bell className="h-4 w-4 mr-2" />
-                      On
-                    </>
-                  ) : (
-                    <>
-                      <BellOff className="h-4 w-4 mr-2" />
-                      Off
-                    </>
-                  )}
-                </Button>
+                <DropdownMenu open={reminderDropdownOpen} onOpenChange={setReminderDropdownOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size={isMobile ? "mobile" : "sm"}
+                      className={cn(
+                        "w-[100px]",
+                        hasReminder && "bg-cog-light-teal text-cog-teal border-cog-teal"
+                      )}
+                    >
+                      {hasReminder ? (
+                        <>
+                          <Bell className="h-4 w-4 mr-2" />
+                          On
+                        </>
+                      ) : (
+                        <>
+                          <BellOff className="h-4 w-4 mr-2" />
+                          Off
+                        </>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent 
+                    className="w-80 p-4 bg-background border shadow-lg" 
+                    align="end"
+                    side="bottom"
+                    sticky="always"
+                    onPointerDownOutside={(e) => {
+                      // Prevent closing when clicking inside the dropdown
+                      e.preventDefault();
+                    }}
+                  >
+                    <div className="space-y-4">
+                      <div className="font-medium text-sm">Reminder Times (Select Multiple)</div>
+                      <div className="space-y-3">
+                        {reminderOptions.map((option) => (
+                          <div key={option.value} className="flex items-center space-x-3">
+                            <Checkbox
+                              id={`reminder-${option.value}`}
+                              checked={selectedReminders.includes(option.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedReminders(prev => [...prev, option.value]);
+                                  setHasReminder(true);
+                                } else {
+                                  setSelectedReminders(prev => prev.filter(item => item !== option.value));
+                                  if (selectedReminders.length === 1) {
+                                    setHasReminder(false);
+                                  }
+                                }
+                              }}
+                            />
+                            <label 
+                              htmlFor={`reminder-${option.value}`} 
+                              className="text-sm font-normal cursor-pointer"
+                            >
+                              {option.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex justify-end pt-2 border-t">
+                        <Button
+                          size="sm"
+                          onClick={() => setReminderDropdownOpen(false)}
+                        >
+                          Done
+                        </Button>
+                      </div>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-            
-            {/* Reminder options */}
-            {hasReminder && (
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">
-                  Reminder Times (Select Multiple)
-                </label>
-                <div className="border rounded-md p-4 space-y-2">
-                  {reminderOptions.map((option) => (
-                    <div key={option.value} className={cn(
-                      "flex items-center space-x-2",
-                      isMobile && "py-1"
-                    )}>
-                      <input
-                        type="checkbox"
-                        id={`reminder-${option.value}`}
-                        checked={selectedReminders.includes(option.value)}
-                        onChange={() => toggleReminderSelection(option.value)}
-                        className={cn(
-                          "h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary",
-                          isMobile && "h-5 w-5"
-                        )}
-                      />
-                      <label 
-                        htmlFor={`reminder-${option.value}`} 
-                        className={cn("text-sm", isMobile && "text-base py-2")}
-                      >
-                        {option.label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
           
           <DialogFooter className={cn(isMobile && "mobile-buttons-grid")}>
