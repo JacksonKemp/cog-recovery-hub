@@ -1,14 +1,19 @@
-
 import { useState } from "react";
 
 type Difficulty = "easy" | "medium" | "hard";
-type GameState = "intro" | "playing" | "result";
+type GameState = "intro" | "playing" | "review" | "result";
 
 export interface WordPuzzle {
   id: number;
   correctWordIndex: number;
   words: string[];
   category: string;
+}
+
+export interface PuzzleResult {
+  puzzle: WordPuzzle;
+  selectedWordIndex: number;
+  isCorrect: boolean;
 }
 
 interface GameConfig {
@@ -54,6 +59,7 @@ export const useWordFinderGame = () => {
   const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(null);
   const [score, setScore] = useState<number>(0);
   const [gameConfig, setGameConfig] = useState<GameConfig>(difficultySettings.medium);
+  const [puzzleResults, setPuzzleResults] = useState<PuzzleResult[]>([]);
   
   // Handle difficulty change
   const handleDifficultyChange = (value: string) => {
@@ -121,6 +127,7 @@ export const useWordFinderGame = () => {
     setCurrentPuzzleIndex(0);
     setSelectedWordIndex(null);
     setScore(0);
+    setPuzzleResults([]);
     setGameState("playing");
   };
   
@@ -134,17 +141,33 @@ export const useWordFinderGame = () => {
     if (selectedWordIndex === null) return;
     
     const currentPuzzle = puzzles[currentPuzzleIndex];
-    if (selectedWordIndex === currentPuzzle.correctWordIndex) {
+    const isCorrect = selectedWordIndex === currentPuzzle.correctWordIndex;
+    
+    // Record the result
+    const result: PuzzleResult = {
+      puzzle: currentPuzzle,
+      selectedWordIndex,
+      isCorrect
+    };
+    
+    setPuzzleResults(prev => [...prev, result]);
+    
+    if (isCorrect) {
       setScore(score + 1);
     }
     
-    // Move to next puzzle or end game
+    // Move to next puzzle or show review
     if (currentPuzzleIndex < puzzles.length - 1) {
       setCurrentPuzzleIndex(currentPuzzleIndex + 1);
       setSelectedWordIndex(null);
     } else {
-      setGameState("result");
+      setGameState("review");
     }
+  };
+  
+  // Move from review to results
+  const showResults = () => {
+    setGameState("result");
   };
   
   // Reset the game
@@ -154,6 +177,7 @@ export const useWordFinderGame = () => {
     setCurrentPuzzleIndex(0);
     setSelectedWordIndex(null);
     setScore(0);
+    setPuzzleResults([]);
   };
 
   return {
@@ -164,10 +188,12 @@ export const useWordFinderGame = () => {
     selectedWordIndex,
     score,
     gameConfig,
+    puzzleResults,
     handleDifficultyChange,
     startGame,
     handleWordSelect,
     submitAnswer,
+    showResults,
     resetGame
   };
 };

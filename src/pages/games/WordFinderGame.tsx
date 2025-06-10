@@ -2,6 +2,7 @@
 import GameLayout from "@/components/games/GameLayout";
 import IntroScreen from "@/components/games/word-finder/IntroScreen";
 import PlayingScreen from "@/components/games/word-finder/PlayingScreen";
+import ReviewScreen from "@/components/games/word-finder/ReviewScreen";
 import ResultScreen from "@/components/games/word-finder/ResultScreen";
 import { useWordFinderGame } from "@/hooks/games/useWordFinderGame";
 import { saveGameProgress } from "@/services/game";
@@ -19,10 +20,12 @@ const WordFinderGame = () => {
     selectedWordIndex,
     score,
     gameConfig,
+    puzzleResults,
     handleDifficultyChange,
     startGame,
     handleWordSelect,
     submitAnswer,
+    showResults,
     resetGame
   } = useWordFinderGame();
 
@@ -76,6 +79,13 @@ const WordFinderGame = () => {
           onWordSelect={handleWordSelect}
           onSubmitAnswer={submitAnswer}
           onCancel={resetGame}
+        />
+      )}
+      
+      {gameState === "review" && (
+        <ReviewScreen 
+          puzzleResults={puzzleResults}
+          onContinue={showResults}
         />
       )}
       
