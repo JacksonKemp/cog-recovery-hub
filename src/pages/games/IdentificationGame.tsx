@@ -3,7 +3,6 @@ import GameLayout from "@/components/games/GameLayout";
 import { useIdentificationGame } from "@/hooks/games/useIdentificationGame";
 import IntroScreen from "@/components/games/identification/IntroScreen";
 import PlayingScreen from "@/components/games/identification/PlayingScreen";
-import ReviewScreen from "@/components/games/identification/ReviewScreen";
 import ResultScreen from "@/components/games/identification/ResultScreen";
 import { saveGameProgress } from "@/services/game";
 import { useAuth } from "@/hooks/use-auth";
@@ -82,17 +81,11 @@ const IdentificationGame = () => {
         />
       )}
       
-      {gameState === "review" && (
-        <ReviewScreen 
-          puzzleResults={puzzleResults}
-          onContinue={showResults}
-        />
-      )}
-      
       {gameState === "result" && (
         <ResultScreen 
           score={score}
           puzzlesCount={puzzles.length}
+          puzzleResults={puzzleResults}
           onPlayAgain={startGame}
           onBackToIntro={resetGame}
         />

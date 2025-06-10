@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 type Difficulty = "easy" | "medium" | "hard";
-type GameState = "intro" | "playing" | "review" | "result";
+type GameState = "intro" | "playing" | "result";
 export type ColorType = "red" | "green" | "blue";
 
 export interface IdentificationPuzzle {
@@ -178,16 +178,16 @@ export const useIdentificationGame = () => {
     // Add to total score
     setScore(score + puzzleScore);
     
-    // Move to next puzzle or show review
+    // Move to next puzzle or show results
     if (currentPuzzleIndex < puzzles.length - 1) {
       setCurrentPuzzleIndex(currentPuzzleIndex + 1);
       setSelectedIndices([]);
     } else {
-      setGameState("review");
+      setGameState("result");
     }
   };
   
-  // Move from review to results
+  // Move from review to results (kept for compatibility but not used)
   const showResults = () => {
     setGameState("result");
   };
