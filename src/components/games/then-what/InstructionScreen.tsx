@@ -1,36 +1,40 @@
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { InstructionTask } from "@/hooks/games/useThenWhatGame";
 
 interface InstructionScreenProps {
-  instructions: InstructionTask[];
-  currentInstructionIndex: number;
-  onNextInstruction: () => void;
+  currentInstruction: string;
+  timeRemaining: number;
+  currentRound: number;
+  totalRounds: number;
 }
 
 const InstructionScreen = ({ 
-  instructions, 
-  currentInstructionIndex, 
-  onNextInstruction 
+  currentInstruction, 
+  timeRemaining,
+  currentRound,
+  totalRounds
 }: InstructionScreenProps) => {
   return (
     <div className="text-center">
       <h2 className="text-xl mb-2">
-        Remember This Instruction ({currentInstructionIndex + 1} of {instructions.length})
+        Memorize This Instruction ({currentRound + 1} of {totalRounds})
       </h2>
+      
+      <div className="text-4xl font-bold text-primary mb-4">
+        {timeRemaining}
+      </div>
       
       <Card className="mb-8">
         <CardContent className="p-6">
-          <p className="text-xl font-medium mb-4">
-            {instructions[currentInstructionIndex].text}
+          <p className="text-xl font-medium">
+            {currentInstruction}
           </p>
         </CardContent>
       </Card>
       
-      <Button onClick={onNextInstruction}>
-        {currentInstructionIndex < instructions.length - 1 ? "Next Instruction" : "Start Recall"}
-      </Button>
+      <p className="text-muted-foreground">
+        Remember this instruction carefully. You'll need to recall it exactly.
+      </p>
     </div>
   );
 };

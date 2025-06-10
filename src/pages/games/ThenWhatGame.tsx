@@ -3,6 +3,7 @@ import GameLayout from "@/components/games/GameLayout";
 import { useThenWhatGame } from "@/hooks/games/useThenWhatGame";
 import IntroScreen from "@/components/games/then-what/IntroScreen";
 import InstructionScreen from "@/components/games/then-what/InstructionScreen";
+import WaitScreen from "@/components/games/then-what/WaitScreen";
 import RecallScreen from "@/components/games/then-what/RecallScreen";
 import ResultScreen from "@/components/games/then-what/ResultScreen";
 import { saveGameProgress } from "@/services/game";
@@ -15,14 +16,17 @@ const ThenWhatGame = () => {
   const {
     gameState,
     difficulty,
-    instructions,
-    currentInstructionIndex,
-    selectedAnswer,
-    score,
+    currentRound,
+    currentInstruction,
+    userResponse,
+    timeRemaining,
+    results,
+    isLoading,
+    gameConfig,
+    averageScore,
     handleDifficultyChange,
     startGame,
-    nextInstruction,
-    handleAnswerSelect,
+    handleResponseChange,
     submitAnswer,
     resetGame
   } = useThenWhatGame();
@@ -32,13 +36,13 @@ const ThenWhatGame = () => {
     const saveProgress = async () => {
       if (gameState === "result" && user) {
         try {
-          const maxScore = instructions.length;
+          const maxScore = 100; // Average accuracy is out of 100
           const difficultyLevel = difficulty === "easy" ? 1 : difficulty === "medium" ? 2 : 3;
           
           await saveGameProgress(
             "then-what",
             "processing",
-            score,
+            averageScore,
             maxScore,
             difficultyLevel
           );
@@ -52,7 +56,7 @@ const ThenWhatGame = () => {
     };
 
     saveProgress();
-  }, [gameState, score, instructions.length, difficulty, user]);
+  }, [gameState, averageScore, difficulty, user]);
 
   return (
     <GameLayout 
@@ -65,32 +69,44 @@ const ThenWhatGame = () => {
           difficulty={difficulty}
           onDifficultyChange={handleDifficultyChange}
           onStartGame={startGame}
+          isLoading={isLoading}
         />
       )}
       
       {gameState === "instruction" && (
         <InstructionScreen 
-          instructions={instructions}
-          currentInstructionIndex={currentInstructionIndex}
-          onNextInstruction={nextInstruction}
+          currentInstruction={currentInstruction}
+          timeRemaining={timeRemaining}
+          currentRound={currentRound}
+          totalRounds={gameConfig.rounds}
+        />
+      )}
+      
+      {gameState === "wait" && (
+        <WaitScreen 
+          timeRemaining={timeRemaining}
+          currentRound={currentRound}
+          totalRounds={gameConfig.rounds}
         />
       )}
       
       {gameState === "recall" && (
         <RecallScreen 
-          instructions={instructions}
-          currentInstructionIndex={currentInstructionIndex}
-          selectedAnswer={selectedAnswer}
-          onAnswerSelect={handleAnswerSelect}
+          currentRound={currentRound}
+          totalRounds={gameConfig.rounds}
+          userResponse={userResponse}
+          onResponseChange={handleResponseChange}
           onSubmitAnswer={submitAnswer}
           onCancel={resetGame}
+          isLoading={isLoading}
         />
       )}
       
       {gameState === "result" && (
         <ResultScreen 
-          score={score}
-          totalQuestions={instructions.length}
+          averageScore={averageScore}
+          totalRounds={gameConfig.rounds}
+          results={results}
           onPlayAgain={startGame}
           onBackToIntro={resetGame}
         />

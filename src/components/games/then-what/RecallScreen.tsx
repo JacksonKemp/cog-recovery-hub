@@ -1,74 +1,58 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { InstructionTask } from "@/hooks/games/useThenWhatGame";
+import { Textarea } from "@/components/ui/textarea";
 
 interface RecallScreenProps {
-  instructions: InstructionTask[];
-  currentInstructionIndex: number;
-  selectedAnswer: string;
-  onAnswerSelect: (answer: string) => void;
+  currentRound: number;
+  totalRounds: number;
+  userResponse: string;
+  onResponseChange: (response: string) => void;
   onSubmitAnswer: () => void;
   onCancel: () => void;
+  isLoading: boolean;
 }
 
 const RecallScreen = ({ 
-  instructions, 
-  currentInstructionIndex, 
-  selectedAnswer, 
-  onAnswerSelect, 
+  currentRound,
+  totalRounds,
+  userResponse, 
+  onResponseChange, 
   onSubmitAnswer, 
-  onCancel 
+  onCancel,
+  isLoading
 }: RecallScreenProps) => {
-  const currentInstruction = instructions[currentInstructionIndex];
-
   return (
     <div className="text-center">
       <h2 className="text-xl mb-4">
-        Recall ({currentInstructionIndex + 1} of {instructions.length})
+        Recall the Instruction ({currentRound + 1} of {totalRounds})
       </h2>
       
       <Card className="mb-6">
         <CardContent className="p-6">
           <p className="text-lg font-medium mb-4">
-            What was the instruction about?
+            Type the instruction you were given as accurately as possible:
           </p>
           
-          {currentInstruction.choices ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {currentInstruction.choices?.map((choice, index) => (
-                <Button 
-                  key={index}
-                  variant={selectedAnswer === choice ? "default" : "outline"}
-                  onClick={() => onAnswerSelect(choice)}
-                >
-                  {choice}
-                </Button>
-              ))}
-            </div>
-          ) : (
-            <div className="mb-4">
-              <input
-                type="text"
-                value={selectedAnswer}
-                onChange={(e) => onAnswerSelect(e.target.value)}
-                placeholder="Enter your answer"
-                className="w-full p-3 border rounded-md"
-              />
-            </div>
-          )}
+          <Textarea
+            value={userResponse}
+            onChange={(e) => onResponseChange(e.target.value)}
+            placeholder="Enter the instruction you remember..."
+            className="min-h-[120px] text-base"
+            disabled={isLoading}
+          />
         </CardContent>
       </Card>
       
       <div className="flex justify-center gap-4">
-        <Button variant="outline" onClick={onCancel}>
+        <Button variant="outline" onClick={onCancel} disabled={isLoading}>
           Cancel
         </Button>
         <Button 
           onClick={onSubmitAnswer}
-          disabled={!selectedAnswer && currentInstruction.choices !== undefined}
+          disabled={!userResponse.trim() || isLoading}
         >
-          {currentInstructionIndex < instructions.length - 1 ? "Next" : "Finish"}
+          {isLoading ? "Judging..." : (currentRound + 1 < totalRounds ? "Next Round" : "Finish")}
         </Button>
       </div>
     </div>
