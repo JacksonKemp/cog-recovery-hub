@@ -654,9 +654,18 @@ const TaskManager = () => {
             
             {/* Task Name */}
             <div className="grid gap-2">
-              <label htmlFor="task" className="text-sm font-medium">
-                Task Name
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="task" className="text-sm font-medium">
+                  Task Name
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setExerciseDropdownOpen(true)}
+                  className="text-sm text-cog-teal hover:text-cog-teal/80 underline"
+                >
+                  Add Exercise
+                </button>
+              </div>
               <Input
                 id="task"
                 value={newTaskTitle}
@@ -986,3 +995,5 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
+
+}
