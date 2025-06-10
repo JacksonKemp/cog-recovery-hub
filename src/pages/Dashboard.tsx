@@ -10,12 +10,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { getDashboardStats, DashboardStats } from "@/services/dashboardService";
 import { getPractitionerMessage, PractitionerMessage } from "@/services/practitionerMessageService";
 import { useAuth } from "@/hooks/use-auth";
+import { useTasks } from "@/hooks/use-tasks";
+import { format, isSameDay, isToday, isTomorrow } from "date-fns";
 
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats>({ streakDays: 0, completedGames: 0 });
   const [practitionerMessage, setPractitionerMessage] = useState<PractitionerMessage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const { tasks, isLoading: tasksLoading } = useTasks();
   
   // Get user's first name from full_name or email
   const getUserDisplayName = () => {
@@ -27,12 +30,29 @@ const Dashboard = () => {
     }
     return 'User';
   };
-  
-  const upcomingTasks = [
-    { id: 1, name: "Take Medication", time: "Today, 8:00 PM" },
-    { id: 2, name: "Physical Therapy", time: "Tomorrow, 10:00 AM" },
-    { id: 3, name: "Memory Match Game", time: "Today, 3:00 PM", type: "exercise", path: "/games/memory-match" }
-  ];
+
+  // Get today's and tomorrow's tasks for the schedule
+  const getUpcomingTasks = () => {
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    return tasks
+      .filter(task => !task.completed && (isToday(task.date) || isTomorrow(task.date)))
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .slice(0, 5) // Limit to 5 items for display
+      .map(task => ({
+        id: task.id,
+        name: task.title,
+        time: isToday(task.date) 
+          ? `Today, ${format(task.date, 'h:mm a')}`
+          : `Tomorrow, ${format(task.date, 'h:mm a')}`,
+        type: task.title.toLowerCase().includes('game') || task.title.toLowerCase().includes('exercise') || task.title.toLowerCase().includes('memory') ? "exercise" : "task",
+        path: task.title.toLowerCase().includes('memory match') ? "/games/memory-match" : undefined
+      }));
+  };
+
+  const upcomingTasks = getUpcomingTasks();
 
   // Load dashboard stats and practitioner message when user is available
   useEffect(() => {
@@ -186,9 +206,19 @@ const Dashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {upcomingTasks.map((task) => renderTaskItem(task))}
-            </div>
+            {tasksLoading ? (
+              <div className="text-center py-6 text-muted-foreground">
+                Loading your schedule...
+              </div>
+            ) : upcomingTasks.length === 0 ? (
+              <div className="text-center py-6 text-muted-foreground">
+                No upcoming tasks. <Link to="/tasks" className="text-cog-teal hover:underline">Add some tasks</Link> to see them here.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {upcomingTasks.map((task) => renderTaskItem(task))}
+              </div>
+            )}
           </CardContent>
         </Card>
         
