@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,8 +17,7 @@ import {
   BellOff,
   Clock,
   MoreVertical,
-  Check,
-  TestTube
+  Check
 } from "lucide-react";
 import { format, startOfWeek, addDays, isSameDay, parse, isEqual } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -45,7 +43,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTasks } from "@/hooks/use-tasks";
 import { useAuth } from "@/hooks/use-auth";
-import { showNotification } from "@/utils/reminderUtils";
 import type { Task } from "@/utils/taskUtils";
 
 // Reminder time options
