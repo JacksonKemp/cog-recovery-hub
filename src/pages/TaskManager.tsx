@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -269,286 +268,118 @@ const TaskManager = () => {
 
   return (
     <div className="container py-4 md:py-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Task Manager</h1>
-        </div>
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4">Task Manager</h1>
+        <h2 className="text-xl md:text-2xl font-semibold mb-4">Today - {format(new Date(), 'MMMM d, yyyy')}</h2>
         
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="mt-4 md:mt-0" size={isMobile ? "mobile" : "default"}>
-              <Plus className="mr-2 h-4 w-4" /> Add New Task
-            </Button>
-          </DialogTrigger>
-          <DialogContent className={cn("sm:max-w-[425px]", isMobile && "mobile-dialog-content")}>
-            <DialogHeader>
-              <DialogTitle>Add New Task</DialogTitle>
-              <DialogDescription>
-                Create a new task for your schedule
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              {/* Task Name */}
-              <div className="grid gap-2">
-                <label htmlFor="task" className="text-sm font-medium">
-                  Task Name
-                </label>
-                <Input
-                  id="task"
-                  value={newTaskTitle}
-                  onChange={(e) => setNewTaskTitle(e.target.value)}
-                  placeholder="Enter task name..."
-                  className={cn("col-span-3", isMobile && "h-12 text-base")}
-                />
-              </div>
-              
-              {/* Difficulty Level */}
-              <div className="grid gap-2">
-                <label className="text-sm font-medium">
-                  Difficulty Level (1-10)
-                </label>
-                <Select 
-                  value={taskDifficulty.toString()} 
-                  onValueChange={(value) => setTaskDifficulty(parseInt(value))}
-                >
-                  <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
-                    <SelectValue placeholder="Select difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
-                      <SelectItem key={level} value={level.toString()}>
-                        {level}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Schedule Option */}
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">
-                    Schedule for Later
-                  </label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size={isMobile ? "mobile" : "sm"}
-                    onClick={() => setShowSchedule(!showSchedule)}
-                    className={cn(
-                      "w-[100px]",
-                      showSchedule && "bg-muted text-foreground border-primary"
-                    )}
-                  >
-                    {showSchedule ? "Enabled" : "Disabled"}
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Date & Time Selection */}
-              {showSchedule && (
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <label className="text-sm font-medium">
-                      Select Date
-                    </label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          size={isMobile ? "mobile" : "default"}
-                          className={cn(
-                            "justify-start text-left font-normal",
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {format(selectedDate, "MMMM d, yyyy")}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={(date) => date && setSelectedDate(date)}
-                          initialFocus
-                          className="pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <label className="text-sm font-medium">
-                      Select Time
-                    </label>
-                    <Select 
-                      value={selectedTime}
-                      onValueChange={setSelectedTime}
-                    >
-                      <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
-                        <SelectValue placeholder="Select time" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {times.map((time) => (
-                          <SelectItem key={time} value={time}>
-                            {time}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
-              
-              {/* Reminder toggle */}
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">
-                    Set Reminder
-                  </label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size={isMobile ? "mobile" : "sm"}
-                    onClick={() => {
-                      setHasReminder(!hasReminder);
-                      if (!hasReminder && selectedReminders.length === 0) {
-                        setSelectedReminders(["30min"]);
-                      }
-                    }}
-                    className={cn(
-                      "w-[100px]",
-                      hasReminder && "bg-cog-light-teal text-cog-teal border-cog-teal"
-                    )}
-                  >
-                    {hasReminder ? (
-                      <>
-                        <Bell className="h-4 w-4 mr-2" />
-                        On
-                      </>
-                    ) : (
-                      <>
-                        <BellOff className="h-4 w-4 mr-2" />
-                        Off
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Reminder options */}
-              {hasReminder && (
-                <div className="grid gap-2">
-                  <label className="text-sm font-medium">
-                    Reminder Times (Select Multiple)
-                  </label>
-                  <div className="border rounded-md p-4 space-y-2">
-                    {reminderOptions.map((option) => (
-                      <div key={option.value} className={cn(
-                        "flex items-center space-x-2",
-                        isMobile && "py-1"
-                      )}>
-                        <input
-                          type="checkbox"
-                          id={`reminder-${option.value}`}
-                          checked={selectedReminders.includes(option.value)}
-                          onChange={() => toggleReminderSelection(option.value)}
-                          className={cn(
-                            "h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary",
-                            isMobile && "h-5 w-5"
-                          )}
-                        />
-                        <label 
-                          htmlFor={`reminder-${option.value}`} 
-                          className={cn("text-sm", isMobile && "text-base py-2")}
-                        >
-                          {option.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            <DialogFooter className={cn(isMobile && "mobile-buttons-grid")}>
-              <Button 
-                type="submit" 
-                onClick={handleAddTask}
-                size={isMobile ? "mobile" : "default"}
-                className={cn(isMobile && "mobile-button")}
-              >
-                Add Task
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="rounded-lg border">
-        <Tabs defaultValue="day" className="w-full">
-          <div className="p-3 md:p-4 border-b">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="day" className={cn(isMobile && "py-3")}>
-                <CalendarIcon className="h-4 w-4 mr-2" />
-                Day View
-              </TabsTrigger>
-              <TabsTrigger value="week" className={cn(isMobile && "py-3")}>
-                <MoveHorizontal className="h-4 w-4 mr-2" />
-                Week View
-              </TabsTrigger>
-            </TabsList>
+        {/* Tasks Section */}
+        {pendingTasks.length === 0 ? (
+          <div className="text-center py-10 md:py-12 text-muted-foreground mb-6">
+            No pending tasks for today. Add a new task to get started!
           </div>
+        ) : (
+          <div className="space-y-3 mb-6">
+            {pendingTasks.map((task) => (
+              <Card key={task.id}>
+                <CardContent className={cn(
+                  "p-4 flex items-center justify-between",
+                  isMobile && "p-3"
+                )}>
+                  <div className="flex items-center">
+                    <button
+                      className={cn(
+                        "mr-3 text-muted-foreground hover:text-foreground",
+                        isMobile && "mr-2"
+                      )}
+                      onClick={() => toggleTaskCompletion(task.id)}
+                    >
+                      <Circle className={cn("h-5 w-5", isMobile && "h-6 w-6")} />
+                    </button>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className={cn("font-medium", isMobile && "text-base")}>{task.title}</p>
+                        <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
+                          Difficulty: {task.difficulty}
+                        </span>
+                      </div>
+                      <div className="flex items-center text-xs text-muted-foreground mt-1 gap-2">
+                        {!isSameDay(task.date, new Date()) && (
+                          <div className="px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700">
+                            {format(task.date, 'MMM d, h:mm a')}
+                          </div>
+                        )}
+                        {isSameDay(task.date, new Date()) && format(task.date, 'h:mm a') !== '12:00 AM' && (
+                          <div className="px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700">
+                            {format(task.date, 'h:mm a')}
+                          </div>
+                        )}
+                        {task.hasReminder && (
+                          <div className="flex items-center text-xs text-cog-teal">
+                            <Bell className="h-3 w-3 mr-1" /> 
+                            {task.reminderTimes.length > 0 && `${task.reminderTimes.length} reminder${task.reminderTimes.length > 1 ? 's' : ''}`}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    className={cn(
+                      "text-muted-foreground hover:text-destructive",
+                      isMobile && "p-2"
+                    )}
+                    onClick={() => deleteTask(task.id)}
+                  >
+                    <Trash2 className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
+                  </button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
-          <div className="p-3 md:p-4">
-            <TabsContent value="day" className="mt-0 space-y-4">
-              <h2 className="text-xl md:text-2xl font-semibold">{format(selectedDate, 'MMMM d, yyyy')}</h2>
-
-              {pendingTasks.length === 0 ? (
-                <div className="text-center py-10 md:py-12 text-muted-foreground">
-                  No pending tasks for today. Add a new task to get started!
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {pendingTasks.map((task) => (
-                    <Card key={task.id}>
+        {completedTasks.length > 0 && (
+          <div className="mb-6">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full flex justify-between"
+                  size={isMobile ? "mobile" : "default"}
+                >
+                  <span>Completed Tasks ({completedTasks.length})</span>
+                  {showCompleted ? (
+                    <ChevronUp className="h-4 w-4 ml-2" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full" align="start">
+                <div className="space-y-3 p-2">
+                  {completedTasks.map((task) => (
+                    <Card key={task.id} className="bg-muted/40">
                       <CardContent className={cn(
                         "p-4 flex items-center justify-between",
                         isMobile && "p-3"
                       )}>
                         <div className="flex items-center">
                           <button
-                            className={cn(
-                              "mr-3 text-muted-foreground hover:text-foreground",
-                              isMobile && "mr-2"
-                            )}
+                            className={cn("mr-3 text-cog-teal", isMobile && "mr-2")}
                             onClick={() => toggleTaskCompletion(task.id)}
                           >
-                            <Circle className={cn("h-5 w-5", isMobile && "h-6 w-6")} />
+                            <CheckCircle className={cn("h-5 w-5", isMobile && "h-6 w-6")} fill="currentColor" />
                           </button>
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className={cn("font-medium", isMobile && "text-base")}>{task.title}</p>
+                              <p className={cn(
+                                "font-medium line-through",
+                                isMobile && "text-base"
+                              )}>
+                                {task.title}
+                              </p>
                               <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
                                 Difficulty: {task.difficulty}
                               </span>
-                            </div>
-                            <div className="flex items-center text-xs text-muted-foreground mt-1 gap-2">
-                              {!isSameDay(task.date, new Date()) && (
-                                <div className="px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700">
-                                  {format(task.date, 'MMM d, h:mm a')}
-                                </div>
-                              )}
-                              {isSameDay(task.date, new Date()) && format(task.date, 'h:mm a') !== '12:00 AM' && (
-                                <div className="px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700">
-                                  {format(task.date, 'h:mm a')}
-                                </div>
-                              )}
-                              {task.hasReminder && (
-                                <div className="flex items-center text-xs text-cog-teal">
-                                  <Bell className="h-3 w-3 mr-1" /> 
-                                  {task.reminderTimes.length > 0 && `${task.reminderTimes.length} reminder${task.reminderTimes.length > 1 ? 's' : ''}`}
-                                </div>
-                              )}
                             </div>
                           </div>
                         </div>
@@ -565,75 +396,31 @@ const TaskManager = () => {
                     </Card>
                   ))}
                 </div>
-              )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+      </div>
 
-              {completedTasks.length > 0 && (
-                <div className="mt-4">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        className="w-full flex justify-between"
-                        size={isMobile ? "mobile" : "default"}
-                      >
-                        <span>Completed Tasks ({completedTasks.length})</span>
-                        {showCompleted ? (
-                          <ChevronUp className="h-4 w-4 ml-2" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 ml-2" />
-                        )}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-full" align="start">
-                      <div className="space-y-3 p-2">
-                        {completedTasks.map((task) => (
-                          <Card key={task.id} className="bg-muted/40">
-                            <CardContent className={cn(
-                              "p-4 flex items-center justify-between",
-                              isMobile && "p-3"
-                            )}>
-                              <div className="flex items-center">
-                                <button
-                                  className={cn("mr-3 text-cog-teal", isMobile && "mr-2")}
-                                  onClick={() => toggleTaskCompletion(task.id)}
-                                >
-                                  <CheckCircle className={cn("h-5 w-5", isMobile && "h-6 w-6")} fill="currentColor" />
-                                </button>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <p className={cn(
-                                      "font-medium line-through",
-                                      isMobile && "text-base"
-                                    )}>
-                                      {task.title}
-                                    </p>
-                                    <span className="bg-muted text-muted-foreground text-xs px-1.5 py-0.5 rounded">
-                                      Difficulty: {task.difficulty}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              <button
-                                className={cn(
-                                  "text-muted-foreground hover:text-destructive",
-                                  isMobile && "p-2"
-                                )}
-                                onClick={() => deleteTask(task.id)}
-                              >
-                                <Trash2 className={cn("h-4 w-4", isMobile && "h-5 w-5")} />
-                              </button>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              )}
-            </TabsContent>
+      {/* View Toggle Section */}
+      <div className="rounded-lg border mb-4">
+        <Tabs defaultValue="day" className="w-full">
+          <div className="p-3 md:p-4 border-b">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="day" className={cn(isMobile && "py-3")}>
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                Day View
+              </TabsTrigger>
+              <TabsTrigger value="week" className={cn(isMobile && "py-3")}>
+                <MoveHorizontal className="h-4 w-4 mr-2" />
+                Week View
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
+          <div className="p-3 md:p-4">
             <TabsContent value="week" className="mt-0">
-              <h2 className="text-xl md:text-2xl font-semibold mb-4">Week View</h2>
+              <h3 className="text-lg font-semibold mb-4">Week View</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
                 {weekDates.map((date) => {
@@ -694,6 +481,216 @@ const TaskManager = () => {
         </Tabs>
       </div>
 
+      {/* Add Task Button */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogTrigger asChild>
+          <Button className="w-full" size={isMobile ? "mobile" : "default"}>
+            <Plus className="mr-2 h-4 w-4" /> Add New Task
+          </Button>
+        </DialogTrigger>
+        <DialogContent className={cn("sm:max-w-[425px]", isMobile && "mobile-dialog-content")}>
+          <DialogHeader>
+            <DialogTitle>Add New Task</DialogTitle>
+            <DialogDescription>
+              Create a new task for your schedule
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Task Name */}
+            <div className="grid gap-2">
+              <label htmlFor="task" className="text-sm font-medium">
+                Task Name
+              </label>
+              <Input
+                id="task"
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                placeholder="Enter task name..."
+                className={cn("col-span-3", isMobile && "h-12 text-base")}
+              />
+            </div>
+            
+            {/* Difficulty Level */}
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">
+                Difficulty Level (1-10)
+              </label>
+              <Select 
+                value={taskDifficulty.toString()} 
+                onValueChange={(value) => setTaskDifficulty(parseInt(value))}
+              >
+                <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map((level) => (
+                    <SelectItem key={level} value={level.toString()}>
+                      {level}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Schedule Option */}
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">
+                  Schedule for Later
+                </label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size={isMobile ? "mobile" : "sm"}
+                  onClick={() => setShowSchedule(!showSchedule)}
+                  className={cn(
+                    "w-[100px]",
+                    showSchedule && "bg-muted text-foreground border-primary"
+                  )}
+                >
+                  {showSchedule ? "Enabled" : "Disabled"}
+                </Button>
+              </div>
+            </div>
+            
+            {/* Date & Time Selection */}
+            {showSchedule && (
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium">
+                    Select Date
+                  </label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        size={isMobile ? "mobile" : "default"}
+                        className={cn(
+                          "justify-start text-left font-normal",
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {format(selectedDate, "MMMM d, yyyy")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={(date) => date && setSelectedDate(date)}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium">
+                    Select Time
+                  </label>
+                  <Select 
+                    value={selectedTime}
+                    onValueChange={setSelectedTime}
+                  >
+                    <SelectTrigger className={cn(isMobile && "h-12 text-base")}>
+                      <SelectValue placeholder="Select time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {times.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+            
+            {/* Reminder toggle */}
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">
+                  Set Reminder
+                </label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size={isMobile ? "mobile" : "sm"}
+                  onClick={() => {
+                    setHasReminder(!hasReminder);
+                    if (!hasReminder && selectedReminders.length === 0) {
+                      setSelectedReminders(["30min"]);
+                    }
+                  }}
+                  className={cn(
+                    "w-[100px]",
+                    hasReminder && "bg-cog-light-teal text-cog-teal border-cog-teal"
+                  )}
+                >
+                  {hasReminder ? (
+                    <>
+                      <Bell className="h-4 w-4 mr-2" />
+                      On
+                    </>
+                  ) : (
+                    <>
+                      <BellOff className="h-4 w-4 mr-2" />
+                      Off
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+            
+            {/* Reminder options */}
+            {hasReminder && (
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">
+                  Reminder Times (Select Multiple)
+                </label>
+                <div className="border rounded-md p-4 space-y-2">
+                  {reminderOptions.map((option) => (
+                    <div key={option.value} className={cn(
+                      "flex items-center space-x-2",
+                      isMobile && "py-1"
+                    )}>
+                      <input
+                        type="checkbox"
+                        id={`reminder-${option.value}`}
+                        checked={selectedReminders.includes(option.value)}
+                        onChange={() => toggleReminderSelection(option.value)}
+                        className={cn(
+                          "h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary",
+                          isMobile && "h-5 w-5"
+                        )}
+                      />
+                      <label 
+                        htmlFor={`reminder-${option.value}`} 
+                        className={cn("text-sm", isMobile && "text-base py-2")}
+                      >
+                        {option.label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter className={cn(isMobile && "mobile-buttons-grid")}>
+            <Button 
+              type="submit" 
+              onClick={handleAddTask}
+              size={isMobile ? "mobile" : "default"}
+              className={cn(isMobile && "mobile-button")}
+            >
+              Add Task
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="mt-6 md:mt-8 p-4 md:p-6 rounded-lg bg-cog-light-teal">
         <div className="flex flex-col md:flex-row items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
@@ -713,3 +710,5 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
+
+</edits_to_apply>
