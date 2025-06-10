@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 type Difficulty = "easy" | "medium" | "hard";
-type GameState = "intro" | "playing" | "result";
+type GameState = "intro" | "playing" | "review" | "result";
 export type ColorType = "red" | "green" | "blue";
 
 export interface IdentificationPuzzle {
@@ -10,6 +10,13 @@ export interface IdentificationPuzzle {
   instruction: string;
   options: string[];
   correctIndices: number[];
+}
+
+export interface PuzzleResult {
+  puzzle: IdentificationPuzzle;
+  selectedIndices: number[];
+  isCorrect: boolean;
+  score: number;
 }
 
 interface GameConfig {
@@ -61,6 +68,7 @@ export const useIdentificationGame = () => {
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [score, setScore] = useState<number>(0);
   const [gameConfig, setGameConfig] = useState<GameConfig>(difficultySettings.medium);
+  const [puzzleResults, setPuzzleResults] = useState<PuzzleResult[]>([]);
   
   // Handle difficulty change
   const handleDifficultyChange = (value: string) => {
@@ -115,6 +123,7 @@ export const useIdentificationGame = () => {
     setCurrentPuzzleIndex(0);
     setSelectedIndices([]);
     setScore(0);
+    setPuzzleResults([]);
     setGameState("playing");
   };
   
@@ -152,16 +161,35 @@ export const useIdentificationGame = () => {
       }
     });
     
+    // Determine if answer is considered correct (perfect match)
+    const isCorrect = selectedIndices.length === correctIndices.length && 
+                      correctIndices.every(index => selectedIndices.includes(index));
+    
+    // Record the result
+    const result: PuzzleResult = {
+      puzzle: currentPuzzle,
+      selectedIndices: [...selectedIndices],
+      isCorrect,
+      score: puzzleScore
+    };
+    
+    setPuzzleResults(prev => [...prev, result]);
+    
     // Add to total score
     setScore(score + puzzleScore);
     
-    // Move to next puzzle or end game
+    // Move to next puzzle or show review
     if (currentPuzzleIndex < puzzles.length - 1) {
       setCurrentPuzzleIndex(currentPuzzleIndex + 1);
       setSelectedIndices([]);
     } else {
-      setGameState("result");
+      setGameState("review");
     }
+  };
+  
+  // Move from review to results
+  const showResults = () => {
+    setGameState("result");
   };
   
   // Reset the game
@@ -171,6 +199,7 @@ export const useIdentificationGame = () => {
     setCurrentPuzzleIndex(0);
     setSelectedIndices([]);
     setScore(0);
+    setPuzzleResults([]);
   };
   
   return {
@@ -181,10 +210,12 @@ export const useIdentificationGame = () => {
     selectedIndices,
     score,
     gameConfig,
+    puzzleResults,
     handleDifficultyChange,
     startGame,
     toggleOption,
     submitAnswer,
+    showResults,
     resetGame
   };
 };
