@@ -197,6 +197,10 @@ const TaskManager = () => {
           });
           return;
         }
+      } else {
+        // If not scheduling, just use today's date without specific time
+        taskDate = new Date();
+        taskDate.setHours(0, 0, 0, 0); // Set to midnight to avoid showing specific time
       }
       
       await addTask(
