@@ -76,17 +76,12 @@ serve(async (req) => {
       };
     });
 
-    const prompt = `Based on this symptom tracking data over the last 30 days, provide personalized recovery insights in a friendly, encouraging tone. Focus on trends and specific actionable advice.
+    const prompt = `Based on this symptom tracking data, provide a brief summary of symptom trends and tracking consistency. Keep it short (max 50 words), conversational, and avoid giving advice or using numbered lists.
 
 Data: ${JSON.stringify(analysisData)}
 Total entries: ${symptomEntries.length}
 
-Please provide 2-3 specific insights about:
-1. Recent symptom trends and improvements/concerns
-2. Overall recovery patterns
-3. Specific recommendations for continued progress
-
-Keep it concise (max 150 words) and encouraging. Use specific numbers and mention symptoms by name. Focus on recovery and positive trends where possible.`;
+Focus only on: what symptoms are doing (improving/stable/worsening) and how consistently the user has been tracking. Be encouraging about their tracking efforts.`;
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
@@ -106,10 +101,10 @@ Keep it concise (max 150 words) and encouraging. Use specific numbers and mentio
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are a supportive healthcare coach providing personalized insights based on symptom tracking data.' },
+          { role: 'system', content: 'You are a supportive healthcare companion providing brief status updates based on symptom tracking data.' },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 200,
+        max_tokens: 80,
         temperature: 0.7,
       }),
     });
