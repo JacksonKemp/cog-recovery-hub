@@ -33,13 +33,6 @@ const Dashboard = () => {
     { id: 2, name: "Physical Therapy", time: "Tomorrow, 10:00 AM" },
     { id: 3, name: "Memory Match Game", time: "Today, 3:00 PM", type: "exercise", path: "/games/memory-match" }
   ];
-  
-  // Recommended exercises
-  const recommendedExercises = [
-    { id: 1, name: "Memory Match", description: "Train your visual memory", path: "/games/memory-match", icon: Brain },
-    { id: 2, name: "Number Recall", description: "Improve number retention", path: "/games/numbers", icon: Brain },
-    { id: 3, name: "Word Finder", description: "Enhance vocabulary skills", path: "/games/word-finder", icon: Brain }
-  ];
 
   // Load dashboard stats and practitioner message when user is available
   useEffect(() => {
@@ -195,44 +188,6 @@ const Dashboard = () => {
           <CardContent>
             <div className="space-y-4">
               {upcomingTasks.map((task) => renderTaskItem(task))}
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Daily Exercises Widget */}
-        <Card className="hover:border-cog-teal transition-all duration-300 h-full">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Dumbbell className="h-5 w-5 text-cog-teal" />
-              Daily Exercises
-            </CardTitle>
-            <CardDescription>Recommended activities for today</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recommendedExercises.map((exercise) => (
-                <Link key={exercise.id} to={exercise.path} className="block">
-                  <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
-                    <div className="flex items-center">
-                      <div className="bg-cog-light-teal p-2 rounded-full mr-3">
-                        <exercise.icon className="h-4 w-4 text-cog-teal" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{exercise.name}</p>
-                        <p className="text-xs text-muted-foreground">{exercise.description}</p>
-                      </div>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-            <div className="mt-4">
-              <Link to="/games">
-                <Button variant="outline" className="w-full">
-                  View All Exercises
-                </Button>
-              </Link>
             </div>
           </CardContent>
         </Card>
