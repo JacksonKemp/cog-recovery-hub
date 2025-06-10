@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -448,19 +449,20 @@ const TaskManager = () => {
                         )}
                       </div>
                     </div>
+                  </div>
                   
-                    {/* Test Reminder Button */}
-                    {task.hasReminder && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => testReminder(task)}
-                        className="ml-2 flex items-center gap-1"
-                      >
-                        <TestTube className="h-3 w-3" />
-                        {isMobile ? "Test" : "Test Reminder"}
-                      </Button>
-                    )}
+                  {/* Test Reminder Button */}
+                  {task.hasReminder && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => testReminder(task)}
+                      className="ml-2 flex items-center gap-1"
+                    >
+                      <TestTube className="h-3 w-3" />
+                      {isMobile ? "Test" : "Test Reminder"}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -866,5 +868,3 @@ const TaskManager = () => {
 };
 
 export default TaskManager;
-
-}
