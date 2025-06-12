@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -160,8 +161,8 @@ export const SymptomForm = ({ onEntryAdded, isLoading, hasRecordedToday }: Sympt
               <span className="text-2xl font-bold mb-2">{i}</span>
               {symptomType === "focus" ? (
                 <>
-                  {i === 0 && <span className="text-sm text-muted-foreground">Poor</span>}
-                  {i === 5 && <span className="text-sm text-muted-foreground">Excellent</span>}
+                  {i === 0 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
+                  {i === 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
                   {i !== 0 && i !== 5 && <span className="text-sm text-muted-foreground">&nbsp;</span>}
                 </>
               ) : (
