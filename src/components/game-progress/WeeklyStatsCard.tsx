@@ -2,16 +2,32 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
+import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { WeeklyStats } from "@/services/game/weeklyStatsService";
+import { GameProgressEntry } from "@/services/game";
+import { processChartData } from "./ProgressChart";
 
 interface WeeklyStatsCardProps {
   stats: WeeklyStats[];
   category: string;
+  progressData?: GameProgressEntry[];
 }
 
-export const WeeklyStatsCard = ({ stats, category }: WeeklyStatsCardProps) => {
+export const WeeklyStatsCard = ({ stats, category, progressData = [] }: WeeklyStatsCardProps) => {
   const categoryStats = stats.filter(stat => stat.category === category);
   
+  // Process chart data for this category
+  const chartData = processChartData(progressData.filter(entry => entry.category === category));
+  
+  // Group chart data by game for mini charts
+  const gameChartData = chartData.reduce((acc, entry) => {
+    if (!acc[entry.game]) {
+      acc[entry.game] = [];
+    }
+    acc[entry.game].push(entry);
+    return acc;
+  }, {} as Record<string, any[]>);
+
   if (categoryStats.length === 0) {
     return (
       <Card>
@@ -51,7 +67,7 @@ export const WeeklyStatsCard = ({ stats, category }: WeeklyStatsCardProps) => {
                   {weekStat.gamesPlayed} games
                 </div>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center mb-2">
                 <div className="text-2xl font-bold">
                   avg score: {weekStat.averagePercentage}%
                 </div>
@@ -59,6 +75,32 @@ export const WeeklyStatsCard = ({ stats, category }: WeeklyStatsCardProps) => {
                   avg difficulty: <span className="font-medium">{weekStat.averageDifficulty}</span>
                 </div>
               </div>
+              
+              {/* Mini chart for each game in this category */}
+              {Object.entries(gameChartData).length > 0 && (
+                <div className="space-y-2 mt-3">
+                  {Object.entries(gameChartData).map(([gameName, data]) => (
+                    <div key={gameName} className="flex items-center gap-3">
+                      <div className="text-sm text-muted-foreground min-w-[100px]">
+                        {gameName}:
+                      </div>
+                      <div className="flex-1 h-[40px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={data.sort((a: any, b: any) => a.date.localeCompare(b.date))}>
+                            <Line 
+                              type="monotone" 
+                              dataKey="score"
+                              stroke="#8884d8"
+                              strokeWidth={1.5}
+                              dot={false}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -101,16 +100,29 @@ const GameProgress = () => {
                 {/* Weekly Stats Grid */}
                 {category === "all" ? (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <WeeklyStatsCard stats={weeklyStats} category="memory" />
-                    <WeeklyStatsCard stats={weeklyStats} category="attention" />
-                    <WeeklyStatsCard stats={weeklyStats} category="processing" />
+                    <WeeklyStatsCard 
+                      stats={weeklyStats} 
+                      category="memory" 
+                      progressData={progressData.filter(entry => entry.category === "memory")} 
+                    />
+                    <WeeklyStatsCard 
+                      stats={weeklyStats} 
+                      category="attention" 
+                      progressData={progressData.filter(entry => entry.category === "attention")} 
+                    />
+                    <WeeklyStatsCard 
+                      stats={weeklyStats} 
+                      category="processing" 
+                      progressData={progressData.filter(entry => entry.category === "processing")} 
+                    />
                   </div>
                 ) : (
-                  <WeeklyStatsCard stats={weeklyStats} category={category} />
+                  <WeeklyStatsCard 
+                    stats={weeklyStats} 
+                    category={category} 
+                    progressData={progressData} 
+                  />
                 )}
-
-                {/* Progress Chart */}
-                <ProgressChart chartData={processChartData(progressData)} />
 
                 {/* Recent Performance and Insights */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
