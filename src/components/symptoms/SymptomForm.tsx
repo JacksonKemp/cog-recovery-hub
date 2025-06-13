@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -140,12 +141,11 @@ export const SymptomForm = ({ onEntryAdded, isLoading, hasRecordedToday }: Sympt
     }
   };
 
-  const renderSymptomButtons = (symptomType: keyof SymptomRatings, title: string) => {
+  const renderSymptomButtons = (symptomType: keyof SymptomRatings) => {
     const currentValue = symptoms[symptomType];
     
     return (
       <div className="py-4 space-y-4">
-        <h3 className="mb-4 font-medium text-center">{title}</h3>
         <div className="grid grid-cols-2 gap-4">
           {[...Array(6)].map((_, i) => (
             <button
@@ -222,10 +222,10 @@ export const SymptomForm = ({ onEntryAdded, isLoading, hasRecordedToday }: Sympt
             </DialogTitle>
           </DialogHeader>
 
-          {currentStep === "headache" && renderSymptomButtons("headache", "Headache")}
-          {currentStep === "fatigue" && renderSymptomButtons("fatigue", "Fatigue")}
-          {currentStep === "anxiety" && renderSymptomButtons("anxiety", "Anxiety")}
-          {currentStep === "focus" && renderSymptomButtons("focus", "Focus")}
+          {currentStep === "headache" && renderSymptomButtons("headache")}
+          {currentStep === "fatigue" && renderSymptomButtons("fatigue")}
+          {currentStep === "anxiety" && renderSymptomButtons("anxiety")}
+          {currentStep === "focus" && renderSymptomButtons("focus")}
 
           {currentStep === "notes" && (
             <div className="py-4">
