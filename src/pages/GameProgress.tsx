@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { RecentPerformance } from "@/components/game-progress/RecentPerformance";
 import { InsightsPanel } from "@/components/game-progress/InsightsPanel";
 import { WeeklyStatsCard } from "@/components/game-progress/WeeklyStatsCard";
+import { ProgressChart, processChartData } from "@/components/game-progress/ProgressChart";
 import { getGameProgress, getMostImprovedGame } from "@/services/game";
 import { getWeeklyStats, WeeklyStats } from "@/services/game/weeklyStatsService";
 import { GameProgressEntry } from "@/services/game";
@@ -107,6 +108,9 @@ const GameProgress = () => {
                 ) : (
                   <WeeklyStatsCard stats={weeklyStats} category={category} />
                 )}
+
+                {/* Progress Chart */}
+                <ProgressChart chartData={processChartData(progressData)} />
 
                 {/* Recent Performance and Insights */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

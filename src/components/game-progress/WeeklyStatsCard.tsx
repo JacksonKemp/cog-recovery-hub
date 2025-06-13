@@ -42,7 +42,7 @@ export const WeeklyStatsCard = ({ stats, category }: WeeklyStatsCardProps) => {
         <div className="space-y-4">
           {categoryStats.slice(0, 4).map((weekStat) => (
             <div key={`${weekStat.category}-${weekStat.weekStart}`} className="border-b pb-3 last:border-b-0">
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
                   Week of {format(new Date(weekStat.weekStart), 'MMM d, yyyy')}
@@ -53,7 +53,7 @@ export const WeeklyStatsCard = ({ stats, category }: WeeklyStatsCardProps) => {
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-2xl font-bold">
-                  avg: {weekStat.averagePercentage}%
+                  avg score: {weekStat.averagePercentage}%
                 </div>
                 <div className="text-sm text-muted-foreground">
                   avg difficulty: <span className="font-medium">{weekStat.averageDifficulty}</span>
