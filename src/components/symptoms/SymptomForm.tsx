@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -223,10 +222,10 @@ export const SymptomForm = ({ onEntryAdded, isLoading, hasRecordedToday }: Sympt
             </DialogTitle>
           </DialogHeader>
 
-          {currentStep === "headache" && renderSymptomButtons("headache", "Headache Intensity")}
-          {currentStep === "fatigue" && renderSymptomButtons("fatigue", "Fatigue Level")}
-          {currentStep === "anxiety" && renderSymptomButtons("anxiety", "Anxiety Level")}
-          {currentStep === "focus" && renderSymptomButtons("focus", "Focus & Concentration")}
+          {currentStep === "headache" && renderSymptomButtons("headache", "Headache")}
+          {currentStep === "fatigue" && renderSymptomButtons("fatigue", "Fatigue")}
+          {currentStep === "anxiety" && renderSymptomButtons("anxiety", "Anxiety")}
+          {currentStep === "focus" && renderSymptomButtons("focus", "Focus")}
 
           {currentStep === "notes" && (
             <div className="py-4">
