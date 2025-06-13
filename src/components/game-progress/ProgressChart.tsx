@@ -1,8 +1,6 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity } from "lucide-react";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { format, parseISO } from "date-fns";
 import { GameProgressEntry } from "@/services/game";
 
@@ -11,8 +9,15 @@ interface ProgressChartProps {
 }
 
 export const ProgressChart = ({ chartData }: ProgressChartProps) => {
-  // Get unique games for colors
-  const uniqueGames = [...new Set(chartData.map(entry => entry.game))];
+  // Group data by game
+  const gameData = chartData.reduce((acc, entry) => {
+    if (!acc[entry.game]) {
+      acc[entry.game] = [];
+    }
+    acc[entry.game].push(entry);
+    return acc;
+  }, {} as Record<string, any[]>);
+
   const colors = [
     "#8884d8", "#82ca9d", "#ffc658", "#ff7c7c", "#8dd1e1", 
     "#d084d0", "#87d068", "#ffb347", "#dda0dd", "#98d982"
@@ -28,40 +33,36 @@ export const ProgressChart = ({ chartData }: ProgressChartProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {chartData.length > 0 ? (
-            <div className="h-[400px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="date" 
-                    tickFormatter={(date) => format(parseISO(date), 'MM/dd')} 
-                  />
-                  <YAxis 
-                    domain={[0, 100]}
-                    tickFormatter={(value) => `${value}%`}
-                  />
-                  <ChartTooltip 
-                    formatter={(value, name) => [`${value}%`, name]}
-                    labelFormatter={(date) => format(parseISO(date), 'MMM dd, yyyy')}
-                  />
-                  <Legend />
-                  {uniqueGames.map((game, index) => (
-                    <Line 
-                      key={game}
-                      type="monotone" 
-                      dataKey="score"
-                      data={chartData.filter(entry => entry.game === game)}
-                      stroke={colors[index % colors.length]}
-                      strokeWidth={2}
-                      name={game}
-                      connectNulls={false}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
+          {Object.keys(gameData).length > 0 ? (
+            <div className="space-y-6">
+              {Object.entries(gameData).map(([gameName, data], index) => (
+                <div key={gameName} className="border rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3">{gameName}</h3>
+                  <div className="h-[200px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={data.sort((a, b) => a.date.localeCompare(b.date))}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="date" 
+                          tickFormatter={(date) => format(parseISO(date), 'MM/dd')} 
+                        />
+                        <YAxis 
+                          domain={[0, 100]}
+                          tickFormatter={(value) => `${value}%`}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="score"
+                          stroke={colors[index % colors.length]}
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="text-center py-10 text-muted-foreground">
