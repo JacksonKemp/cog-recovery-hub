@@ -77,7 +77,7 @@ export const WeeklyStatsCard = ({ stats, category, progressData = [] }: WeeklySt
               {/* Games with individual mini charts */}
               {Object.entries(gameChartData).length > 0 && (
                 <div className="space-y-3">
-                  {Object.entries(gameChartData).map(([gameName, gameData]) => (
+                  {Object.entries(gameChartData).map(([gameName, gameData]: [string, ChartDataPoint[]]) => (
                     <div key={gameName} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <div className="text-lg font-semibold">
