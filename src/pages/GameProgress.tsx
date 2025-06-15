@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -124,18 +125,30 @@ const GameProgress = () => {
                   />
                 )}
 
-                {/* Recent Performance and Insights */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div>
-                    <RecentPerformance progressData={progressData} />
+                {/* Recent Performance and Insights - Only show for non-"all" tabs */}
+                {category !== "all" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <RecentPerformance progressData={progressData} />
+                    </div>
+                    <div>
+                      <InsightsPanel 
+                        mostImproved={mostImproved} 
+                        progressData={progressData} 
+                      />
+                    </div>
                   </div>
-                  <div>
+                )}
+
+                {/* For "all" tab, show only Insights Panel in full width */}
+                {category === "all" && (
+                  <div className="w-full">
                     <InsightsPanel 
                       mostImproved={mostImproved} 
                       progressData={progressData} 
                     />
                   </div>
-                </div>
+                )}
               </>
             )}
           </TabsContent>
