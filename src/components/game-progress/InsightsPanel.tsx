@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GameProgressEntry } from "@/services/game";
 import { Brain, TrendingUp, Target } from "lucide-react";
@@ -152,50 +153,15 @@ export const InsightsPanel = ({ mostImproved, progressData }: InsightsPanelProps
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* New 6-month performance line chart */}
-              <div className="h-[100px] w-full mb-3">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={weeklyPerf}>
-                    <XAxis
-                      dataKey="label"
-                      fontSize={10}
-                      interval="preserveStartEnd"
-                      minTickGap={20}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis 
-                      domain={[0, 100]}
-                      hide
-                    />
-                    <Tooltip 
-                      formatter={(value) => `${value}%`}
-                      labelFormatter={(label) => `Week of ${label}`}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="avgScore"
-                      stroke="#14b8a6"
-                      strokeWidth={2}
-                      dot={false}
-                      connectNulls
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              {/* Trend summary */}
-              <div className="mb-2 flex items-center gap-2 text-cog-teal font-medium text-sm">
-                {trendText}
-              </div>
-              {/* Keep image-inspired stats below */}
-              <div className="space-y-2">
-                <div className="flex justify-between">
+              {/* Updated layout to match the reference image */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Total Sessions (6mo)</span>
-                  <span className="font-medium">{totalSessions}</span>
+                  <span className="text-2xl font-bold">{totalSessions}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Recent Activity</span>
-                  <span className="font-medium">{recentSessions} recent sessions</span>
+                  <span className="text-lg font-semibold">{recentSessions} recent sessions</span>
                 </div>
               </div>
             </CardContent>
