@@ -1,8 +1,7 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, TrendingUp } from "lucide-react";
-import { format } from "date-fns";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { format, parseISO, isSameMonth } from "date-fns";
+import { LineChart, Line, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { WeeklyStats } from "@/services/game/weeklyStatsService";
 import { GameProgressEntry } from "@/services/game";
 import { processChartData } from "./ProgressChart";
@@ -23,10 +22,30 @@ export const WeeklyStatsCard = ({ stats, category, progressData = [] }: WeeklySt
   const categoryStats = stats.filter(stat => stat.category === category);
   
   // Process chart data for this category
-  const chartData = processChartData(progressData.filter(entry => entry.category === category));
-  
-  // Group chart data by game for mini charts
-  const gameChartData = chartData.reduce((acc, entry) => {
+  const allChartData = processChartData(progressData.filter(entry => entry.category === category));
+
+  // Only keep score history for current month (for minimal sparkline)
+  const now = new Date();
+  const monthlyChartData = allChartData.filter(point => 
+    isSameMonth(parseISO(point.date), now)
+  );
+
+  // Combine all games for this category in the sparkline (if possible)
+  // For multi-game days, use the daily average
+  const dailyAvgDataMap: Record<string, { total: number; count: number }> = {};
+  monthlyChartData.forEach(point => {
+    if (!dailyAvgDataMap[point.date]) {
+      dailyAvgDataMap[point.date] = { total: 0, count: 0 };
+    }
+    dailyAvgDataMap[point.date].total += point.score;
+    dailyAvgDataMap[point.date].count += 1;
+  });
+  const dailyAvgData = Object.entries(dailyAvgDataMap)
+    .map(([date, res]) => ({ date, score: Math.round(res.total / res.count) }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  // Group chart data by game for mini charts (not for main sparkline)
+  const gameChartData = allChartData.reduce((acc, entry) => {
     if (!acc[entry.game]) {
       acc[entry.game] = [];
     }
@@ -72,6 +91,39 @@ export const WeeklyStatsCard = ({ stats, category, progressData = [] }: WeeklySt
                 <div className="text-sm text-muted-foreground">
                   {weekStat.gamesPlayed} games
                 </div>
+              </div>
+              
+              {/* Main summary line */}
+              <div className="flex justify-between items-center">
+                <div className="text-2xl font-bold">
+                  avg score: {weekStat.averagePercentage}%
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  avg difficulty: <span className="font-medium">{weekStat.averageDifficulty}</span>
+                </div>
+              </div>
+
+              {/* Simple sparkline for this category's score trend (month only) */}
+              <div className="h-[48px] w-full mt-2 mb-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={dailyAvgData}>
+                    <XAxis
+                      dataKey="date"
+                      hide
+                    />
+                    <YAxis
+                      domain={[0, 100]}
+                      hide
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="score"
+                      stroke="#8884d8"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
               
               {/* Games with individual mini charts */}
