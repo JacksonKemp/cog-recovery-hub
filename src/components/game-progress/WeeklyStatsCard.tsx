@@ -13,6 +13,12 @@ interface WeeklyStatsCardProps {
   progressData?: GameProgressEntry[];
 }
 
+interface ChartDataPoint {
+  date: string;
+  score: number;
+  game: string;
+}
+
 export const WeeklyStatsCard = ({ stats, category, progressData = [] }: WeeklyStatsCardProps) => {
   const categoryStats = stats.filter(stat => stat.category === category);
   
@@ -26,7 +32,7 @@ export const WeeklyStatsCard = ({ stats, category, progressData = [] }: WeeklySt
     }
     acc[entry.game].push(entry);
     return acc;
-  }, {} as Record<string, any[]>);
+  }, {} as Record<string, ChartDataPoint[]>);
 
   if (categoryStats.length === 0) {
     return (
@@ -55,9 +61,9 @@ export const WeeklyStatsCard = ({ stats, category, progressData = [] }: WeeklySt
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {categoryStats.slice(0, 4).map((weekStat) => (
-            <div key={`${weekStat.category}-${weekStat.weekStart}`} className="border-b pb-3 last:border-b-0">
+            <div key={`${weekStat.category}-${weekStat.weekStart}`} className="border-b pb-4 last:border-b-0">
               <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
@@ -67,31 +73,35 @@ export const WeeklyStatsCard = ({ stats, category, progressData = [] }: WeeklySt
                   {weekStat.gamesPlayed} games
                 </div>
               </div>
-              <div className="flex justify-between items-center mb-2">
-                <div className="text-2xl font-bold">
-                  avg score: {weekStat.averagePercentage}%
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  avg difficulty: <span className="font-medium">{weekStat.averageDifficulty}</span>
-                </div>
-              </div>
               
-              {/* Mini chart for each game in this category */}
+              {/* Games with individual mini charts */}
               {Object.entries(gameChartData).length > 0 && (
-                <div className="space-y-2 mt-3">
-                  {Object.entries(gameChartData).map(([gameName, data]) => (
-                    <div key={gameName} className="flex items-center gap-3">
-                      <div className="text-sm text-muted-foreground min-w-[100px]">
-                        {gameName}:
+                <div className="space-y-3">
+                  {Object.entries(gameChartData).map(([gameName, gameData]) => (
+                    <div key={gameName} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <div className="text-lg font-semibold">
+                          {gameName}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          avg difficulty: <span className="font-medium">{weekStat.averageDifficulty}</span>
+                        </div>
                       </div>
-                      <div className="flex-1 h-[40px]">
+                      <div className="flex justify-between items-center">
+                        <div className="text-2xl font-bold">
+                          avg score: {weekStat.averagePercentage}%
+                        </div>
+                      </div>
+                      
+                      {/* Mini chart for this game */}
+                      <div className="h-[60px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={data.sort((a: any, b: any) => a.date.localeCompare(b.date))}>
+                          <LineChart data={gameData.sort((a, b) => a.date.localeCompare(b.date))}>
                             <Line 
                               type="monotone" 
                               dataKey="score"
                               stroke="#8884d8"
-                              strokeWidth={1.5}
+                              strokeWidth={2}
                               dot={false}
                             />
                           </LineChart>
@@ -99,6 +109,18 @@ export const WeeklyStatsCard = ({ stats, category, progressData = [] }: WeeklySt
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+              
+              {/* Fallback when no chart data available */}
+              {Object.entries(gameChartData).length === 0 && (
+                <div className="flex justify-between items-center">
+                  <div className="text-2xl font-bold">
+                    avg score: {weekStat.averagePercentage}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    avg difficulty: <span className="font-medium">{weekStat.averageDifficulty}</span>
+                  </div>
                 </div>
               )}
             </div>
