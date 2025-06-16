@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -280,7 +279,7 @@ const MemoryMatch = () => {
                 }}>
                   Play Again
                 </Button>
-                <Button variant="outline" onClick={() => navigate('/games')}>
+                <Button variant="outline" onClick={() => navigate('/exercises')}>
                   Back to Exercises
                 </Button>
               </div>
